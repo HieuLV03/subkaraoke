@@ -1,17 +1,28 @@
+
 import { defineConfig } from "vite";
-import path from "node:path";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  base: "/",
+    base: "/",
 
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+    resolve: {
+        alias: {
+            "@": "/src",
+        },
     },
-  },
 
-  plugins: [
-    react(),
-  ],
+    plugins: [
+        react(),
+    ],
+
+    optimizeDeps: {
+        exclude: [
+            "@ffmpeg/ffmpeg",
+            "@ffmpeg/util",
+        ],
+    },
+
+    worker: {
+        format: "es",
+    },
 });
