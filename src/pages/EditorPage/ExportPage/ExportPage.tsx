@@ -1,3 +1,4 @@
+
 "use client";
 
 import "./ExportPage.css";
@@ -27,6 +28,10 @@ import {
 import {
     supabase,
 } from "@/lib/supabase";
+
+import {
+    exportVideo,
+} from "@/services/ffmpeg.service";
 
 
 export default function ExportPage() {
@@ -257,6 +262,53 @@ export default function ExportPage() {
 
 
     // =========================================================
+    // DOWNLOAD
+    // =========================================================
+
+    function downloadBlob(
+        blob: Blob,
+        filename: string
+    ) {
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href =
+            url;
+
+        link.download =
+            filename;
+
+
+        document.body.appendChild(
+            link
+        );
+
+
+        link.click();
+
+
+        link.remove();
+
+
+        window.setTimeout(
+            () => {
+                URL.revokeObjectURL(
+                    url
+                );
+            },
+            1000
+        );
+
+    }
+
+
+    // =========================================================
     // EXPORT
     // =========================================================
 
@@ -330,7 +382,7 @@ export default function ExportPage() {
 
 
             // =================================================
-            // TOKEN
+            // SESSION
             // =================================================
 
             const expiresAt =
@@ -478,7 +530,7 @@ export default function ExportPage() {
 
 
             // =================================================
-            // START
+            // START EXPORT
             // =================================================
 
             setExporting(true);
@@ -486,7 +538,7 @@ export default function ExportPage() {
             setProgress(0);
 
             setMessage(
-                "Export trên Web chưa được triển khai..."
+                "Đang khởi động FFmpeg..."
             );
 
             setOutputPath("");
@@ -534,45 +586,85 @@ export default function ExportPage() {
 
 
             // =================================================
-            // TEMPORARY
-            // =================================================
-            //
-            // FFmpeg.wasm sẽ được tích hợp ở bước tiếp theo.
-            //
-            // Không dùng:
-            //
-            // window.electronAPI
-            // ipc.invoke
-            // ipc.on
-            // ffmpeg.exe
-            //
+            // REAL FFMPEG.WASM EXPORT
             // =================================================
 
-            await new Promise<void>(
-                resolve => {
+            const outputBlob =
+                await exportVideo(
+                    videoFile,
+                    (
+                        ffmpegProgress
+                    ) => {
 
-                    window.setTimeout(
-                        () => {
+                        const safeProgress =
+                            Math.max(
+                                0,
+                                Math.min(
+                                    99,
+                                    ffmpegProgress
+                                )
+                            );
 
-                            resolve();
 
-                        },
-                        500
-                    );
+                        setProgress(
+                            safeProgress
+                        );
 
-                }
+
+                        if (
+                            safeProgress <= 5
+                        ) {
+
+                            setMessage(
+                                "Đang tải FFmpeg..."
+                            );
+
+                        }
+
+                        else {
+
+                            setMessage(
+                                `Đang render video... ${safeProgress}%`
+                            );
+
+                        }
+
+                    }
+                );
+
+
+            // =================================================
+            // DOWNLOAD
+            // =================================================
+
+            const filename =
+                `subkaraokeai-${Date.now()}.mp4`;
+
+
+            downloadBlob(
+                outputBlob,
+                filename
             );
 
 
-            setProgress(0);
+            // =================================================
+            // COMPLETE
+            // =================================================
+
+            setProgress(100);
 
             setMessage(
-                "FFmpeg.wasm chưa được tích hợp."
+                "Export thành công!"
+            );
+
+            setOutputPath(
+                filename
             );
 
 
-            console.warn(
-                "[WEB EXPORT] FFmpeg.wasm is not implemented yet."
+            console.log(
+                "[WEB EXPORT] Export completed:",
+                filename
             );
 
         }
@@ -900,6 +992,7 @@ export default function ExportPage() {
                     <button
                         type="button"
                         className="export-previous-button"
+                        disabled={exporting}
                         onClick={() =>
                             setWorkspace(
                                 "style"

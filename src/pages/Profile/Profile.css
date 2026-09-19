@@ -4,17 +4,13 @@
 
 .profile-page {
     position: relative;
-
     width: 100%;
     height: 100%;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     padding: 32px;
     box-sizing: border-box;
-
     overflow: auto;
 
     background:
@@ -33,17 +29,14 @@
     color: #fff;
 }
 
-
 /* =========================================================
    STAR FIELD
 ========================================================= */
 
 .profile-page::before {
     content: "";
-
     position: absolute;
     inset: 0;
-
     pointer-events: none;
 
     background-image:
@@ -69,14 +62,12 @@
     opacity: 0.22;
 }
 
-
 /* =========================================================
    ATMOSPHERIC GLOW
 ========================================================= */
 
 .profile-page::after {
     content: "";
-
     position: absolute;
 
     width: 520px;
@@ -95,7 +86,6 @@
 
     pointer-events: none;
 }
-
 
 /* =========================================================
    MAIN CARD
@@ -133,7 +123,6 @@
     overflow: hidden;
 }
 
-
 /* =========================================================
    CARD TOP SCAN LINE
 ========================================================= */
@@ -142,7 +131,6 @@
     content: "";
 
     position: absolute;
-
     top: 0;
     left: 0;
     right: 0;
@@ -163,7 +151,6 @@
         0 0 14px rgba(0, 255, 102, 0.7);
 }
 
-
 /* =========================================================
    CARD CORNER DECORATIONS
 ========================================================= */
@@ -179,12 +166,14 @@
     width: 35px;
     height: 35px;
 
-    border-right: 1px solid rgba(0, 255, 102, 0.35);
-    border-bottom: 1px solid rgba(0, 255, 102, 0.35);
+    border-right:
+        1px solid rgba(0, 255, 102, 0.35);
+
+    border-bottom:
+        1px solid rgba(0, 255, 102, 0.35);
 
     pointer-events: none;
 }
-
 
 /* =========================================================
    HEADER
@@ -201,9 +190,6 @@
     position: relative;
 }
 
-
-/* Small system label */
-
 .profile-header::after {
     content: "SYSTEM // AUTH";
 
@@ -215,6 +201,7 @@
     color: rgba(0, 255, 102, 0.38);
 
     font-size: 9px;
+
     font-weight: 700;
 
     letter-spacing: 1.5px;
@@ -224,7 +211,6 @@
         "Courier New",
         monospace;
 }
-
 
 /* =========================================================
    AVATAR
@@ -254,17 +240,16 @@
     color: #00ff66;
 
     font-size: 22px;
+
     font-weight: 800;
 
-    border: 1px solid rgba(0, 255, 102, 0.5);
+    border:
+        1px solid rgba(0, 255, 102, 0.5);
 
     box-shadow:
         inset 0 0 18px rgba(0, 255, 102, 0.08),
         0 0 20px rgba(0, 255, 102, 0.12);
 }
-
-
-/* Orbit ring */
 
 .profile-avatar::before {
     content: "";
@@ -275,16 +260,14 @@
 
     border-radius: 50%;
 
-    border: 1px solid rgba(0, 255, 102, 0.18);
+    border:
+        1px solid rgba(0, 255, 102, 0.18);
 
     border-left-color: transparent;
     border-bottom-color: transparent;
 
     transform: rotate(-25deg);
 }
-
-
-/* Green indicator */
 
 .profile-avatar::after {
     content: "";
@@ -304,9 +287,9 @@
     box-shadow:
         0 0 8px #00ff66;
 
-    animation: profile-status-pulse 2s infinite;
+    animation:
+        profile-status-pulse 2s infinite;
 }
-
 
 @keyframes profile-status-pulse {
     0%,
@@ -319,7 +302,6 @@
     }
 }
 
-
 /* =========================================================
    HEADER TEXT
 ========================================================= */
@@ -330,11 +312,11 @@
     color: #f4fff8;
 
     font-size: 24px;
+
     font-weight: 800;
 
     letter-spacing: -0.3px;
 }
-
 
 .profile-header p {
     margin: 6px 0 0;
@@ -346,19 +328,16 @@
     letter-spacing: 0.4px;
 }
 
-
 /* =========================================================
    CONTENT
 ========================================================= */
 
 .profile-content {
     display: flex;
-
     flex-direction: column;
 
     gap: 16px;
 }
-
 
 /* =========================================================
    FIELD
@@ -366,12 +345,10 @@
 
 .profile-field {
     display: flex;
-
     flex-direction: column;
 
     gap: 7px;
 }
-
 
 .profile-field label {
     color: #8f9b94;
@@ -385,13 +362,13 @@
     text-transform: uppercase;
 }
 
-
 /* =========================================================
    INPUT
 ========================================================= */
 
 .profile-field input {
     width: 100%;
+
     height: 48px;
 
     padding: 0 15px;
@@ -400,7 +377,8 @@
 
     border-radius: 9px;
 
-    border: 1px solid #2d3632;
+    border:
+        1px solid #2d3632;
 
     background:
         linear-gradient(
@@ -413,12 +391,22 @@
 
     outline: none;
 
-    font-size: 14px;
+    /*
+     * IMPORTANT:
+     * >= 16px prevents mobile Safari auto zoom.
+     */
+    font-size: 16px;
 
     font-family:
         "Inter",
         Arial,
         sans-serif;
+
+    /*
+     * Prevent touch browser from interpreting
+     * the input interaction strangely.
+     */
+    touch-action: manipulation;
 
     transition:
         border-color 0.18s ease,
@@ -426,16 +414,13 @@
         background 0.18s ease;
 }
 
-
 .profile-field input::placeholder {
     color: #4f5954;
 }
 
-
 .profile-field input:hover {
     border-color: #3b4842;
 }
-
 
 .profile-field input:focus {
     border-color: #00ff66;
@@ -452,13 +437,10 @@
         0 0 20px rgba(0, 255, 102, 0.08);
 }
 
-
 .profile-field input:disabled {
     opacity: 0.45;
-
     cursor: not-allowed;
 }
-
 
 /* =========================================================
    EMAIL DISPLAY
@@ -483,20 +465,20 @@
             #0d1110
         );
 
-    border: 1px solid #2d3632;
+    border:
+        1px solid #2d3632;
 
     color: #dfffea;
 
     word-break: break-all;
 
-    font-size: 14px;
+    font-size: 16px;
 
     font-family:
         "Consolas",
         "Courier New",
         monospace;
 }
-
 
 /* =========================================================
    BUTTON BASE
@@ -519,6 +501,8 @@
 
     cursor: pointer;
 
+    touch-action: manipulation;
+
     transition:
         transform 0.15s ease,
         opacity 0.15s ease,
@@ -532,14 +516,12 @@
         sans-serif;
 }
 
-
 .profile-primary-btn:hover,
 .profile-secondary-btn:hover,
 .profile-danger-btn:hover,
 .profile-back-btn:hover {
     transform: translateY(-1px);
 }
-
 
 .profile-primary-btn:active,
 .profile-secondary-btn:active,
@@ -548,13 +530,13 @@
     transform: translateY(0);
 }
 
-
 /* =========================================================
    PRIMARY
 ========================================================= */
 
 .profile-primary-btn {
-    border: 1px solid #00ff66;
+    border:
+        1px solid #00ff66;
 
     background:
         linear-gradient(
@@ -569,7 +551,6 @@
         0 0 18px rgba(0, 255, 102, 0.08);
 }
 
-
 .profile-primary-btn:hover {
     background:
         linear-gradient(
@@ -582,13 +563,13 @@
         0 0 25px rgba(0, 255, 102, 0.18);
 }
 
-
 /* =========================================================
    SECONDARY
 ========================================================= */
 
 .profile-secondary-btn {
-    border: 1px solid #35413b;
+    border:
+        1px solid #35413b;
 
     background:
         linear-gradient(
@@ -600,7 +581,6 @@
     color: #d6e2db;
 }
 
-
 .profile-secondary-btn:hover {
     border-color: #00a943;
 
@@ -609,13 +589,13 @@
     color: #fff;
 }
 
-
 /* =========================================================
    DANGER
 ========================================================= */
 
 .profile-danger-btn {
-    border: 1px solid #673535;
+    border:
+        1px solid #673535;
 
     background:
         linear-gradient(
@@ -627,7 +607,6 @@
     color: #ff8585;
 }
 
-
 .profile-danger-btn:hover {
     border-color: #a74646;
 
@@ -637,19 +616,18 @@
         0 0 18px rgba(255, 70, 70, 0.08);
 }
 
-
 /* =========================================================
    BACK
 ========================================================= */
 
 .profile-back-btn {
-    border: 1px solid #303935;
+    border:
+        1px solid #303935;
 
     background: transparent;
 
     color: #7e8983;
 }
-
 
 .profile-back-btn:hover {
     border-color: #48534d;
@@ -658,7 +636,6 @@
 
     color: #d8e4dd;
 }
-
 
 /* =========================================================
    LINK
@@ -680,7 +657,6 @@
     font-weight: 600;
 }
 
-
 .profile-link-btn:hover {
     color: #53ff99;
 
@@ -688,7 +664,6 @@
 
     text-underline-offset: 3px;
 }
-
 
 /* =========================================================
    DISABLED
@@ -708,7 +683,6 @@
     box-shadow: none;
 }
 
-
 /* =========================================================
    INFO PANEL
 ========================================================= */
@@ -717,7 +691,6 @@
     position: relative;
 
     display: flex;
-
     flex-direction: column;
 
     gap: 7px;
@@ -733,7 +706,8 @@
             rgba(255, 255, 255, 0.015)
         );
 
-    border: 1px solid rgba(0, 255, 102, 0.16);
+    border:
+        1px solid rgba(0, 255, 102, 0.16);
 
     color: #7f8c85;
 
@@ -742,24 +716,22 @@
     line-height: 1.5;
 }
 
-
 .profile-info::before {
     content: "SECURE CHANNEL";
 
-    color: rgba(0, 255, 102, 0.45);
+    color:
+        rgba(0, 255, 102, 0.45);
 
     font-size: 8px;
 
     letter-spacing: 1.5px;
 }
 
-
 .profile-info strong {
     color: #eafff1;
 
     font-size: 14px;
 }
-
 
 .profile-info b {
     color: #00ff66;
@@ -771,7 +743,6 @@
         "Courier New",
         monospace;
 }
-
 
 /* =========================================================
    OTP
@@ -792,11 +763,9 @@
     letter-spacing: 0.5px;
 }
 
-
 .profile-otp-timer::first-letter {
     color: #00ff66;
 }
-
 
 /* =========================================================
    SUCCESS
@@ -816,7 +785,8 @@
             rgba(0, 255, 102, 0.025)
         );
 
-    border: 1px solid rgba(0, 255, 102, 0.22);
+    border:
+        1px solid rgba(0, 255, 102, 0.22);
 
     color: #00ff66;
 
@@ -827,7 +797,6 @@
     box-shadow:
         0 0 18px rgba(0, 255, 102, 0.04);
 }
-
 
 /* =========================================================
    ERROR
@@ -847,7 +816,8 @@
             rgba(255, 70, 70, 0.025)
         );
 
-    border: 1px solid rgba(255, 70, 70, 0.22);
+    border:
+        1px solid rgba(255, 70, 70, 0.22);
 
     color: #ff7777;
 
@@ -855,7 +825,6 @@
 
     line-height: 1.5;
 }
-
 
 /* =========================================================
    MOBILE
@@ -865,15 +834,19 @@
 
     .profile-page {
         padding: 16px;
+        align-items: flex-start;
     }
 
-
     .profile-card {
+        width: 100%;
+        max-width: 470px;
+
+        margin-top: 8px;
+
         padding: 24px;
 
         border-radius: 15px;
     }
-
 
     .profile-header {
         gap: 14px;
@@ -881,16 +854,17 @@
         margin-bottom: 26px;
     }
 
-
     .profile-header::after {
         display: none;
     }
-
 
     .profile-header h2 {
         font-size: 21px;
     }
 
+    .profile-header p {
+        font-size: 13px;
+    }
 
     .profile-avatar {
         width: 52px;
@@ -898,8 +872,61 @@
 
         font-size: 20px;
     }
+
+    /*
+     * Keep ALL mobile form controls >= 16px.
+     * This is the key fix for Safari/iPhone zoom.
+     */
+
+    .profile-field input {
+        min-height: 48px;
+        height: 48px;
+
+        font-size: 16px;
+    }
+
+    .profile-email {
+        font-size: 16px;
+    }
 }
 
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .profile-page {
+        padding: 10px;
+    }
+
+    .profile-card {
+        padding: 18px;
+    }
+
+    .profile-header {
+        gap: 12px;
+    }
+
+    .profile-avatar {
+        width: 48px;
+        height: 48px;
+
+        font-size: 18px;
+    }
+
+    .profile-header h2 {
+        font-size: 19px;
+    }
+
+    .profile-header p {
+        font-size: 12px;
+    }
+
+    .profile-field input {
+        font-size: 16px;
+    }
+}
 
 /* =========================================================
    REDUCE MOTION
