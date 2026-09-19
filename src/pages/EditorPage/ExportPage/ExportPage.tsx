@@ -589,49 +589,49 @@ export default function ExportPage() {
             // REAL FFMPEG.WASM EXPORT
             // =================================================
 
-            const outputBlob =
-                await exportVideo(
-                    videoFile,
-                    (
+    const outputBlob =
+    await exportVideo(
+        videoFile,
+        lyrics,
+        (
+            ffmpegProgress
+        ) => {
+
+            const safeProgress =
+                Math.max(
+                    0,
+                    Math.min(
+                        99,
                         ffmpegProgress
-                    ) => {
-
-                        const safeProgress =
-                            Math.max(
-                                0,
-                                Math.min(
-                                    99,
-                                    ffmpegProgress
-                                )
-                            );
-
-
-                        setProgress(
-                            safeProgress
-                        );
-
-
-                        if (
-                            safeProgress <= 5
-                        ) {
-
-                            setMessage(
-                                "Đang tải FFmpeg..."
-                            );
-
-                        }
-
-                        else {
-
-                            setMessage(
-                                `Đang render video... ${safeProgress}%`
-                            );
-
-                        }
-
-                    }
+                    )
                 );
 
+
+            setProgress(
+                safeProgress
+            );
+
+
+            if (
+                safeProgress <= 5
+            ) {
+
+                setMessage(
+                    "Đang tải FFmpeg..."
+                );
+
+            }
+
+            else {
+
+                setMessage(
+                    `Đang render video... ${safeProgress}%`
+                );
+
+            }
+
+        }
+    );
 
             // =================================================
             // DOWNLOAD
