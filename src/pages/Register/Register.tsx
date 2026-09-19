@@ -211,7 +211,7 @@ export default function Register({
                 <div className="auth-header">
 
                     <h1>
-                        SubKaraokeAI
+                        SubKaraoke
                     </h1>
 
                     <h2>
@@ -220,7 +220,7 @@ export default function Register({
 
                     <p>
                         Đăng ký tài khoản để sử dụng
-                        SubKaraokeAI.
+                        SubKaraoke.
                     </p>
 
                 </div>

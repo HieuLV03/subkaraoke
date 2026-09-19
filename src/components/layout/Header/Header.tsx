@@ -7,7 +7,7 @@ return (
 
 
 <div>
-SubKaraokeAI Studio
+SubKaraoke Studio
 </div>
 
 

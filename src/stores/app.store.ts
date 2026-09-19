@@ -61,7 +61,7 @@ create<AppState>((set) => ({
 
   // ===== App =====
 
-  appName: "SubKaraokeAI",
+  appName: "SubKaraoke",
 
   version: "1.0.0",
 

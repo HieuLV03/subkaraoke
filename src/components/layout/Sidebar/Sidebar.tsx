@@ -6,7 +6,7 @@ return (
 
 
 <h1>
-🎤 SubKaraokeAI
+🎤 SubKaraoke
 </h1>
 
 

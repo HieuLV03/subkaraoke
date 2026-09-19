@@ -379,33 +379,32 @@ export default function TimingPage() {
                     {/* ==================================================
                         MOBILE SPACE BUTTON
                     ================================================== */}
+<button
+    type="button"
+    className="timing-btn timing-space-btn"
+    onPointerDown={handleTimingPointerDown}
+    onPointerUp={handleTimingPointerUp}
+    onPointerCancel={handleTimingPointerUp}
+    onPointerLeave={(e) => {
+        // Nếu ngón tay rời khỏi nút trong lúc đang giữ,
+        // vẫn kết thúc timing.
+        handleTimingPointerUp(e);
+    }}
+    onContextMenu={(e) => {
+        e.preventDefault();
+    }}
+    onSelect={(e) => {
+        e.preventDefault();
+    }}
+>
+    <span className="timing-space-icon">
+        ●
+    </span>
 
-                    <button
-                        type="button"
-                        className="timing-btn timing-space-btn"
-                        onPointerDown={
-                            handleTimingPointerDown
-                        }
-                        onPointerUp={
-                            handleTimingPointerUp
-                        }
-                        onPointerCancel={
-                            handleTimingPointerUp
-                        }
-                        onContextMenu={e =>
-                            e.preventDefault()
-                        }
-                    >
-                        <span className="timing-space-icon">
-                            ●
-                        </span>
-
-                        <span>
-                            TIMING
-                        </span>
-                    </button>
-
-
+    <span>
+        TIMING
+    </span>
+</button>
                     {/* ==================================================
                         RESET LAST
                     ================================================== */}

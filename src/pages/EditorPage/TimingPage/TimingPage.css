@@ -1,4 +1,3 @@
-
 /* =========================================================
    TIMING PAGE
    MOBILE FIRST / ASTRONAUT CONTROL PANEL
@@ -7,17 +6,12 @@
 .timing-page {
     width: 100%;
     height: 100%;
-
     min-width: 0;
     min-height: 0;
-
     display: flex;
     flex-direction: column;
-
     overflow: hidden;
-
     color: #dbeafe;
-
     background:
         radial-gradient(
             circle at 50% -10%,
@@ -25,10 +19,8 @@
             transparent 40%
         ),
         #080d13;
-
     box-sizing: border-box;
 }
-
 
 /* =========================================================
    CONTENT
@@ -36,27 +28,18 @@
 
 .timing-content {
     flex: 1 1 auto;
-
     width: 100%;
-
     min-width: 0;
     min-height: 0;
-
     overflow-y: auto;
     overflow-x: hidden;
-
     display: flex;
     flex-direction: column;
-
     gap: 8px;
-
     padding: 12px;
-
     box-sizing: border-box;
-
     -webkit-overflow-scrolling: touch;
 }
-
 
 /* =========================================================
    SCROLLBAR
@@ -79,23 +62,17 @@
     background: #38536c;
 }
 
-
 /* =========================================================
    TIMING LINE
 ========================================================= */
 
 .timing-line {
     position: relative;
-
     width: 100%;
-
     box-sizing: border-box;
-
     display: flex;
     flex-direction: column;
-
     gap: 12px;
-
     padding: 14px;
 
     background:
@@ -106,7 +83,6 @@
         );
 
     border: 1px solid #263646;
-
     border-radius: 10px;
 
     box-shadow:
@@ -119,31 +95,24 @@
         box-shadow 0.18s ease;
 }
 
-
 /* =========================================================
    HUD INDICATOR
 ========================================================= */
 
 .timing-line::before {
     content: "";
-
     position: absolute;
-
     top: 0;
     left: 14px;
-
     width: 28px;
     height: 2px;
-
     background: #334e63;
-
     border-radius: 999px;
 
     transition:
         background 0.18s ease,
         box-shadow 0.18s ease;
 }
-
 
 /* =========================================================
    HOVER
@@ -164,14 +133,12 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
-
 /* =========================================================
    SELECTED LINE
 ========================================================= */
 
 .timing-line-selected {
     outline: none;
-
     border-color: #159ac0;
 
     background:
@@ -187,7 +154,6 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
-
 .timing-line-selected::before {
     background: #38bdf8;
 
@@ -195,22 +161,17 @@
         0 0 9px rgba(56, 189, 248, 0.65);
 }
 
-
 /* =========================================================
    LEFT
 ========================================================= */
 
 .timing-line-left {
     width: 100%;
-
     min-width: 0;
-
     display: flex;
     flex-direction: column;
-
     box-sizing: border-box;
 }
-
 
 /* =========================================================
    LINE TITLE
@@ -223,9 +184,7 @@
 
     font-size: 16px;
     font-weight: 700;
-
     letter-spacing: 0.3px;
-
     line-height: 1.4;
 
     word-break: break-word;
@@ -233,7 +192,6 @@
     text-shadow:
         0 0 10px rgba(56, 189, 248, 0.08);
 }
-
 
 /* =========================================================
    LINE TIME
@@ -243,18 +201,15 @@
     width: 100%;
 
     display: grid;
-
     grid-template-columns:
         1fr
         1fr;
 
     gap: 8px;
-
     align-items: end;
 
     margin-bottom: 4px;
 }
-
 
 /* =========================================================
    TIME LABEL
@@ -265,19 +220,15 @@
 
     display: flex;
     flex-direction: column;
-
     gap: 5px;
 
     color: #718398;
 
     font-size: 9px;
     font-weight: 700;
-
     letter-spacing: 1px;
-
     text-transform: uppercase;
 }
-
 
 /* =========================================================
    TIME INPUT
@@ -285,7 +236,6 @@
 
 .timing-line-time input {
     width: 100%;
-
     height: 40px;
 
     padding: 0 10px;
@@ -293,11 +243,9 @@
     box-sizing: border-box;
 
     color: #cbd5e1;
-
     background: #080f17;
 
     border: 1px solid #34495a;
-
     border-radius: 6px;
 
     outline: none;
@@ -307,13 +255,18 @@
         "Cascadia Code",
         monospace;
 
-    font-size: 13px;
+    /*
+       >= 16px để mobile browser không tự zoom
+       khi focus input.
+    */
+    font-size: 16px;
 
     transition:
         border-color 0.18s ease,
         box-shadow 0.18s ease;
-}
 
+    touch-action: manipulation;
+}
 
 /* =========================================================
    INPUT HOVER
@@ -323,21 +276,18 @@
     border-color: #496377;
 }
 
-
 /* =========================================================
    INPUT FOCUS
 ========================================================= */
 
 .timing-line-time input:focus {
     color: #e0f2fe;
-
     border-color: #22a9d0;
 
     box-shadow:
         0 0 0 2px rgba(34, 211, 238, 0.07),
         0 0 8px rgba(34, 211, 238, 0.08);
 }
-
 
 /* =========================================================
    DURATION
@@ -354,10 +304,8 @@
         monospace;
 
     font-size: 10px;
-
     padding-top: 2px;
 }
-
 
 /* =========================================================
    WORDS
@@ -365,15 +313,12 @@
 
 .timing-words {
     width: 100%;
-
     min-width: 0;
 
     display: flex;
     flex-direction: column;
-
     gap: 4px;
 }
-
 
 /* =========================================================
    WORD ROW
@@ -381,18 +326,9 @@
 
 .timing-word {
     width: 100%;
-
     min-width: 0;
 
     display: grid;
-
-    /*
-       word
-       start
-       end
-       status
-       reset
-    */
 
     grid-template-columns:
         minmax(0, 1fr)
@@ -402,11 +338,9 @@
         34px;
 
     gap: 5px;
-
     align-items: center;
 
     min-height: 40px;
-
     padding: 4px 0;
 
     border-bottom:
@@ -415,11 +349,9 @@
     box-sizing: border-box;
 }
 
-
 .timing-word:last-child {
     border-bottom: none;
 }
-
 
 /* =========================================================
    WORD TEXT
@@ -429,18 +361,14 @@
     min-width: 0;
 
     overflow: hidden;
-
     text-overflow: ellipsis;
-
     white-space: nowrap;
 
     color: #cbd5e1;
 
     font-size: 13px;
-
     font-weight: 500;
 }
-
 
 /* =========================================================
    WORD INPUT
@@ -448,7 +376,6 @@
 
 .timing-word input {
     width: 100%;
-
     height: 34px;
 
     padding: 0 5px;
@@ -456,11 +383,9 @@
     box-sizing: border-box;
 
     color: #cbd5e1;
-
     background: #080f17;
 
     border: 1px solid #34495a;
-
     border-radius: 5px;
 
     outline: none;
@@ -470,17 +395,21 @@
         "Cascadia Code",
         monospace;
 
-    font-size: 10px;
+    /*
+       Không dùng 10px nữa.
+       Mobile browser có thể zoom khi focus.
+    */
+    font-size: 16px;
 
     text-align: center;
 
     -webkit-appearance: none;
+    touch-action: manipulation;
 
     transition:
         border-color 0.18s ease,
         box-shadow 0.18s ease;
 }
-
 
 /* =========================================================
    WORD INPUT FOCUS
@@ -488,13 +417,11 @@
 
 .timing-word input:focus {
     color: #e0f2fe;
-
     border-color: #22a9d0;
 
     box-shadow:
         0 0 0 2px rgba(34, 211, 238, 0.07);
 }
-
 
 /* =========================================================
    SYNCED
@@ -504,7 +431,6 @@
     color: #4ade80;
 
     font-size: 13px;
-
     font-weight: 700;
 
     text-align: center;
@@ -512,7 +438,6 @@
     text-shadow:
         0 0 8px rgba(74, 222, 128, 0.25);
 }
-
 
 /* =========================================================
    UNSYNCED
@@ -526,7 +451,6 @@
     text-align: center;
 }
 
-
 /* =========================================================
    RESET WORD
 ========================================================= */
@@ -538,25 +462,27 @@
     flex-shrink: 0;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
     padding: 0;
 
     border: 1px solid #34495a;
-
     border-radius: 6px;
 
     background: #111a23;
-
     color: #94a3b8;
 
     font-size: 16px;
-
     line-height: 1;
 
     cursor: pointer;
+
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 
     transition:
         background 0.15s ease,
@@ -565,17 +491,13 @@
         transform 0.15s ease;
 }
 
-
 .timing-word-reset:hover {
     background: #2a2015;
-
     border-color: #d4a373;
-
     color: #f5c98b;
 
     transform: rotate(-20deg);
 }
-
 
 .timing-word-reset:active {
     transform:
@@ -583,21 +505,16 @@
         scale(0.92);
 }
 
-
 /* =========================================================
    ACTIONS
 ========================================================= */
 
 .timing-actions {
     display: flex;
-
     gap: 6px;
-
     align-items: center;
-
     flex-wrap: wrap;
 }
-
 
 /* =========================================================
    BUTTON BASE
@@ -609,7 +526,6 @@
     padding: 0 12px;
 
     display: inline-flex;
-
     align-items: center;
     justify-content: center;
 
@@ -629,9 +545,7 @@
     cursor: pointer;
 
     font-size: 10px;
-
     font-weight: 700;
-
     letter-spacing: 0.3px;
 
     box-sizing: border-box;
@@ -644,8 +558,12 @@
         transform 0.1s ease;
 
     touch-action: manipulation;
-}
 
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
 
 /* =========================================================
    BUTTON HOVER
@@ -667,11 +585,9 @@
         0 4px 12px rgba(0, 0, 0, 0.28);
 }
 
-
 .timing-btn:active {
     transform: translateY(1px);
 }
-
 
 /* =========================================================
    RESET
@@ -690,7 +606,6 @@
     border-color: #76551b;
 }
 
-
 .reset:hover {
     color: #fef3c7;
 
@@ -706,7 +621,6 @@
     box-shadow:
         0 0 12px rgba(245, 158, 11, 0.10);
 }
-
 
 /* =========================================================
    RESET ALL
@@ -725,7 +639,6 @@
     border-color: #6f252b;
 }
 
-
 .reset-all:hover {
     color: #fee2e2;
 
@@ -742,24 +655,22 @@
         0 0 12px rgba(220, 38, 38, 0.12);
 }
 
-
 /* =========================================================
    FOOTER
 ========================================================= */
 
 .timing-footer {
+    position: relative;
+
     flex: 0 0 auto;
 
     width: 100%;
-
     min-height: 64px;
 
     box-sizing: border-box;
 
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
 
     gap: 8px;
@@ -780,7 +691,6 @@
 
     z-index: 20;
 }
-
 
 /* =========================================================
    FOOTER HUD LINE
@@ -809,7 +719,6 @@
     pointer-events: none;
 }
 
-
 /* =========================================================
    FOOTER BUTTONS
 ========================================================= */
@@ -818,10 +727,8 @@
     flex: 0 0 auto;
 
     min-width: 92px;
-
     height: 40px;
 }
-
 
 /* =========================================================
    ACTION BUTTON GROUP
@@ -835,11 +742,9 @@
     justify-content: flex-end;
 }
 
-
 .timing-footer .timing-actions .timing-btn {
     min-width: 78px;
 }
-
 
 /* =========================================================
    PREVIOUS
@@ -858,16 +763,159 @@
     border-color: #344758;
 }
 
-
 .timing-footer .timing-btn:first-child:hover {
     color: #dbeafe;
-
     border-color: #4b6377;
 
     box-shadow:
         0 4px 15px rgba(0, 0, 0, 0.28);
 }
 
+/* =========================================================
+   MOBILE TIMING BUTTON
+   GIẢ LẬP PHÍM SPACE
+========================================================= */
+
+.timing-space-btn {
+    min-width: 110px;
+    min-height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 0 14px;
+
+    color: #e0f2fe;
+
+    background:
+        linear-gradient(
+            135deg,
+            #087ea3,
+            #075985
+        );
+
+    border: 1px solid #22a9d0;
+    border-radius: 6px;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+
+    cursor: pointer;
+
+    /*
+       QUAN TRỌNG CHO MOBILE
+    */
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    -webkit-touch-callout: none;
+
+    touch-action: none;
+
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-drag: none;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.08s ease;
+}
+
+/* =========================================================
+   ICON
+========================================================= */
+
+.timing-space-icon {
+    font-size: 11px;
+
+    pointer-events: none;
+
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* =========================================================
+   TEXT
+========================================================= */
+
+.timing-space-btn span {
+    pointer-events: none;
+
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* =========================================================
+   HOLDING
+========================================================= */
+
+.timing-space-btn:active {
+    transform: scale(0.96);
+
+    background:
+        linear-gradient(
+            135deg,
+            #0e9ac2,
+            #087ea3
+        );
+
+    border-color: #67e8f9;
+
+    box-shadow:
+        0 0 18px rgba(34, 211, 238, 0.28);
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .timing-space-btn {
+        min-width: 100px;
+        min-height: 48px;
+        font-size: 11px;
+    }
+
+    /*
+       Bắt buộc >= 16px trên mobile.
+       Tránh browser tự zoom khi focus.
+    */
+
+    .timing-line-time input {
+        font-size: 16px;
+    }
+
+    .timing-word input {
+        font-size: 16px;
+    }
+}
+
+/* =========================================================
+   SMALL PHONE
+========================================================= */
+
+@media (max-width: 360px) {
+
+    .timing-space-btn {
+        min-width: 78px;
+        min-height: 38px;
+
+        padding: 0 8px;
+
+        font-size: 8px;
+    }
+
+    .timing-space-icon {
+        font-size: 9px;
+    }
+}
 
 /* =========================================================
    NEXT
@@ -889,7 +937,6 @@
         0 4px 16px rgba(8, 145, 178, 0.18);
 }
 
-
 .timing-footer .timing-btn:last-child:hover {
     color: white;
 
@@ -906,7 +953,6 @@
         0 5px 20px rgba(8, 145, 178, 0.30);
 }
 
-
 /* =========================================================
    TABLET / SMALL DESKTOP
 ========================================================= */
@@ -915,10 +961,8 @@
 
     .timing-content {
         gap: 6px;
-
         padding: 16px 20px;
     }
-
 
     .timing-line {
         display: grid;
@@ -932,11 +976,9 @@
         padding: 12px 18px;
     }
 
-
     .timing-line-title {
         font-size: 17px;
     }
-
 
     .timing-line-time {
         display: flex;
@@ -948,16 +990,19 @@
         gap: 10px;
     }
 
-
     .timing-line-time input {
         width: 90px;
-    }
 
+        /*
+           Desktop có thể nhỏ hơn 16px,
+           nhưng giữ 16px luôn cũng không ảnh hưởng.
+        */
+        font-size: 16px;
+    }
 
     .timing-line-time > span {
         width: 100%;
     }
-
 
     .timing-word {
         grid-template-columns:
@@ -968,15 +1013,16 @@
             34px;
     }
 
+    .timing-word input {
+        font-size: 16px;
+    }
 
     .timing-footer {
         padding:
             12px
             20px;
     }
-
 }
-
 
 /* =========================================================
    DESKTOP
@@ -989,7 +1035,6 @@
             18px 24px;
     }
 
-
     .timing-line {
         grid-template-columns:
             320px
@@ -1001,11 +1046,9 @@
             12px 24px;
     }
 
-
     .timing-line-title {
         font-size: 18px;
     }
-
 
     .timing-word {
         grid-template-columns:
@@ -1016,14 +1059,11 @@
             34px;
     }
 
-
     .timing-footer {
         padding:
             14px 24px;
     }
-
 }
-
 
 /* =========================================================
    VERY SMALL PHONE
@@ -1033,38 +1073,32 @@
 
     .timing-content {
         padding: 8px;
-
         gap: 6px;
     }
 
-
     .timing-line {
         padding: 11px;
-
         gap: 10px;
-
         border-radius: 8px;
     }
 
-
     .timing-line-title {
         font-size: 14px;
-
         margin-bottom: 9px;
     }
-
 
     .timing-line-time {
         gap: 6px;
     }
 
-
     .timing-line-time input {
         height: 38px;
 
-        font-size: 12px;
+        /*
+           Vẫn >= 16px để không auto zoom.
+        */
+        font-size: 16px;
     }
-
 
     .timing-word {
         grid-template-columns:
@@ -1077,24 +1111,23 @@
         gap: 3px;
     }
 
-
     .timing-word input {
         height: 32px;
 
-        font-size: 9px;
+        /*
+           Không được giảm xuống 9px.
+        */
+        font-size: 16px;
     }
-
 
     .timing-word-reset {
         width: 30px;
         height: 32px;
     }
 
-
     .word-text {
         font-size: 12px;
     }
-
 
     .timing-footer {
         min-height: 60px;
@@ -1103,7 +1136,6 @@
 
         gap: 5px;
     }
-
 
     .timing-footer > .timing-btn {
         min-width: 72px;
@@ -1115,11 +1147,9 @@
         font-size: 9px;
     }
 
-
     .timing-footer .timing-actions {
         gap: 4px;
     }
-
 
     .timing-footer .timing-actions .timing-btn {
         min-width: 60px;
@@ -1128,5 +1158,4 @@
 
         font-size: 8px;
     }
-
 }

@@ -1392,7 +1392,7 @@ async function handleResetPassword() {
                                 </h2>
 
                                 <p>
-                                    Đăng nhập SubKaraokeAI
+                                    Đăng nhập SubKaraoke
                                 </p>
 
                             </div>

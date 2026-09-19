@@ -567,7 +567,7 @@ export default function Login({
                     <div className="login-header">
 
                         <h1>
-                            SubKaraokeAI
+                            SubKaraoke
                         </h1>
 
                         <h2>
@@ -576,7 +576,7 @@ export default function Login({
 
                         <p>
                             Đăng nhập để sử dụng
-                            SubKaraokeAI.
+                            SubKaraoke.
                         </p>
 
                     </div>
