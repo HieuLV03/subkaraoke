@@ -1,0 +1,802 @@
+/* =========================================================
+   TIMING PAGE
+   SPACE / ASTRONAUT CONTROL PANEL
+========================================================= */
+
+.timing-page {
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    color: #dbeafe;
+
+    background:
+        radial-gradient(
+            circle at 50% -10%,
+            rgba(56, 189, 248, 0.08),
+            transparent 40%
+        ),
+        #080d13;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+/* ============================================================
+   RESET ONE WORD
+   ============================================================ */
+
+.timing-word-reset {
+    width: 28px;
+    height: 28px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid #ddd;
+    border-radius: 6px;
+
+    background: #fff;
+
+    color: #888;
+
+    font-size: 16px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.timing-word-reset:hover {
+    background: #f7f3ef;
+
+    border-color: #d4a373;
+
+    color: #8d6e63;
+
+    transform: rotate(-20deg);
+}
+
+.timing-word-reset:active {
+    transform: rotate(-20deg) scale(0.92);
+}
+
+.timing-content {
+    flex: 1;
+
+    min-width: 0;
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+
+    padding: 18px 24px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.timing-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.timing-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.timing-content::-webkit-scrollbar-thumb {
+    background: #26384a;
+
+    border-radius: 999px;
+}
+
+.timing-content::-webkit-scrollbar-thumb:hover {
+    background: #38536c;
+}
+
+
+/* =========================================================
+   TIMING LINE
+========================================================= */
+
+.timing-line {
+    position: relative;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    display: grid;
+
+    grid-template-columns: 320px 1fr;
+
+    gap: 120px;
+
+    padding: 6px 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(18, 28, 39, 0.98),
+            rgba(10, 17, 24, 0.98)
+        );
+
+    border: 1px solid #263646;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 5px 18px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+    transition:
+        border-color 0.18s ease,
+        background 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+/* small HUD indicator */
+
+.timing-line::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 14px;
+
+    width: 28px;
+    height: 2px;
+
+    background: #334e63;
+
+    border-radius: 999px;
+
+    transition:
+        background 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+/* hover */
+
+.timing-line:hover {
+    border-color: #344b5f;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(21, 33, 46, 0.98),
+            rgba(11, 19, 27, 0.98)
+        );
+
+    box-shadow:
+        0 7px 22px rgba(0, 0, 0, 0.34),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+
+/* =========================================================
+   SELECTED LINE
+========================================================= */
+
+.timing-line-selected {
+    outline: none;
+
+    border-color: #159ac0;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(11, 43, 58, 0.72),
+            rgba(10, 25, 34, 0.98)
+        );
+
+    box-shadow:
+        0 0 0 1px rgba(34, 211, 238, 0.15),
+        0 0 18px rgba(34, 211, 238, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+
+.timing-line-selected::before {
+    background: #38bdf8;
+
+    box-shadow:
+        0 0 9px rgba(56, 189, 248, 0.65);
+}
+
+
+/* =========================================================
+   LEFT
+========================================================= */
+
+.timing-line-left {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* =========================================================
+   LINE TITLE
+========================================================= */
+
+.timing-line-title {
+    margin-bottom: 14px;
+
+    color: #e0f2fe;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.4px;
+
+    line-height: 1.3;
+
+    text-shadow:
+        0 0 10px rgba(56, 189, 248, 0.08);
+}
+
+
+/* =========================================================
+   TIME
+========================================================= */
+
+.timing-line-time {
+    display: flex;
+
+    gap: 12px;
+
+    align-items: center;
+
+    margin-bottom: 12px;
+}
+
+
+.timing-line-time label {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    color: #718398;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   TIME INPUT
+========================================================= */
+
+.timing-line-time input {
+    width: 90px;
+
+    height: 32px;
+
+    padding: 0 9px;
+
+    box-sizing: border-box;
+
+    color: #cbd5e1;
+
+    background: #080f17;
+
+    border: 1px solid #34495a;
+
+    border-radius: 5px;
+
+    outline: none;
+
+    font-family:
+        "JetBrains Mono",
+        "Cascadia Code",
+        monospace;
+
+    font-size: 12px;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.timing-line-time input:hover {
+    border-color: #496377;
+}
+
+
+.timing-line-time input:focus {
+    color: #e0f2fe;
+
+    border-color: #22a9d0;
+
+    box-shadow:
+        0 0 0 2px rgba(34, 211, 238, 0.07),
+        0 0 8px rgba(34, 211, 238, 0.08);
+}
+
+
+/* =========================================================
+   WORDS
+========================================================= */
+
+.timing-words {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1.2px;
+}
+
+
+/* =========================================================
+   WORD ROW
+========================================================= */
+
+.timing-word {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, .1fr)
+        90px
+        90px
+        30px;
+
+    gap: 3px;
+
+    align-items: center;
+
+    min-height: 28px;
+
+    padding: 2px 0;
+
+    border-bottom: 1px solid rgba(51, 65, 85, 0.22);
+}
+
+
+.timing-word:last-child {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   WORD TEXT
+========================================================= */
+
+.word-text {
+    min-width: 0;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   SYNCED
+========================================================= */
+
+.synced {
+    color: #4ade80;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-align: center;
+
+    letter-spacing: 0.3px;
+
+    text-shadow:
+        0 0 8px rgba(74, 222, 128, 0.25);
+}
+
+
+/* =========================================================
+   UNSYNCED
+========================================================= */
+
+.unsynced {
+    color: #64748b;
+
+    font-size: 11px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.timing-actions {
+    display: flex;
+
+    gap: 8px;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   BUTTON BASE
+========================================================= */
+
+.timing-btn {
+    height: 36px;
+
+    padding: 0 16px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 6px;
+
+    color: #dbeafe;
+
+    background:
+        linear-gradient(
+            135deg,
+            #182733,
+            #101a23
+        );
+
+    border: 1px solid #34495a;
+
+    cursor: pointer;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.4px;
+
+    box-sizing: border-box;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.1s ease;
+}
+
+
+.timing-btn:hover {
+    color: #e0f2fe;
+
+    background:
+        linear-gradient(
+            135deg,
+            #223646,
+            #172631
+        );
+
+    border-color: #4b6579;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.28);
+}
+
+
+.timing-btn:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================================
+   RESET BUTTON
+========================================================= */
+
+.reset {
+    color: #fde68a;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3a2c12,
+            #241c0d
+        );
+
+    border-color: #76551b;
+}
+
+
+.reset:hover {
+    color: #fef3c7;
+
+    background:
+        linear-gradient(
+            135deg,
+            #4a3714,
+            #2d220d
+        );
+
+    border-color: #a16207;
+
+    box-shadow:
+        0 0 12px rgba(245, 158, 11, 0.10);
+}
+
+
+/* =========================================================
+   RESET ALL
+========================================================= */
+
+.reset-all {
+    color: #fecaca;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3a171b,
+            #241013
+        );
+
+    border-color: #6f252b;
+}
+
+
+.reset-all:hover {
+    color: #fee2e2;
+
+    background:
+        linear-gradient(
+            135deg,
+            #4a1b20,
+            #2d1216
+        );
+
+    border-color: #b33a43;
+
+    box-shadow:
+        0 0 12px rgba(220, 38, 38, 0.12);
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.timing-footer {
+    flex: 0 0 auto;
+
+    width: 100%;
+
+    height: 60px;
+
+    box-sizing: border-box;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px 24px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(10, 17, 24, 0.96),
+            rgba(7, 12, 17, 0.99)
+        );
+
+    border-top: 1px solid #263646;
+
+    box-shadow:
+        0 -8px 25px rgba(0, 0, 0, 0.35);
+
+    z-index: 20;
+}
+
+
+/* =========================================================
+   FOOTER TOP HUD LINE
+========================================================= */
+
+.timing-footer::before {
+    content: "";
+
+    position: absolute;
+
+    left: 24px;
+    right: 24px;
+
+    margin-top: -14px;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(56, 189, 248, 0.35),
+            transparent
+        );
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   FOOTER BUTTONS
+========================================================= */
+
+.timing-footer .timing-btn {
+    min-width: 120px;
+
+    height: 42px;
+}
+
+
+/* Previous */
+
+.timing-footer .timing-btn:first-child {
+    color: #94a3b8;
+
+    background:
+        linear-gradient(
+            135deg,
+            #182431,
+            #101923
+        );
+
+    border-color: #344758;
+}
+
+
+.timing-footer .timing-btn:first-child:hover {
+    color: #dbeafe;
+
+    border-color: #4b6377;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.28);
+}
+
+
+/* Next */
+
+.timing-footer .timing-btn:last-child {
+    color: #e0f2fe;
+
+    background:
+        linear-gradient(
+            135deg,
+            #087ea3,
+            #075985
+        );
+
+    border-color: #22a9d0;
+
+    box-shadow:
+        0 4px 16px rgba(8, 145, 178, 0.18);
+}
+
+
+.timing-footer .timing-btn:last-child:hover {
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0e9ac2,
+            #087ea3
+        );
+
+    border-color: #38d4f5;
+
+    box-shadow:
+        0 5px 20px rgba(8, 145, 178, 0.30);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .timing-line {
+        grid-template-columns: 260px 1fr;
+
+        gap: 40px;
+
+        padding: 12px 18px;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .timing-content {
+        padding: 14px;
+    }
+
+
+    .timing-line {
+        grid-template-columns: 1fr;
+
+        gap: 16px;
+
+        padding: 14px;
+    }
+
+
+    .timing-footer {
+        height: 70px;
+
+        padding: 12px 14px;
+    }
+
+
+    .timing-footer::before {
+        left: 14px;
+        right: 14px;
+    }
+
+
+    .timing-footer .timing-btn {
+        min-width: 108px;
+
+        height: 40px;
+    }
+}

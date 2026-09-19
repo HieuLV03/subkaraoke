@@ -1,0 +1,245 @@
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+.new-project-page {
+  min-height: 100vh;
+  background: #f8f8f8;
+}
+
+
+/* ============================================================
+   WORKSPACE
+============================================================ */
+
+.new-project-workspace {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 50px 30px 80px;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.new-project-header {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.new-project-header h2 {
+  margin: 0 0 10px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.new-project-header p {
+  margin: 0;
+  color: #777;
+  font-size: 16px;
+}
+
+
+/* ============================================================
+   OPTIONS
+============================================================ */
+
+.project-options {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+
+/* ============================================================
+   OPTION CARD
+============================================================ */
+
+.project-option-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+
+  padding: 30px 32px;
+
+  border: 1px solid #e5e5e5;
+  border-radius: 18px;
+
+  background: white;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.project-option-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.08);
+
+  border-color: #ccc;
+}
+
+.project-option-card:active {
+  transform: translateY(0);
+}
+
+
+/* ============================================================
+   ICON
+============================================================ */
+
+.project-option-icon {
+  width: 80px;
+  height: 80px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 18px;
+
+  font-size: 38px;
+
+  background: #f5f5f5;
+}
+
+
+/* ============================================================
+   CONTENT
+============================================================ */
+
+.project-option-content {
+  flex: 1;
+}
+
+.project-option-content h3 {
+  margin: 0 0 8px;
+
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.project-option-content p {
+  margin: 0 0 14px;
+
+  max-width: 700px;
+
+  color: #666;
+
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.project-option-flow {
+  display: inline-block;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #555;
+}
+
+
+/* ============================================================
+   ARROW
+============================================================ */
+
+.project-option-arrow {
+  flex-shrink: 0;
+
+  font-size: 30px;
+
+  color: #999;
+
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.project-option-card:hover
+.project-option-arrow {
+  transform: translateX(5px);
+
+  color: #333;
+}
+
+
+/* ============================================================
+   INFO
+============================================================ */
+
+.new-project-info {
+  margin-top: 35px;
+
+  text-align: center;
+
+  color: #888;
+
+  font-size: 14px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 700px) {
+
+  .new-project-workspace {
+    padding: 35px 18px 60px;
+  }
+
+
+  .new-project-header h2 {
+    font-size: 25px;
+  }
+
+
+  .project-option-card {
+    gap: 18px;
+
+    padding: 22px;
+  }
+
+
+  .project-option-icon {
+    width: 60px;
+    height: 60px;
+
+    font-size: 30px;
+  }
+
+
+  .project-option-content h3 {
+    font-size: 19px;
+  }
+
+
+  .project-option-content p {
+    font-size: 14px;
+  }
+
+
+  .project-option-flow {
+    font-size: 12px;
+  }
+
+
+  .project-option-arrow {
+    font-size: 24px;
+  }
+
+}

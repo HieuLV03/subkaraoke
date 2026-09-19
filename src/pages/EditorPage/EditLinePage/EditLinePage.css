@@ -1,0 +1,464 @@
+/* =========================================================
+   EDIT LINE PAGE
+   ASTRONAUT / SPACE UI
+========================================================= */
+
+.edit-line-page {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(34, 211, 238, 0.05),
+            transparent 42%
+        ),
+        #11161c;
+
+    color: #fff;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.edit-line-content {
+    flex: 1;
+
+    min-height: 0;
+    min-width: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 18px 18px 15px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.edit-line-content::-webkit-scrollbar {
+    width: 7px;
+}
+
+.edit-line-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.edit-line-content::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 999px;
+}
+
+.edit-line-content::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+
+/* =========================================================
+   LINE CARD
+========================================================= */
+
+.edit-line-card {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(31, 41, 55, 0.97),
+            rgba(24, 32, 43, 0.97)
+        );
+
+    border: 1px solid #303b49;
+
+    border-radius: 10px;
+
+    padding: 6px 18px;
+
+    box-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.edit-line-card:hover {
+    border-color: #3b4a5c;
+
+    box-shadow:
+        0 6px 22px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* =========================================================
+   NEW TEXT BUTTON
+========================================================= */
+
+.edit-line-new {
+    height: 42px;
+    min-width: 120px;
+    padding: 0 18px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1f2937,
+            #111827
+        );
+
+    color: #e5e7eb;
+
+    border: 1px solid #475569;
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.1s ease;
+}
+
+.edit-line-new:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #334155,
+            #1e293b
+        );
+
+    border-color: #22d3ee;
+
+    color: #ffffff;
+
+    box-shadow:
+        0 5px 18px rgba(34, 211, 238, 0.14);
+}
+
+.edit-line-new:active {
+    transform: translateY(1px);
+}
+/* =========================================================
+   TIME
+========================================================= */
+
+.edit-line-time {
+    display: flex;
+
+    gap: 12px;
+
+    align-items: center;
+
+    margin-bottom: 12px;
+}
+
+
+/* =========================================================
+   TIME INPUT
+========================================================= */
+
+.edit-line-input {
+    width: 90px;
+
+    padding: 7px 9px;
+
+    box-sizing: border-box;
+
+    background: #111827;
+
+    color: #e5e7eb;
+
+    border: 1px solid #374151;
+
+    border-radius: 6px;
+
+    outline: none;
+
+    font-size: 13px;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.edit-line-input:hover {
+    border-color: #475569;
+}
+
+.edit-line-input:focus {
+    border-color: #22d3ee;
+
+    box-shadow:
+        0 0 0 3px rgba(34, 211, 238, 0.08);
+}
+
+
+/* =========================================================
+   TEXTAREA
+========================================================= */
+
+.edit-line-textarea {
+    width: 100%;
+
+    height: 24px;
+    min-height: 24px;
+
+    padding: 0;
+    margin: 0;
+
+    box-sizing: border-box;
+
+    display: block;
+
+    background: transparent;
+
+    border: none;
+    outline: none;
+
+    color: #f8fafc;
+
+    font-size: 21px;
+
+    line-height: 21px;
+
+    resize: none;
+
+    overflow: hidden;
+
+    text-align: left;
+
+    vertical-align: middle;
+}
+
+.edit-line-textarea::selection {
+    background: rgba(34, 211, 238, 0.25);
+}
+
+.edit-line-textarea:focus {
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   BOTTOM
+========================================================= */
+
+.edit-line-bottom {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+.edit-line-delete {
+    padding: 7px 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #dc2626,
+            #b91c1c
+        );
+
+    color: #fff;
+
+    border: 1px solid #ef4444;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.1s ease;
+}
+
+.edit-line-delete:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #ef4444,
+            #dc2626
+        );
+
+    border-color: #f87171;
+
+    box-shadow:
+        0 4px 14px rgba(239, 68, 68, 0.22);
+}
+
+.edit-line-delete:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.edit-line-footer {
+    flex-shrink: 0;
+
+    width: 100%;
+
+    height: 60px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    gap: 18px;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    padding: 14px 24px;
+
+    background:
+        rgba(17, 24, 39, 0.96);
+
+    border-top: 1px solid #303b49;
+
+    box-shadow:
+        0 -8px 25px rgba(0, 0, 0, 0.12);
+
+    z-index: 20;
+}
+
+
+/* =========================================================
+   NEXT BUTTON
+========================================================= */
+
+.edit-line-next {
+    height: 42px;
+
+    min-width: 120px;
+
+    padding: 0 20px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0891b2,
+            #0e7490
+        );
+
+    color: #ecfeff;
+
+    border: 1px solid #22d3ee;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 4px 14px rgba(34, 211, 238, 0.14);
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.1s ease;
+}
+
+.edit-line-next:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #06b6d4,
+            #0891b2
+        );
+
+    border-color: #67e8f9;
+
+    box-shadow:
+        0 5px 18px rgba(34, 211, 238, 0.24);
+}
+
+.edit-line-next:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .edit-line-content {
+        padding: 8px 12px 12px;
+    }
+
+    .edit-line-card {
+        padding: 13px 15px;
+    }
+
+    .edit-line-footer {
+        height: 70px;
+
+        padding: 12px 14px;
+    }
+
+    .edit-line-next {
+        min-width: 108px;
+
+        height: 40px;
+
+        padding: 0 16px;
+    }
+
+}

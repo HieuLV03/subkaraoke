@@ -1,0 +1,262 @@
+.karaoke-canvas {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    background: transparent;
+}
+
+
+/* ============================================================
+   LYRICS
+============================================================ */
+
+.karaoke-lyrics-layer {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: 10;
+
+    pointer-events: none;
+
+    overflow: hidden;
+}
+
+
+/* ============================================================
+   SUBTITLE DRAG BOX
+============================================================ */
+
+.subtitle-drag-box {
+    position: absolute;
+
+    pointer-events: auto;
+
+    user-select: none;
+
+    max-width: 95%;
+}
+
+
+/* ============================================================
+   SELECTED SUBTITLE
+============================================================ */
+
+.subtitle-drag-box-selected {
+    outline: 1px solid #00aaff;
+
+    outline-offset: 8px;
+
+    cursor: move;
+}
+
+
+/* ============================================================
+   SUBTITLE LINE
+============================================================ */
+
+.subtitle-line {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    width: max-content;
+    max-width: 100%;
+
+    pointer-events: none;
+
+    text-align: center;
+
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   WORD
+============================================================ */
+
+.subtitle-word {
+    position: relative;
+
+    display: inline-block;
+
+    margin-right: clamp(4px, 0.8vw, 8px);
+
+    white-space: nowrap;
+
+    /*
+       Responsive font:
+
+       Mobile:
+       ~18px
+
+       Desktop:
+       ~30px
+    */
+    font-size: clamp(18px, 3vw, 30px);
+
+    font-weight: 700;
+
+    line-height: 1.2;
+
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   NORMAL WORD
+============================================================ */
+
+.subtitle-normal {
+    position: relative;
+
+    display: block;
+
+    z-index: 1;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   ACTIVE WORD
+============================================================ */
+
+.subtitle-fill {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    height: 100%;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    z-index: 2;
+
+    pointer-events: none;
+}
+
+
+/* ============================================================
+   WAITING
+============================================================ */
+
+.waiting-text {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    color: #aaa;
+
+    font-size: clamp(16px, 3vw, 30px);
+
+    line-height: 1.2;
+
+    text-align: center;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+
+    z-index: 20;
+
+    max-width: 90%;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+/* ============================================================
+   TABLET
+============================================================ */
+
+@media (max-width: 768px) {
+
+    .subtitle-word {
+        font-size: clamp(16px, 4vw, 24px);
+
+        margin-right: 5px;
+    }
+
+    .subtitle-drag-box {
+        max-width: 92%;
+    }
+
+    .subtitle-line {
+        max-width: 100%;
+    }
+
+    .waiting-text {
+        font-size: 18px;
+    }
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 480px) {
+
+    .subtitle-word {
+        font-size: clamp(14px, 5vw, 20px);
+
+        margin-right: 4px;
+
+        line-height: 1.15;
+    }
+
+    .subtitle-drag-box {
+        max-width: 90%;
+    }
+
+    .subtitle-line {
+        max-width: 100%;
+    }
+
+    .waiting-text {
+        font-size: 15px;
+
+        max-width: 85%;
+    }
+}
+
+
+/* ============================================================
+   VERY SMALL MOBILE
+============================================================ */
+
+@media (max-width: 360px) {
+
+    .subtitle-word {
+        font-size: 14px;
+
+        margin-right: 3px;
+    }
+
+    .waiting-text {
+        font-size: 14px;
+    }
+}

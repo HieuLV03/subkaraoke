@@ -1,0 +1,492 @@
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+
+.manual-image-project-page {
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+
+/* ============================================================
+   WORKSPACE
+   ============================================================ */
+
+.manual-image-workspace {
+  width: min(1100px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 36px 0 60px;
+}
+
+
+/* ============================================================
+   PROJECT HEADER
+   ============================================================ */
+
+.manual-image-workspace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 28px;
+}
+
+.manual-image-workspace-header h2 {
+  margin: 0;
+
+  font-size: 24px;
+  font-weight: 700;
+
+  color: #2f2a26;
+}
+
+.manual-image-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 7px 14px;
+
+  border-radius: 999px;
+
+  background: #f3eadf;
+
+  color: #8d6e63;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   WORKFLOW
+   ============================================================ */
+
+.manual-image-workflow {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+
+  margin-bottom: 36px;
+}
+
+.manual-image-workflow-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-width: 70px;
+
+  gap: 8px;
+}
+
+.manual-image-workflow-item span {
+  font-size: 12px;
+  font-weight: 600;
+
+  color: #999;
+}
+
+.manual-image-workflow-step {
+  width: 14px;
+  height: 14px;
+
+  border-radius: 50%;
+
+  background: #ddd;
+
+  border: 3px solid #ddd;
+
+  box-sizing: border-box;
+}
+
+.manual-image-workflow-step.active {
+  background: #d4a373;
+  border-color: #d4a373;
+
+  box-shadow: 0 0 0 5px rgba(212, 163, 115, 0.15);
+}
+
+.manual-image-workflow-step.completed {
+  background: #8d6e63;
+  border-color: #8d6e63;
+}
+
+.manual-image-workflow-step.disabled {
+  background: #eee;
+  border-color: #eee;
+}
+
+.manual-image-workflow-line {
+  flex: 1;
+
+  height: 2px;
+
+  margin: 0 12px;
+
+  background: #e8e8e8;
+
+  margin-bottom: 22px;
+}
+
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+
+.manual-image-dashboard {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+
+/* ============================================================
+   CARD
+   ============================================================ */
+
+.manual-image-card {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  padding: 22px 24px;
+
+  border: 1px solid #e8e2dc;
+
+  border-radius: 16px;
+
+  background: #fff;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+
+  box-sizing: border-box;
+}
+
+.manual-image-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  border-color: #d4a373;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+.manual-image-card:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+
+/* ============================================================
+   CARD ICON
+   ============================================================ */
+
+.manual-image-card-icon {
+  width: 54px;
+  height: 54px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 18px;
+
+  border-radius: 14px;
+
+  background: #faf4ed;
+
+  font-size: 25px;
+}
+
+
+/* ============================================================
+   CARD CONTENT
+   ============================================================ */
+
+.manual-image-card-content {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.manual-image-card-content strong {
+  font-size: 16px;
+  font-weight: 700;
+
+  color: #302b27;
+}
+
+.manual-image-card-content span {
+  max-width: 760px;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  color: #888;
+}
+
+
+/* ============================================================
+   CARD STATUS
+   ============================================================ */
+
+.manual-image-card-status {
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 18px;
+
+  border-radius: 50%;
+
+  background: #f5f5f5;
+
+  color: #999;
+
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.manual-image-card.completed {
+  border-color: #ddd5cd;
+}
+
+.manual-image-card.completed
+.manual-image-card-status {
+  background: #f1eee9;
+
+  color: #8d6e63;
+}
+
+
+/* ============================================================
+   START EDITOR
+   ============================================================ */
+
+.manual-image-start-card {
+  margin-top: 8px;
+
+  border-color: #e2e2e2;
+
+  background: #f7f7f7;
+
+  cursor: not-allowed;
+
+  opacity: 0.7;
+}
+
+.manual-image-start-card.ready {
+  border-color: #d4a373;
+
+  background: #fffaf5;
+
+  cursor: pointer;
+
+  opacity: 1;
+}
+
+.manual-image-start-card.ready
+.manual-image-card-icon {
+  background: #f3eadf;
+}
+
+.manual-image-start-card.ready
+.manual-image-card-status {
+  background: #d4a373;
+
+  color: #fff;
+}
+
+.manual-image-start-card.ready:hover {
+  background: #fff7ef;
+
+  box-shadow:
+    0 8px 24px rgba(212, 163, 115, 0.16);
+}
+
+
+/* ============================================================
+   WORKFLOW MESSAGE
+   ============================================================ */
+
+.manual-image-workflow-message {
+  margin: 20px 0 0;
+
+  padding: 14px 18px;
+
+  border-radius: 12px;
+
+  background: #f7f5f2;
+
+  color: #777;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.manual-image-workflow-message.success {
+  background: #f1f6f2;
+
+  color: #58705d;
+}
+
+
+/* ============================================================
+   INFO
+   ============================================================ */
+
+.manual-image-info {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 14px;
+
+  margin-top: 28px;
+
+  padding: 20px;
+
+  border: 1px solid #eee7df;
+
+  border-radius: 14px;
+
+  background: #fff;
+}
+
+.manual-image-info-icon {
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #faf4ed;
+
+  font-size: 19px;
+}
+
+.manual-image-info strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #403a35;
+
+  font-size: 14px;
+}
+
+.manual-image-info p {
+  margin: 0;
+
+  color: #888;
+
+  font-size: 13px;
+
+  line-height: 1.6;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+  .manual-image-workspace {
+    width: min(
+      100% - 28px,
+      1100px
+    );
+
+    padding-top: 24px;
+  }
+
+
+  .manual-image-workspace-header {
+    align-items: flex-start;
+
+    gap: 12px;
+  }
+
+
+  .manual-image-workspace-header h2 {
+    font-size: 20px;
+  }
+
+
+  .manual-image-workflow-item {
+    min-width: 52px;
+  }
+
+
+  .manual-image-workflow-item span {
+    font-size: 11px;
+  }
+
+
+  .manual-image-workflow-line {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+
+
+  .manual-image-card {
+    padding: 17px;
+  }
+
+
+  .manual-image-card-icon {
+    width: 46px;
+    height: 46px;
+
+    margin-right: 13px;
+
+    font-size: 21px;
+  }
+
+
+  .manual-image-card-content strong {
+    font-size: 14px;
+  }
+
+
+  .manual-image-card-content span {
+    font-size: 12px;
+  }
+
+
+  .manual-image-card-status {
+    width: 32px;
+    height: 32px;
+
+    margin-left: 10px;
+
+    font-size: 17px;
+  }
+
+}

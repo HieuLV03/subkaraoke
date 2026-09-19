@@ -1,0 +1,378 @@
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+.manual-project-page {
+  min-height: 100vh;
+  background: #f8f8f8;
+}
+
+
+/* ============================================================
+   WORKSPACE
+============================================================ */
+
+.manual-workspace {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+  padding: 45px 30px 80px;
+}
+
+
+/* ============================================================
+   PROJECT HEADER
+============================================================ */
+
+.manual-workspace-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 25px;
+}
+
+.manual-workspace-header h2 {
+  margin: 0;
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+
+/* ============================================================
+   MANUAL BADGE
+============================================================ */
+
+.manual-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  padding: 7px 13px;
+
+  border-radius: 20px;
+
+  background: #f1f1f1;
+
+  color: #555;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   WORKFLOW
+============================================================ */
+
+.manual-workflow {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 35px;
+}
+
+.manual-workflow-step {
+  height: 5px;
+
+  flex: 1;
+
+  border-radius: 10px;
+
+  background: #e5e5e5;
+}
+
+.manual-workflow-step.active {
+  background: #555;
+}
+
+.manual-workflow-step.completed {
+  background: #222;
+}
+
+.manual-workflow-step.disabled {
+  background: #e5e5e5;
+}
+
+
+/* ============================================================
+   DASHBOARD
+============================================================ */
+
+.manual-dashboard {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+
+/* ============================================================
+   CARD
+============================================================ */
+
+.manual-card {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 22px;
+
+  padding: 25px 28px;
+
+  border: 1px solid #e2e2e2;
+
+  border-radius: 16px;
+
+  background: white;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.manual-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  border-color: #ccc;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.07);
+}
+
+.manual-card:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+
+/* ============================================================
+   CARD ICON
+============================================================ */
+
+.manual-card-icon {
+  width: 64px;
+  height: 64px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: #f4f4f4;
+
+  font-size: 30px;
+}
+
+
+/* ============================================================
+   CARD CONTENT
+============================================================ */
+
+.manual-card-content {
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.manual-card-content strong {
+  font-size: 18px;
+
+  font-weight: 700;
+
+  color: #222;
+}
+
+.manual-card-content span {
+  color: #777;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+
+/* ============================================================
+   CARD ARROW
+============================================================ */
+
+.manual-card-arrow {
+  flex-shrink: 0;
+
+  font-size: 27px;
+
+  color: #999;
+
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.manual-card:hover:not(:disabled)
+.manual-card-arrow {
+  transform: translateX(5px);
+
+  color: #333;
+}
+
+
+/* ============================================================
+   START CARD
+============================================================ */
+
+.manual-start-card {
+  border-color: #d8d8d8;
+}
+
+.manual-start-card:not(:disabled) {
+  background: #fafafa;
+}
+
+.manual-start-card:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.55;
+}
+
+
+/* ============================================================
+   MESSAGE
+============================================================ */
+
+.manual-workflow-message {
+  margin: 25px 0 0;
+
+  padding: 14px 18px;
+
+  border-radius: 10px;
+
+  background: #f1f1f1;
+
+  color: #666;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+.manual-workflow-message.success {
+  background: #f1f1f1;
+
+  color: #444;
+}
+
+
+/* ============================================================
+   INFO
+============================================================ */
+
+.manual-info {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 15px;
+
+  margin-top: 35px;
+
+  padding: 20px;
+
+  border: 1px solid #e5e5e5;
+
+  border-radius: 14px;
+
+  background: white;
+}
+
+.manual-info-icon {
+  font-size: 24px;
+}
+
+.manual-info strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  font-size: 15px;
+}
+
+.manual-info p {
+  margin: 0;
+
+  color: #777;
+
+  font-size: 13px;
+
+  line-height: 1.6;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 700px) {
+
+  .manual-workspace {
+    padding: 30px 18px 60px;
+  }
+
+
+  .manual-workspace-header h2 {
+    font-size: 20px;
+  }
+
+
+  .manual-card {
+    gap: 15px;
+
+    padding: 20px;
+  }
+
+
+  .manual-card-icon {
+    width: 52px;
+    height: 52px;
+
+    font-size: 25px;
+  }
+
+
+  .manual-card-content strong {
+    font-size: 16px;
+  }
+
+
+  .manual-card-content span {
+    font-size: 13px;
+  }
+
+
+  .manual-card-arrow {
+    font-size: 23px;
+  }
+
+}

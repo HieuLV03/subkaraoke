@@ -1,0 +1,5 @@
+import { ipc } from "./ipc.service";
+
+export async function renderKaraoke(data: unknown) {
+  return ipc.invoke("ffmpeg:render", data);
+}
