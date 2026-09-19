@@ -1,4 +1,3 @@
-
 import { useAppStore } from "@/stores/app.store";
 import { useProjectStore } from "@/stores/project.store";
 
@@ -50,11 +49,22 @@ export default function ManualImageProjectPage() {
 
     console.log(
       "[MANUAL IMAGE] Timing video:",
-      file
+      file.name
     );
 
-    setVideoFile(file);
+    // Browser Web:
+    // File -> Blob URL
+    const videoUrl =
+      URL.createObjectURL(file);
 
+    console.log(
+      "[MANUAL IMAGE] Timing video URL:",
+      videoUrl
+    );
+
+    setVideoFile(
+      videoUrl
+    );
   };
 
 
@@ -73,11 +83,22 @@ export default function ManualImageProjectPage() {
 
     console.log(
       "[MANUAL IMAGE] Background image:",
-      file
+      file.name
     );
 
-    setImageFile(file);
+    // Browser Web:
+    // File -> Blob URL
+    const imageUrl =
+      URL.createObjectURL(file);
 
+    console.log(
+      "[MANUAL IMAGE] Background image URL:",
+      imageUrl
+    );
+
+    setImageFile(
+      imageUrl
+    );
   };
 
 
@@ -119,11 +140,9 @@ export default function ManualImageProjectPage() {
       "========================================"
     );
 
-
     navigate(
       "/editor"
     );
-
   };
 
 
@@ -413,6 +432,7 @@ export default function ManualImageProjectPage() {
 
               </strong>
 
+
               <span>
 
                 {hasVideo
@@ -473,6 +493,7 @@ export default function ManualImageProjectPage() {
                 }
 
               </strong>
+
 
               <span>
 
@@ -623,11 +644,13 @@ export default function ManualImageProjectPage() {
             💡
           </div>
 
+
           <div>
 
             <strong>
               Image Karaoke Mode
             </strong>
+
 
             <p>
               The imported video is only used as the
