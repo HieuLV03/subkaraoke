@@ -1,5 +1,6 @@
 /* =========================================================
-   SPACE / ASTRONAUT STYLE PAGE
+   STYLE PAGE
+   MOBILE FIRST / SPACE CONTROL PANEL
 ========================================================= */
 
 .style-page {
@@ -14,8 +15,6 @@
     overflow: hidden;
 
     color: #dbeafe;
-    box-sizing: border-box;
-
     background:
         radial-gradient(
             circle at 50% -10%,
@@ -28,6 +27,8 @@
             transparent 35%
         ),
         #080d13;
+
+    box-sizing: border-box;
 }
 
 
@@ -36,22 +37,25 @@
 ========================================================= */
 
 .style-content {
-    flex: 1;
+    flex: 1 1 auto;
 
+    width: 100%;
     min-width: 0;
     min-height: 0;
 
     overflow-y: auto;
     overflow-x: hidden;
 
-    padding: 22px 24px;
+    padding: 12px;
 
     display: flex;
     flex-direction: column;
 
-    gap: 10px;
+    gap: 8px;
 
     box-sizing: border-box;
+
+    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -60,7 +64,7 @@
 ========================================================= */
 
 .style-content::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 
 .style-content::-webkit-scrollbar-track {
@@ -87,14 +91,14 @@
     width: 100%;
     flex-shrink: 0;
 
-    box-sizing: border-box;
-
-    padding: 16px 18px;
+    padding: 14px 15px;
 
     display: flex;
     flex-direction: column;
 
-    gap: 12px;
+    gap: 11px;
+
+    box-sizing: border-box;
 
     background:
         linear-gradient(
@@ -104,21 +108,17 @@
         );
 
     border: 1px solid #263646;
-
     border-radius: 8px;
 
     box-shadow:
-        0 6px 20px rgba(0, 0, 0, 0.30),
+        0 5px 16px rgba(0, 0, 0, 0.28),
         inset 0 1px 0 rgba(255, 255, 255, 0.025);
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        transform 0.2s ease;
 }
 
 
-/* small cockpit indicator */
+/* =========================================================
+   CARD INDICATOR
+========================================================= */
 
 .style-card::before {
     content: "";
@@ -128,7 +128,7 @@
     top: 0;
     left: 14px;
 
-    width: 34px;
+    width: 30px;
     height: 2px;
 
     background: #38bdf8;
@@ -140,22 +140,12 @@
 }
 
 
-.style-card:hover {
-    border-color: #34516a;
-
-    box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.035),
-        0 0 12px rgba(56, 189, 248, 0.035);
-}
-
-
 /* =========================================================
-   HEADER / CONTROL PANEL
+   HEADER CARD
 ========================================================= */
 
 .style-card:first-child {
-    padding: 20px;
+    padding: 17px;
 
     background:
         linear-gradient(
@@ -167,10 +157,14 @@
     border-color: #30475b;
 
     box-shadow:
-        0 8px 28px rgba(0, 0, 0, 0.35),
+        0 7px 22px rgba(0, 0, 0, 0.32),
         inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
+
+/* =========================================================
+   HEADER DECORATION
+========================================================= */
 
 .style-card:first-child::after {
     content: "STYLE CONTROL";
@@ -178,33 +172,41 @@
     position: absolute;
 
     top: 12px;
-    right: 16px;
+    right: 14px;
 
     color: #3f6b86;
 
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
 
-    letter-spacing: 1.8px;
+    letter-spacing: 1.5px;
 
     opacity: 0.75;
 }
 
+
+/* =========================================================
+   TITLE
+========================================================= */
 
 .style-card h2 {
     margin: 0;
 
     color: #e0f2fe;
 
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 700;
 
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
 
     text-shadow:
         0 0 10px rgba(56, 189, 248, 0.15);
 }
 
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
 
 .style-card p {
     margin: 0;
@@ -212,8 +214,34 @@
     color: #708398;
 
     font-size: 12px;
-
     line-height: 1.5;
+}
+
+
+/* =========================================================
+   WARNING
+========================================================= */
+
+.style-warning {
+    margin-top: 2px !important;
+
+    padding: 9px 10px;
+
+    color: #fbbf24 !important;
+
+    background:
+        rgba(245, 158, 11, 0.045);
+
+    border: 1px solid rgba(245, 158, 11, 0.16);
+
+    border-radius: 6px;
+
+    font-size: 12px !important;
+
+    line-height: 1.4 !important;
+
+    box-shadow:
+        inset 0 0 10px rgba(245, 158, 11, 0.02);
 }
 
 
@@ -222,19 +250,23 @@
 ========================================================= */
 
 .style-card label {
+    width: 100%;
+
     display: flex;
 
     align-items: center;
     justify-content: space-between;
 
-    gap: 16px;
+    gap: 12px;
 
     color: #cbd5e1;
 
     font-size: 13px;
     font-weight: 600;
 
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
+
+    box-sizing: border-box;
 }
 
 
@@ -247,7 +279,7 @@
 
     min-width: 52px;
 
-    padding: 4px 8px;
+    padding: 4px 7px;
 
     text-align: center;
 
@@ -274,57 +306,36 @@
 
 
 /* =========================================================
-   WARNING
-========================================================= */
-
-.style-warning {
-    margin-top: 2px !important;
-
-    padding: 9px 11px;
-
-    color: #fbbf24 !important;
-
-    background:
-        rgba(245, 158, 11, 0.045);
-
-    border: 1px solid rgba(245, 158, 11, 0.16);
-
-    border-radius: 6px;
-
-    font-size: 12px !important;
-
-    box-shadow:
-        inset 0 0 10px rgba(245, 158, 11, 0.02);
-}
-
-
-/* =========================================================
    RANGE
 ========================================================= */
 
 .style-card input[type="range"] {
     width: 100%;
-    height: 4px;
+    height: 28px;
 
-    margin: 3px 0 4px;
+    margin: 0;
+
+    padding: 0;
 
     appearance: none;
     -webkit-appearance: none;
 
-    background: #253443;
-
-    border-radius: 999px;
+    background: transparent;
 
     outline: none;
 
     cursor: pointer;
+
+    box-sizing: border-box;
 }
 
 
-/* Track */
+/* =========================================================
+   RANGE TRACK
+========================================================= */
 
 .style-card input[type="range"]::-webkit-slider-runnable-track {
-    height: 4px;
+    height: 5px;
 
     background:
         linear-gradient(
@@ -337,16 +348,18 @@
 }
 
 
-/* Thumb */
+/* =========================================================
+   RANGE THUMB
+========================================================= */
 
 .style-card input[type="range"]::-webkit-slider-thumb {
     appearance: none;
     -webkit-appearance: none;
 
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
 
-    margin-top: -5px;
+    margin-top: -6.5px;
 
     background: #38bdf8;
 
@@ -359,15 +372,48 @@
         0 0 8px rgba(56, 189, 248, 0.35);
 
     cursor: pointer;
-
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease;
 }
 
 
+/* =========================================================
+   RANGE - FIREFOX
+========================================================= */
+
+.style-card input[type="range"]::-moz-range-track {
+    height: 5px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #1d5268,
+            #253443
+        );
+
+    border-radius: 999px;
+}
+
+.style-card input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+
+    background: #38bdf8;
+
+    border: 2px solid #071019;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 0 2px rgba(56, 189, 248, 0.15),
+        0 0 8px rgba(56, 189, 248, 0.35);
+}
+
+
+/* =========================================================
+   RANGE HOVER
+========================================================= */
+
 .style-card input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.18);
+    transform: scale(1.12);
 
     box-shadow:
         0 0 0 4px rgba(56, 189, 248, 0.10),
@@ -375,29 +421,33 @@
 }
 
 
-/* Disabled */
+/* =========================================================
+   DISABLED RANGE
+========================================================= */
 
 .style-card input[type="range"]:disabled {
     opacity: 0.3;
-
     cursor: not-allowed;
 }
 
-
 .style-card input[type="range"]:disabled::-webkit-slider-thumb {
     cursor: not-allowed;
+    box-shadow: none;
+}
 
+.style-card input[type="range"]:disabled::-moz-range-thumb {
+    cursor: not-allowed;
     box-shadow: none;
 }
 
 
 /* =========================================================
-   COLOR PICKER
+   COLOR CONTROL
 ========================================================= */
 
 .style-card input[type="color"] {
-    width: 52px;
-    height: 32px;
+    width: 56px;
+    height: 38px;
 
     padding: 3px;
 
@@ -412,12 +462,12 @@
     cursor: pointer;
 
     box-sizing: border-box;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
 }
 
+
+/* =========================================================
+   COLOR HOVER
+========================================================= */
 
 .style-card input[type="color"]:hover {
     border-color: #38bdf8;
@@ -428,56 +478,57 @@
 }
 
 
+/* =========================================================
+   COLOR SWATCH
+========================================================= */
+
 .style-card input[type="color"]::-webkit-color-swatch-wrapper {
     padding: 0;
 }
 
-
 .style-card input[type="color"]::-webkit-color-swatch {
     border: none;
-
     border-radius: 3px;
 }
 
 
-/* Disabled */
+/* =========================================================
+   DISABLED COLOR
+========================================================= */
 
 .style-card input[type="color"]:disabled {
     opacity: 0.3;
-
     cursor: not-allowed;
-
     box-shadow: none;
 }
 
 
 /* =========================================================
-   FOOTER / COMMAND BAR
+   FOOTER
 ========================================================= */
 
 .style-footer {
     flex: 0 0 auto;
 
     width: 100%;
-    height: 60px;
 
     min-width: 0;
 
-    box-sizing: border-box;
+    min-height: 68px;
 
-    padding: 14px 24px;
+    padding: 10px 12px;
 
     display: flex;
 
     align-items: center;
     justify-content: space-between;
 
-    gap: 12px;
+    gap: 8px;
 
     background:
         linear-gradient(
             180deg,
-            rgba(10, 17, 24, 0.96),
+            rgba(10, 17, 24, 0.97),
             rgba(7, 12, 17, 0.99)
         );
 
@@ -486,21 +537,25 @@
     box-shadow:
         0 -8px 25px rgba(0, 0, 0, 0.35);
 
+    box-sizing: border-box;
+
     z-index: 20;
 }
 
 
-/* little top cyan line */
+/* =========================================================
+   FOOTER TOP LINE
+========================================================= */
 
 .style-footer::before {
     content: "";
 
     position: absolute;
 
-    left: 24px;
-    right: 24px;
+    left: 12px;
+    right: 12px;
 
-    margin-top: -14px;
+    margin-top: -10px;
 
     height: 1px;
 
@@ -517,32 +572,33 @@
 
 
 /* =========================================================
-   BUTTON BASE
+   BUTTON
 ========================================================= */
 
 .style-btn {
     position: relative;
 
-    flex: 0 0 auto;
+    flex: 1 1 0;
 
-    height: 42px;
-    min-width: 120px;
+    min-width: 0;
 
-    padding: 0 20px;
+    height: 44px;
+
+    padding: 0 12px;
 
     display: inline-flex;
 
     align-items: center;
     justify-content: center;
 
-    gap: 6px;
+    gap: 5px;
 
     border-radius: 7px;
 
     font-size: 12px;
     font-weight: 700;
 
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 
     white-space: nowrap;
 
@@ -591,10 +647,6 @@
         );
 
     border-color: #4b6377;
-
-    box-shadow:
-        0 4px 16px rgba(0, 0, 0, 0.3),
-        0 0 10px rgba(56, 189, 248, 0.04);
 }
 
 
@@ -639,7 +691,7 @@
 
 
 /* =========================================================
-   BUTTON ACTIVE
+   ACTIVE
 ========================================================= */
 
 .style-btn:active {
@@ -648,51 +700,122 @@
 
 
 /* =========================================================
-   MOBILE
+   SMALL PHONES
 ========================================================= */
 
-@media (max-width: 600px) {
+@media (max-width: 360px) {
 
     .style-content {
-        padding: 14px;
-
-        gap: 8px;
+        padding: 9px;
+        gap: 7px;
     }
-
 
     .style-card {
-        padding: 14px 16px;
+        padding: 12px 13px;
     }
-
 
     .style-card:first-child {
-        padding: 17px;
+        padding: 14px;
     }
 
-
-    .style-card:first-child::after {
-        display: none;
+    .style-card h2 {
+        font-size: 17px;
     }
 
+    .style-card p {
+        font-size: 11px;
+    }
+
+    .style-card label {
+        font-size: 12px;
+    }
+
+    .style-value {
+        min-width: 48px;
+        padding: 4px 6px;
+        font-size: 10px;
+    }
+
+    .style-card input[type="color"] {
+        width: 52px;
+        height: 36px;
+    }
 
     .style-footer {
-        height: 70px;
-
-        padding: 12px 14px;
+        min-height: 64px;
+        padding: 9px;
     }
-
-
-    .style-footer::before {
-        left: 14px;
-        right: 14px;
-    }
-
 
     .style-btn {
-        min-width: 108px;
+        height: 42px;
+        padding: 0 8px;
+        font-size: 11px;
+    }
+}
 
-        height: 40px;
 
-        padding: 0 16px;
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (min-width: 600px) {
+
+    .style-content {
+        padding: 18px;
+        gap: 10px;
+    }
+
+    .style-card {
+        padding: 16px 18px;
+    }
+
+    .style-card:first-child {
+        padding: 20px;
+    }
+
+    .style-footer {
+        min-height: 60px;
+        padding: 10px 18px;
+    }
+
+    .style-footer::before {
+        left: 18px;
+        right: 18px;
+    }
+
+    .style-btn {
+        flex: 0 0 auto;
+        min-width: 120px;
+        padding: 0 20px;
+    }
+}
+
+
+/* =========================================================
+   DESKTOP
+========================================================= */
+
+@media (min-width: 1000px) {
+
+    .style-content {
+        padding: 22px 24px;
+        gap: 10px;
+    }
+
+    .style-card {
+        padding: 16px 18px;
+    }
+
+    .style-card:first-child {
+        padding: 20px;
+    }
+
+    .style-footer {
+        padding: 10px 24px;
+    }
+
+    .style-footer::before {
+        left: 24px;
+        right: 24px;
     }
 }

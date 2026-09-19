@@ -1,3 +1,8 @@
+
+/* =========================================================
+   EDITOR PAGE
+========================================================= */
+
 .editor-page {
     width: 100%;
     height: 100vh;
@@ -10,47 +15,29 @@
     overflow: hidden;
 
     position: relative;
+
+    box-sizing: border-box;
 }
 
 
 /* =========================================================
-   PREVIEW + AUDIO
+   VIDEO SECTION
 ========================================================= */
 
-.editor-top {
-    height: 360px;
+.editor-video-section {
+    width: 100%;
 
-    flex-shrink: 0;
-    min-height: 360px;
-
-    display: flex;
-
-    flex-direction: row;
-
-    overflow: hidden;
-}
-
-
-/* =========================================================
-   AUDIO
-========================================================= */
-
-.editor-audio {
-    width: 260px;
-
-    height: 360px;
-
-    flex-shrink: 0;
+    flex: 0 0 auto;
 
     display: flex;
+    justify-content: center;
+    align-items: center;
 
-    flex-direction: column;
-
-    background: #181818;
-
-    border-right: 1px solid #333;
+    background: #53645f;
 
     overflow: hidden;
+
+    box-sizing: border-box;
 }
 
 
@@ -59,37 +46,45 @@
 ========================================================= */
 
 .editor-preview {
-    flex: 1;
+    width: 100%;
 
-    min-width: 0;
+    max-width: 1280px;
 
-    width: auto;
-    height: 360px;
+    aspect-ratio: 16 / 9;
 
     display: flex;
-
     justify-content: center;
-
     align-items: center;
 
-    background: #53645f;
+    background: #000;
 
     overflow: hidden;
+
+    box-sizing: border-box;
 }
 
 
 /* =========================================================
-   WORKSPACE
+   AUDIO SECTION
 ========================================================= */
 
-.editor-lyrics {
-    flex: 1;
+.editor-audio-section {
+    width: 100%;
+
+    flex: 0 0 auto;
 
     min-height: 0;
 
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 
-    background: #202020;
+    background: #181818;
+
+    border-bottom: 1px solid #333;
+
+    overflow: hidden;
+
+    box-sizing: border-box;
 }
 
 
@@ -97,78 +92,81 @@
    TOOLBAR
 ========================================================= */
 
-/* =========================================================
-   SPACE TOOLBAR
-========================================================= */
-
 .editor-toolbar {
-    position: absolute;
+    width: 100%;
 
-    top: 1.8px;
-    right: 1.2px;
-width: 100px;
-    z-index: 9999;
+    flex: 0 0 auto;
 
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+
     gap: 4px;
 
-    padding: 8px;
-
-    min-width: 192px;
+    padding: 8px 10px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(18, 24, 32, 0.96),
-            rgba(10, 14, 20, 0.96)
+            rgba(18, 24, 32, 0.98),
+            rgba(10, 14, 20, 0.98)
         );
 
-    border: 1px solid #334155;
-    border-radius: 10px;
+    border-bottom: 1px solid #334155;
 
     box-shadow:
-        0 0 0 1px rgba(148, 163, 184, 0.04),
-        0 8px 25px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        0 4px 15px rgba(0, 0, 0, 0.25);
 
-    backdrop-filter: blur(10px);
+    box-sizing: border-box;
+
+    overflow-x: auto;
 }
 
 
 /* =========================================================
-   WORKSPACE STATUS
+   WORKSPACE BUTTON
 ========================================================= */
 
 .editor-toolbar button.disabled-workspace {
     position: relative;
 
-    width: 100%;
+    flex: 0 0 auto;
 
-    padding: 7px 10px;
+    min-width: 110px;
+
+    padding: 8px 12px;
 
     background: transparent;
 
     color: #64748b;
 
     border: 1px solid transparent;
+
     border-radius: 6px;
 
     font-size: 11px;
+
     font-weight: 600;
 
     letter-spacing: 1px;
-    text-align: left;
+
+    text-align: center;
 
     cursor: default;
 
     opacity: 0.65;
+
+    box-sizing: border-box;
 }
 
 
-/* STATUS DOT */
+/* =========================================================
+   STATUS DOT
+========================================================= */
 
-.editor-toolbar button.disabled-workspace::before {
+.editor-toolbar
+button.disabled-workspace::before {
+
     content: "";
 
     display: inline-block;
@@ -184,7 +182,8 @@ width: 100px;
 
     vertical-align: middle;
 
-    box-shadow: 0 0 0 transparent;
+    box-shadow:
+        0 0 0 transparent;
 }
 
 
@@ -192,7 +191,9 @@ width: 100px;
    ACTIVE WORKSPACE
 ========================================================= */
 
-.editor-toolbar button.disabled-workspace.active {
+.editor-toolbar
+button.disabled-workspace.active {
+
     color: #67e8f9;
 
     background:
@@ -202,17 +203,24 @@ width: 100px;
             rgba(34, 211, 238, 0.025)
         );
 
-    border-color: rgba(34, 211, 238, 0.22);
+    border-color:
+        rgba(34, 211, 238, 0.22);
 
     opacity: 1;
 
     box-shadow:
-        inset 3px 0 0 #22d3ee,
+        inset 0 -3px 0 #22d3ee,
         0 0 12px rgba(34, 211, 238, 0.08);
 }
 
 
-.editor-toolbar button.disabled-workspace.active::before {
+/* =========================================================
+   ACTIVE DOT
+========================================================= */
+
+.editor-toolbar
+button.disabled-workspace.active::before {
+
     background: #22d3ee;
 
     box-shadow:
@@ -222,17 +230,20 @@ width: 100px;
 
 
 /* =========================================================
-   PROFILE — REAL ACTION BUTTON
+   PROFILE BUTTON
 ========================================================= */
 
 .editor-toolbar .profile-workspace-btn {
+
     position: relative;
 
-    width: 100%;
+    flex: 0 0 auto;
 
-    margin-top: 5px;
+    min-width: 110px;
 
-    padding: 8px 10px;
+    margin-left: auto;
+
+    padding: 8px 12px;
 
     background:
         linear-gradient(
@@ -244,14 +255,16 @@ width: 100px;
     color: #e2e8f0;
 
     border: 1px solid #475569;
+
     border-radius: 6px;
 
     font-size: 11px;
+
     font-weight: 700;
 
     letter-spacing: 1.2px;
 
-    text-align: left;
+    text-align: center;
 
     cursor: pointer;
 
@@ -261,12 +274,18 @@ width: 100px;
         border-color 0.15s ease,
         box-shadow 0.15s ease,
         transform 0.15s ease;
+
+    box-sizing: border-box;
 }
 
 
-/* PROFILE ICON / STATUS DOT */
+/* =========================================================
+   PROFILE DOT
+========================================================= */
 
-.editor-toolbar .profile-workspace-btn::before {
+.editor-toolbar
+.profile-workspace-btn::before {
+
     content: "";
 
     display: inline-block;
@@ -287,9 +306,13 @@ width: 100px;
 }
 
 
-/* PROFILE HOVER */
+/* =========================================================
+   PROFILE HOVER
+========================================================= */
 
-.editor-toolbar .profile-workspace-btn:hover {
+.editor-toolbar
+.profile-workspace-btn:hover {
+
     color: #ffffff;
 
     background:
@@ -309,9 +332,13 @@ width: 100px;
 }
 
 
-/* PROFILE ACTIVE CLICK */
+/* =========================================================
+   PROFILE ACTIVE
+========================================================= */
 
-.editor-toolbar .profile-workspace-btn:active {
+.editor-toolbar
+.profile-workspace-btn:active {
+
     transform: translateY(0);
 
     box-shadow:
@@ -320,18 +347,181 @@ width: 100px;
 
 
 /* =========================================================
-   SEPARATOR
+   WORKSPACE
 ========================================================= */
 
-.editor-toolbar .profile-workspace-btn {
-    border-top-color: #475569;
+.editor-lyrics {
+
+    width: 100%;
+
+    flex: 1 1 auto;
+
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    background: #202020;
+
+    box-sizing: border-box;
 }
 
 
 /* =========================================================
-   REMOVE DEFAULT DISABLED LOOK
+   SCROLLBAR
 ========================================================= */
 
-.editor-toolbar button:disabled {
-    cursor: default;
+.editor-lyrics::-webkit-scrollbar {
+
+    width: 8px;
+}
+
+
+.editor-lyrics::-webkit-scrollbar-track {
+
+    background: #151515;
+}
+
+
+.editor-lyrics::-webkit-scrollbar-thumb {
+
+    background: #3f3f46;
+
+    border-radius: 4px;
+}
+
+
+.editor-lyrics::-webkit-scrollbar-thumb:hover {
+
+    background: #52525b;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .editor-preview {
+
+        width: 100%;
+
+        max-width: none;
+
+    }
+
+
+    .editor-toolbar {
+
+        padding: 6px 8px;
+
+        gap: 3px;
+
+    }
+
+
+    .editor-toolbar
+    button.disabled-workspace,
+    .editor-toolbar
+    .profile-workspace-btn {
+
+        min-width: 95px;
+
+        padding: 7px 9px;
+
+        font-size: 10px;
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .editor-video-section {
+
+        width: 100%;
+
+    }
+
+
+    .editor-preview {
+
+        width: 100%;
+
+        aspect-ratio: 16 / 9;
+
+    }
+
+
+    .editor-toolbar {
+
+        gap: 3px;
+
+        padding: 6px;
+
+        overflow-x: auto;
+
+        scrollbar-width: none;
+
+    }
+
+
+    .editor-toolbar::-webkit-scrollbar {
+
+        display: none;
+
+    }
+
+
+    .editor-toolbar
+    button.disabled-workspace,
+    .editor-toolbar
+    .profile-workspace-btn {
+
+        min-width: 82px;
+
+        padding: 7px 8px;
+
+        font-size: 9px;
+
+        letter-spacing: 0.6px;
+
+    }
+
+
+    .editor-toolbar
+    .profile-workspace-btn {
+
+        margin-left: 0;
+
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+    .editor-toolbar
+    button.disabled-workspace,
+    .editor-toolbar
+    .profile-workspace-btn {
+
+        min-width: 76px;
+
+        padding: 6px;
+
+        font-size: 8px;
+
+    }
+
 }

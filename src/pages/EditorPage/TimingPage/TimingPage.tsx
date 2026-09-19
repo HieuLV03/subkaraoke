@@ -7,9 +7,7 @@ import { useLyricsStore } from "@/stores/lyrics.store";
 import "./TimingPage.css";
 
 export default function TimingPage() {
-
     console.count("TimingPage render");
-
 
     // ============================================================
     // STORE
@@ -57,6 +55,66 @@ export default function TimingPage() {
 
 
     // ============================================================
+    // MOBILE TIMING BUTTON
+    // ============================================================
+
+    /*
+     * Giả lập đúng phím Space.
+     *
+     * PointerDown = Space Down
+     * PointerUp   = Space Up
+     *
+     * SyncRecorder đang lắng nghe:
+     *
+     * window.addEventListener("keydown", ...)
+     * window.addEventListener("keyup", ...)
+     *
+     * nên không cần thay đổi SyncRecorder.
+     */
+
+    const handleTimingPointerDown = (
+        e: React.PointerEvent<HTMLButtonElement>
+    ) => {
+
+        e.preventDefault();
+
+        e.currentTarget.setPointerCapture(
+            e.pointerId
+        );
+
+        window.dispatchEvent(
+            new KeyboardEvent(
+                "keydown",
+                {
+                    code: "Space",
+                    key: " ",
+                    bubbles: true
+                }
+            )
+        );
+    };
+
+
+    const handleTimingPointerUp = (
+        e: React.PointerEvent<HTMLButtonElement>
+    ) => {
+
+        e.preventDefault();
+
+        window.dispatchEvent(
+            new KeyboardEvent(
+                "keyup",
+                {
+                    code: "Space",
+                    key: " ",
+                    bubbles: true
+                }
+            )
+        );
+    };
+
+
+    // ============================================================
     // RESET ONE WORD
     // ============================================================
 
@@ -74,7 +132,6 @@ export default function TimingPage() {
                 synced: false
             }
         );
-
     };
 
 
@@ -132,9 +189,10 @@ export default function TimingPage() {
                                                 updateLine(
                                                     line.id,
                                                     {
-                                                        start: Number(
-                                                            e.target.value
-                                                        )
+                                                        start:
+                                                            Number(
+                                                                e.target.value
+                                                            )
                                                     }
                                                 );
 
@@ -155,9 +213,10 @@ export default function TimingPage() {
                                                 updateLine(
                                                     line.id,
                                                     {
-                                                        end: Number(
-                                                            e.target.value
-                                                        )
+                                                        end:
+                                                            Number(
+                                                                e.target.value
+                                                            )
                                                     }
                                                 );
 
@@ -197,9 +256,7 @@ export default function TimingPage() {
                                         >
 
                                             <div className="word-text">
-
                                                 {word.word}
-
                                             </div>
 
 
@@ -215,9 +272,10 @@ export default function TimingPage() {
                                                         line.id,
                                                         word.id,
                                                         {
-                                                            start: Number(
-                                                                e.target.value
-                                                            )
+                                                            start:
+                                                                Number(
+                                                                    e.target.value
+                                                                )
                                                         }
                                                     );
 
@@ -237,9 +295,10 @@ export default function TimingPage() {
                                                         line.id,
                                                         word.id,
                                                         {
-                                                            end: Number(
-                                                                e.target.value
-                                                            )
+                                                            end:
+                                                                Number(
+                                                                    e.target.value
+                                                                )
                                                         }
                                                     );
 
@@ -256,13 +315,11 @@ export default function TimingPage() {
                                                         : "unsynced"
                                                 }
                                             >
-
                                                 {
                                                     word.synced
                                                         ? "✓"
                                                         : "○"
                                                 }
-
                                             </span>
 
 
@@ -307,7 +364,6 @@ export default function TimingPage() {
 
             <div className="timing-footer">
 
-
                 <button
                     className="timing-btn"
                     onClick={() =>
@@ -320,6 +376,39 @@ export default function TimingPage() {
 
                 <div className="timing-actions">
 
+                    {/* ==================================================
+                        MOBILE SPACE BUTTON
+                    ================================================== */}
+
+                    <button
+                        type="button"
+                        className="timing-btn timing-space-btn"
+                        onPointerDown={
+                            handleTimingPointerDown
+                        }
+                        onPointerUp={
+                            handleTimingPointerUp
+                        }
+                        onPointerCancel={
+                            handleTimingPointerUp
+                        }
+                        onContextMenu={e =>
+                            e.preventDefault()
+                        }
+                    >
+                        <span className="timing-space-icon">
+                            ●
+                        </span>
+
+                        <span>
+                            TIMING
+                        </span>
+                    </button>
+
+
+                    {/* ==================================================
+                        RESET LAST
+                    ================================================== */}
 
                     <button
                         className="timing-btn reset"
@@ -330,6 +419,10 @@ export default function TimingPage() {
                         Reset Last
                     </button>
 
+
+                    {/* ==================================================
+                        RESET ALL
+                    ================================================== */}
 
                     <button
                         className="timing-btn reset-all"
@@ -350,6 +443,10 @@ export default function TimingPage() {
                     </button>
 
 
+                    {/* ==================================================
+                        NEXT
+                    ================================================== */}
+
                     <button
                         className="timing-btn"
                         onClick={() =>
@@ -366,5 +463,4 @@ export default function TimingPage() {
         </div>
 
     );
-
 }
