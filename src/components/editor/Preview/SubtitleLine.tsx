@@ -1,3 +1,4 @@
+
 "use client";
 
 import "./Preview.css";
@@ -11,7 +12,6 @@ export default function SubtitleLine({
     color,
     activeColor,
 }: any) {
-
 
     // ========================================
     // STORE
@@ -35,9 +35,7 @@ export default function SubtitleLine({
     // ========================================
 
     if (!line?.words) {
-
         return null;
-
     }
 
 
@@ -111,8 +109,8 @@ export default function SubtitleLine({
     // DRAG
     // ========================================
 
-    const handleMouseDown = (
-        e: React.MouseEvent<HTMLDivElement>
+    const handlePointerDown = (
+        e: React.PointerEvent<HTMLDivElement>
     ) => {
 
         e.preventDefault();
@@ -120,16 +118,32 @@ export default function SubtitleLine({
         e.stopPropagation();
 
 
+        // Chọn line
         selectLine(line.id);
 
 
-        const startMouseX =
+        // Giữ pointer hiện tại
+        // để tiếp tục nhận move trên mobile
+        try {
+
+            e.currentTarget.setPointerCapture(
+                e.pointerId
+            );
+
+        } catch {
+            // Một số browser có thể không hỗ trợ
+        }
+
+
+        // Vị trí pointer lúc bắt đầu kéo
+        const startPointerX =
             e.clientX;
 
-        const startMouseY =
+        const startPointerY =
             e.clientY;
 
 
+        // Vị trí line lúc bắt đầu kéo
         const startX =
             x;
 
@@ -137,17 +151,21 @@ export default function SubtitleLine({
             y;
 
 
-        const handleMouseMove = (
-            event: MouseEvent
+        // ========================================
+        // POINTER MOVE
+        // ========================================
+
+        const handlePointerMove = (
+            event: PointerEvent
         ) => {
 
             const deltaX =
                 event.clientX -
-                startMouseX;
+                startPointerX;
 
             const deltaY =
                 event.clientY -
-                startMouseY;
+                startPointerY;
 
 
             moveLine(
@@ -163,29 +181,47 @@ export default function SubtitleLine({
         };
 
 
-        const handleMouseUp = () => {
+        // ========================================
+        // POINTER UP
+        // ========================================
+
+        const handlePointerUp = () => {
 
             window.removeEventListener(
-                "mousemove",
-                handleMouseMove
+                "pointermove",
+                handlePointerMove
             );
 
             window.removeEventListener(
-                "mouseup",
-                handleMouseUp
+                "pointerup",
+                handlePointerUp
+            );
+
+            window.removeEventListener(
+                "pointercancel",
+                handlePointerUp
             );
 
         };
 
 
+        // ========================================
+        // EVENTS
+        // ========================================
+
         window.addEventListener(
-            "mousemove",
-            handleMouseMove
+            "pointermove",
+            handlePointerMove
         );
 
         window.addEventListener(
-            "mouseup",
-            handleMouseUp
+            "pointerup",
+            handlePointerUp
+        );
+
+        window.addEventListener(
+            "pointercancel",
+            handlePointerUp
         );
 
     };
@@ -197,45 +233,55 @@ export default function SubtitleLine({
 
     return (
 
-      <div
+        <div
 
-    className={
-        isSelected
-            ? "subtitle-drag-box subtitle-drag-box-selected"
-            : "subtitle-drag-box"
-    }
+            className={
+                isSelected
+                    ? "subtitle-drag-box subtitle-drag-box-selected"
+                    : "subtitle-drag-box"
+            }
 
-    onMouseDown={
-        handleMouseDown
-    }
+            onPointerDown={
+                handlePointerDown
+            }
 
-   style={{
+            style={{
 
-    position: "absolute",
+                position: "absolute",
 
-    left: `${x}px`,
+                left: `${x}px`,
 
-    top: `${y}px`,
+                top: `${y}px`,
 
-    transform: "translate(-50%, -50%)",
+                transform:
+                    "translate(-50%, -50%)",
 
-    display: "inline-block",
+                display:
+                    "inline-block",
 
-    cursor: "move",
+                cursor:
+                    "move",
 
-    pointerEvents: "auto",
+                pointerEvents:
+                    "auto",
 
-    userSelect: "none",
+                userSelect:
+                    "none",
 
-    zIndex:
-        isSelected
-            ? 100
-            : 10,
+                // Quan trọng cho mobile:
+                // không để browser hiểu thao tác
+                // này là scroll/gesture
+                touchAction:
+                    "none",
 
-}}
+                zIndex:
+                    isSelected
+                        ? 100
+                        : 10,
 
->
+            }}
 
+        >
 
             <div
 
