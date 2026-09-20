@@ -1,6 +1,5 @@
-
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { toBlobURL } from "@ffmpeg/util";
 
 // ============================================================
 // CONFIG
@@ -8,13 +7,12 @@ import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 const EXPORT_WIDTH = 1280;
 const EXPORT_HEIGHT = 720;
-const EXPORT_FPS = 25;
+const EXPORT_FPS = 21;
 
 const FFMPEG_CORE_VERSION = "0.12.10";
 
 const PREVIEW_WIDTH = 640;
 const PREVIEW_HEIGHT = 360;
-
 const PREVIEW_SCALE =
     EXPORT_WIDTH / PREVIEW_WIDTH;
 
@@ -132,9 +130,7 @@ function clamp(
     );
 }
 
-function getText(
-    word: LyricWord
-) {
+function getText(word: LyricWord) {
     return String(
         word.word ??
         word.text ??
@@ -307,8 +303,7 @@ function prepareMeasuredLyrics(
             const key =
                 JSON.stringify({
                     text,
-                    font:
-                        ctx.font,
+                    font: ctx.font,
                 });
 
             if (cache.has(key)) {
@@ -385,8 +380,18 @@ function drawWord(
 ) {
     ctx.save();
 
+    const fontSize =
+        style.fontSize *
+        PREVIEW_SCALE *
+        style.scale;
+
+    const outlineWidth =
+        style.outlineWidth *
+        PREVIEW_SCALE *
+        style.scale;
+
     ctx.font =
-        buildFont(style);
+        `700 ${fontSize}px "${style.fontFamily}"`;
 
     ctx.textBaseline =
         "middle";
@@ -400,31 +405,27 @@ function drawWord(
     ctx.miterLimit =
         2;
 
+    // ========================================================
+    // SHADOW
+    // ========================================================
+
     if (style.shadow) {
         ctx.shadowColor =
             "rgba(0,0,0,0.8)";
 
-        ctx.shadowBlur = 6;
-        ctx.shadowOffsetX = 3;
-        ctx.shadowOffsetY = 3;
+        ctx.shadowBlur =
+            6;
+
+        ctx.shadowOffsetX =
+            3;
+
+        ctx.shadowOffsetY =
+            3;
     }
 
-    const fontSize =
-        style.fontSize *
-        PREVIEW_SCALE *
-        style.scale;
-
-    const outlineWidth =
-        style.outlineWidth *
-        PREVIEW_SCALE *
-        style.scale;
-
-    const scaledX = x;
-
-    const scaledY = y;
-
-    ctx.font =
-        `700 ${fontSize}px "${style.fontFamily}"`;
+    // ========================================================
+    // CLIP
+    // ========================================================
 
     if (
         typeof clipWidth === "number"
@@ -432,8 +433,8 @@ function drawWord(
         ctx.beginPath();
 
         ctx.rect(
-            scaledX,
-            scaledY - fontSize,
+            x,
+            y - fontSize,
             clipWidth,
             fontSize * 2
         );
@@ -441,7 +442,10 @@ function drawWord(
         ctx.clip();
     }
 
-    // Outline
+    // ========================================================
+    // OUTLINE
+    // ========================================================
+
     if (outlineWidth > 0) {
         ctx.strokeStyle =
             style.outline;
@@ -451,19 +455,22 @@ function drawWord(
 
         ctx.strokeText(
             text,
-            scaledX,
-            scaledY
+            x,
+            y
         );
     }
 
-    // Fill
+    // ========================================================
+    // FILL
+    // ========================================================
+
     ctx.fillStyle =
         color;
 
     ctx.fillText(
         text,
-        scaledX,
-        scaledY
+        x,
+        y
     );
 
     ctx.restore();
@@ -487,7 +494,7 @@ function drawLyricFrame(
         );
     }
 
-    // Transparent canvas.
+    // Transparent canvas
     ctx.clearRect(
         0,
         0,
@@ -565,7 +572,8 @@ function drawLyricFrame(
             startX =
                 centerX -
                 totalWidth / 2;
-        } else if (
+        }
+        else if (
             style.align ===
             "right"
         ) {
@@ -601,9 +609,9 @@ function drawLyricFrame(
                     currentTime
                 );
 
-            // -----------------------------
+            // =================================================
             // NORMAL
-            // -----------------------------
+            // =================================================
 
             drawWord(
                 ctx,
@@ -614,9 +622,9 @@ function drawLyricFrame(
                 style.color
             );
 
-            // -----------------------------
+            // =================================================
             // ACTIVE
-            // -----------------------------
+            // =================================================
 
             if (
                 percent >= 100
@@ -630,7 +638,6 @@ function drawLyricFrame(
                     style.activeColor
                 );
             }
-
             else if (
                 percent > 0 &&
                 wordWidth > 0
@@ -701,12 +708,6 @@ async function canvasToBlob(
 
 // ============================================================
 // FETCH INPUT FILE
-//
-// Hỗ trợ:
-// - File
-// - Blob
-// - blob:http://...
-// - http(s)
 // ============================================================
 
 async function getInputFile(
@@ -716,6 +717,11 @@ async function getInputFile(
     data: Uint8Array;
     name: string;
 }> {
+
+    // ========================================================
+    // FILE
+    // ========================================================
+
     if (
         input instanceof File
     ) {
@@ -724,11 +730,16 @@ async function getInputFile(
                 new Uint8Array(
                     await input.arrayBuffer()
                 ),
+
             name:
                 input.name ||
                 fallbackName,
         };
     }
+
+    // ========================================================
+    // BLOB
+    // ========================================================
 
     if (
         input instanceof Blob
@@ -738,10 +749,15 @@ async function getInputFile(
                 new Uint8Array(
                     await input.arrayBuffer()
                 ),
+
             name:
                 fallbackName,
         };
     }
+
+    // ========================================================
+    // URL
+    // ========================================================
 
     const response =
         await fetch(input);
@@ -762,42 +778,43 @@ async function getInputFile(
         blob.type ===
         "image/png"
     ) {
-        extension = ".png";
+        extension =
+            ".png";
     }
-
     else if (
         blob.type ===
         "image/jpeg"
     ) {
-        extension = ".jpg";
+        extension =
+            ".jpg";
     }
-
     else if (
         blob.type ===
         "image/webp"
     ) {
-        extension = ".webp";
+        extension =
+            ".webp";
     }
-
     else if (
         blob.type ===
         "video/webm"
     ) {
-        extension = ".webm";
+        extension =
+            ".webm";
     }
-
     else if (
         blob.type ===
         "video/mp4"
     ) {
-        extension = ".mp4";
+        extension =
+            ".mp4";
     }
-
     else if (
         blob.type ===
         "video/quicktime"
     ) {
-        extension = ".mov";
+        extension =
+            ".mov";
     }
 
     const name =
@@ -815,6 +832,7 @@ async function getInputFile(
             new Uint8Array(
                 await blob.arrayBuffer()
             ),
+
         name,
     };
 }
@@ -831,7 +849,8 @@ async function safeDelete(
         await engine.deleteFile(
             filename
         );
-    } catch {
+    }
+    catch {
         // ignore
     }
 }
@@ -842,13 +861,19 @@ async function safeDelete(
 
 export async function exportVideo(
     videoFile: string | File | Blob,
-    imageFile: string | File | Blob | null | undefined,
-        lyrics: LyricLine[],
+    imageFile:
+        | string
+        | File
+        | Blob
+        | null
+        | undefined,
+    lyrics: LyricLine[],
     duration: number,
     onProgress?: (
         progress: number
     ) => void
 ): Promise<Blob> {
+
     console.log(
         "[EXPORT] Starting..."
     );
@@ -990,10 +1015,11 @@ export async function exportVideo(
     // ========================================================
 
     if (isImageMode) {
+
         const imageInput =
             await getInputFile(
                 imageFile!,
-                "background-image.jpg"
+                "background-image.png"
             );
 
         await engine.writeFile(
@@ -1027,6 +1053,7 @@ export async function exportVideo(
         frame < totalFrames;
         frame++
     ) {
+
         const currentTime =
             frame /
             EXPORT_FPS;
@@ -1094,24 +1121,45 @@ export async function exportVideo(
         "frame-%07d.png";
 
     // ========================================================
-    // IMAGE MODE
-    //
-    // input 0 = image
-    // input 1 = lyric PNG
-    // input 2 = timing video/audio
-    //
-    // Video visual stream is NOT mapped.
+    // FFMPEG ARGS
     // ========================================================
 
     let args: string[];
 
+    // ========================================================
+    // IMAGE MODE
+    //
+    // input 0 = background image
+    // input 1 = lyric PNG frames
+    // input 2 = timing video/audio
+    //
+    // IMPORTANT:
+    // - Background image is explicitly 25 FPS.
+    // - Lyric frames are explicitly 25 FPS.
+    // - Both are converted to stable formats.
+    // - Output is constant frame rate.
+    // ========================================================
+
     if (isImageMode) {
+
         args = [
+
+            // =================================================
+            // BACKGROUND IMAGE
+            // =================================================
+
             "-loop",
             "1",
 
+            "-framerate",
+            String(EXPORT_FPS),
+
             "-i",
             inputImageName,
+
+            // =================================================
+            // LYRIC FRAMES
+            // =================================================
 
             "-framerate",
             String(EXPORT_FPS),
@@ -1119,26 +1167,66 @@ export async function exportVideo(
             "-i",
             framePattern,
 
+            // =================================================
+            // TIMING VIDEO / AUDIO
+            // =================================================
+
             "-i",
             inputVideoName,
 
+            // =================================================
+            // FILTER
+            // =================================================
+
             "-filter_complex",
 
-            `[0:v]scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:force_original_aspect_ratio=decrease,pad=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(ow-iw)/2:(oh-ih)/2[bg];` +
-            `[1:v]format=rgba[lyrics];` +
-            `[bg][lyrics]overlay=0:0:format=auto[outv]`,
+            `[0:v]` +
+            `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+            `force_original_aspect_ratio=decrease,` +
+            `pad=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+            `(ow-iw)/2:(oh-ih)/2,` +
+            `format=yuv420p[bg];` +
+
+            `[1:v]` +
+            `format=rgba[lyrics];` +
+
+            `[bg][lyrics]` +
+            `overlay=0:0:format=yuv420[outv]`,
+
+            // =================================================
+            // VIDEO OUTPUT
+            // =================================================
 
             "-map",
             "[outv]",
 
+            // =================================================
+            // AUDIO OUTPUT
+            // =================================================
+
             "-map",
             "2:a?",
+
+            // =================================================
+            // DURATION
+            // =================================================
 
             "-t",
             String(duration),
 
+            // =================================================
+            // CONSTANT FPS
+            // =================================================
+
             "-r",
             String(EXPORT_FPS),
+
+            "-fps_mode",
+            "cfr",
+
+            // =================================================
+            // H264
+            // =================================================
 
             "-c:v",
             "libx264",
@@ -1152,17 +1240,24 @@ export async function exportVideo(
             "-pix_fmt",
             "yuv420p",
 
+            // =================================================
+            // AUDIO
+            // =================================================
+
             "-c:a",
             "aac",
 
             "-b:a",
             "192k",
 
+            // =================================================
+            // MP4
+            // =================================================
+
             "-movflags",
             "+faststart",
 
             "-y",
-
             outputName,
         ];
     }
@@ -1171,13 +1266,23 @@ export async function exportVideo(
     // VIDEO MODE
     //
     // input 0 = video background
-    // input 1 = lyric PNG
+    // input 1 = lyric PNG frames
     // ========================================================
 
     else {
+
         args = [
+
+            // =================================================
+            // VIDEO BACKGROUND
+            // =================================================
+
             "-i",
             inputVideoName,
+
+            // =================================================
+            // LYRIC FRAMES
+            // =================================================
 
             "-framerate",
             String(EXPORT_FPS),
@@ -1185,23 +1290,58 @@ export async function exportVideo(
             "-i",
             framePattern,
 
+            // =================================================
+            // FILTER
+            // =================================================
+
             "-filter_complex",
 
-            `[0:v]scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:force_original_aspect_ratio=decrease,pad=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(ow-iw)/2:(oh-ih)/2[bg];` +
-            `[1:v]format=rgba[lyrics];` +
-            `[bg][lyrics]overlay=0:0:format=auto[outv]`,
+            `[0:v]` +
+            `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+            `force_original_aspect_ratio=decrease,` +
+            `pad=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+            `(ow-iw)/2:(oh-ih)/2[bg];` +
+
+            `[1:v]` +
+            `format=rgba[lyrics];` +
+
+            `[bg][lyrics]` +
+            `overlay=0:0:format=yuv420[outv]`,
+
+            // =================================================
+            // VIDEO
+            // =================================================
 
             "-map",
             "[outv]",
 
+            // =================================================
+            // AUDIO
+            // =================================================
+
             "-map",
             "0:a?",
+
+            // =================================================
+            // DURATION
+            // =================================================
 
             "-t",
             String(duration),
 
+            // =================================================
+            // FPS
+            // =================================================
+
             "-r",
             String(EXPORT_FPS),
+
+            "-fps_mode",
+            "cfr",
+
+            // =================================================
+            // H264
+            // =================================================
 
             "-c:v",
             "libx264",
@@ -1215,20 +1355,31 @@ export async function exportVideo(
             "-pix_fmt",
             "yuv420p",
 
+            // =================================================
+            // AUDIO
+            // =================================================
+
             "-c:a",
             "aac",
 
             "-b:a",
             "192k",
 
+            // =================================================
+            // MP4
+            // =================================================
+
             "-movflags",
             "+faststart",
 
             "-y",
-
             outputName,
         ];
     }
+
+    // ========================================================
+    // LOG
+    // ========================================================
 
     console.log(
         "[EXPORT] MODE:",
@@ -1253,6 +1404,7 @@ export async function exportVideo(
     }: {
         progress: number;
     }) => {
+
         const safe =
             clamp(
                 progress,
@@ -1275,17 +1427,18 @@ export async function exportVideo(
     );
 
     try {
+
         await engine.exec(
             args
         );
-    }
 
+    }
     finally {
+
         // FFmpeg API does not provide
         // a reliable remove-listener API
         // across every version.
-        // Keeping the singleton listener
-        // is harmless.
+
     }
 
     // ========================================================
@@ -1337,6 +1490,7 @@ export async function exportVideo(
     );
 
     if (isImageMode) {
+
         await safeDelete(
             engine,
             inputImageName
@@ -1352,6 +1506,7 @@ export async function exportVideo(
         frame < totalFrames;
         frame++
     ) {
+
         await safeDelete(
             engine,
             `frame-${String(
@@ -1362,6 +1517,10 @@ export async function exportVideo(
             )}.png`
         );
     }
+
+    // ========================================================
+    // DONE
+    // ========================================================
 
     onProgress?.(100);
 
