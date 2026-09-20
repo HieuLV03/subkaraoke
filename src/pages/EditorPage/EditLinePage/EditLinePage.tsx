@@ -1,9 +1,11 @@
 "use client";
 import "./EditLinePage.css";
 import { useState } from "react";
-import { useLyricsStore } from "@/stores/lyrics.store";
 import { useEditorStore } from "@/stores/editor.store";
-
+import {
+    useLyricsStore,
+    defaultLyricStyle
+} from "@/stores/lyrics.store";
 export default function EditLinePage() {
     const setWorkspace = useEditorStore(
         (state) => state.setWorkspace
@@ -190,7 +192,9 @@ const addNewLine = () => {
             end,
 
             words: [],
-
+  style: {
+        ...defaultLyricStyle
+    },
         };
 
 

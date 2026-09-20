@@ -2,48 +2,104 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 // ============================================================
-// FFMPEG
+// CONFIG
 // ============================================================
-
-const ffmpeg = new FFmpeg();
-
-let loaded = false;
-
-// ============================================================
-// CONSTANTS
-// ============================================================
-
-const PREVIEW_WIDTH = 640;
-const PREVIEW_HEIGHT = 360;
 
 const EXPORT_WIDTH = 1280;
 const EXPORT_HEIGHT = 720;
+const EXPORT_FPS = 30;
 
-const EXPORT_SCALE =
-    EXPORT_WIDTH / PREVIEW_WIDTH;
+const FFMPEG_CORE_VERSION = "0.12.10";
 
 // ============================================================
-// HELPERS
+// TYPES
 // ============================================================
 
-function assTime(seconds: number): string {
-    const safe = Math.max(0, seconds);
+type LyricWord = {
+    id?: string;
+    word?: string;
+    text?: string;
+    start?: number;
+    end?: number;
+    synced?: boolean;
+};
 
-    const hours =
-        Math.floor(safe / 3600);
+type LyricStyle = {
+    fontFamily?: string;
+    fontSize?: number;
+    color?: string;
+    activeColor?: string;
+    outline?: string;
+    outlineWidth?: number;
+    shadow?: boolean;
+    x?: number;
+    y?: number;
+    align?: "left" | "center" | "right";
+};
 
-    const minutes =
-        Math.floor(
-            (safe % 3600) / 60
-        );
+type LyricLine = {
+    id?: string;
+    start?: number;
+    end?: number;
+    text?: string;
+    words?: LyricWord[];
+    style?: LyricStyle;
+};
 
-    const secs =
-        Math.floor(safe % 60);
+// ============================================================
+// FFMPEG INSTANCE
+// ============================================================
 
-    const centiseconds =
-        Math.floor(
-            (safe - Math.floor(safe)) * 100
-        );
+let ffmpeg: FFmpeg | null = null;
+let ffmpegLoaded = false;
+
+// ============================================================
+// NUMBER
+// ============================================================
+
+function numberOr(
+    value: unknown,
+    fallback: number
+): number {
+    const number = Number(value);
+
+    if (Number.isFinite(number)) {
+        return number;
+    }
+
+    return fallback;
+}
+
+// ============================================================
+// ASS TIME
+// ============================================================
+
+function assTime(
+    seconds: number
+): string {
+    const safeSeconds = Math.max(
+        0,
+        Number(seconds) || 0
+    );
+
+    const hours = Math.floor(
+        safeSeconds / 3600
+    );
+
+    const minutes = Math.floor(
+        (safeSeconds % 3600) / 60
+    );
+
+    const secs = Math.floor(
+        safeSeconds % 60
+    );
+
+    const centiseconds = Math.floor(
+        (
+            safeSeconds -
+            Math.floor(safeSeconds)
+        ) * 100
+    );
 
     return (
         `${hours}:` +
@@ -54,37 +110,39 @@ function assTime(seconds: number): string {
 }
 
 // ============================================================
-// COLOR
+// ASS COLOR
 // ============================================================
 
 function assColor(
     color: string
 ): string {
-
-    if (!color) {
+    if (
+        !color ||
+        typeof color !== "string"
+    ) {
         return "&H00FFFFFF";
     }
 
-    const hex =
-        color
-            .replace("#", "")
-            .trim();
+    const hex = color
+        .replace("#", "")
+        .trim();
 
-    if (hex.length !== 6) {
+    if (
+        !/^[0-9a-fA-F]{6}$/.test(hex)
+    ) {
         return "&H00FFFFFF";
     }
 
-    const r =
-        hex.substring(0, 2);
+    const r = hex.substring(0, 2);
+    const g = hex.substring(2, 4);
+    const b = hex.substring(4, 6);
 
-    const g =
-        hex.substring(2, 4);
-
-    const b =
-        hex.substring(4, 6);
-
-    // ASS uses BBGGRR
-    return `&H00${b}${g}${r}`;
+    return (
+        "&H00" +
+        b +
+        g +
+        r
+    ).toUpperCase();
 }
 
 // ============================================================
@@ -94,32 +152,29 @@ function assColor(
 function escapeASS(
     text: string
 ): string {
-
-    return String(
-        text ?? ""
-    )
+    return text
         .replace(/\\/g, "\\\\")
-        .replace(/{/g, "\\{")
-        .replace(/}/g, "\\}");
+        .replace(/\{/g, "\\{")
+        .replace(/\}/g, "\\}");
 }
 
 // ============================================================
-// GET WORD TEXT
+// GET TEXT
 // ============================================================
 
 function getText(
-    word: any
+    word: LyricWord
 ): string {
+    const value =
+        word.word ??
+        word.text ??
+        "";
 
-    return String(
-        word?.word ??
-        word?.text ??
-        ""
-    );
+    return String(value).trim();
 }
 
 // ============================================================
-// MEASURE TEXT
+// MEASURE WORD
 // ============================================================
 
 function measureWord(
@@ -127,43 +182,35 @@ function measureWord(
     fontFamily: string,
     fontSize: number
 ): number {
+    try {
+        const canvas =
+            document.createElement("canvas");
 
-    if (
-        typeof document === "undefined"
-    ) {
+        const context =
+            canvas.getContext("2d");
 
+        if (!context) {
+            return (
+                text.length *
+                fontSize *
+                0.55
+            );
+        }
+
+        context.font =
+            `${fontSize}px ${fontFamily}`;
+
+        return context.measureText(
+            text
+        ).width;
+    }
+    catch {
         return (
             text.length *
             fontSize *
             0.55
         );
     }
-
-    const canvas =
-        document.createElement(
-            "canvas"
-        );
-
-    const context =
-        canvas.getContext(
-            "2d"
-        );
-
-    if (!context) {
-
-        return (
-            text.length *
-            fontSize *
-            0.55
-        );
-    }
-
-    context.font =
-        `${fontSize}px ${fontFamily}`;
-
-    return context.measureText(
-        text
-    ).width;
 }
 
 // ============================================================
@@ -171,39 +218,177 @@ function measureWord(
 // ============================================================
 
 function normalizeLyrics(
-    input: any
-): any[] {
+    lyrics: LyricLine[]
+): LyricLine[] {
+    if (!Array.isArray(lyrics)) {
+        return [];
+    }
+
+    return lyrics
+        .map(
+            (
+                line: LyricLine
+            ): LyricLine => {
+                return {
+                    ...line,
+                    words:
+                        Array.isArray(
+                            line.words
+                        )
+                            ? line.words
+                            : [],
+                };
+            }
+        )
+        .filter(
+            (
+                line: LyricLine
+            ): boolean => {
+                const words =
+                    line.words ?? [];
+
+                const text =
+                    String(
+                        line.text ?? ""
+                    ).trim();
+
+                return (
+                    words.length > 0 ||
+                    text.length > 0
+                );
+            }
+        );
+}
+
+// ============================================================
+// GET LINE TIMING
+// ============================================================
+//
+// Nếu line.start/end hợp lệ -> dùng chúng.
+//
+// Nếu line.start/end chưa cập nhật nhưng
+// word.start/end đã có -> tự lấy timing từ words.
+//
+// ============================================================
+
+function getLineTiming(
+    line: LyricLine
+): {
+    start: number;
+    end: number;
+} | null {
+    const lineStart =
+        Number(line.start);
+
+    const lineEnd =
+        Number(line.end);
+
+    // --------------------------------------------------------
+    // LINE TIMING
+    // --------------------------------------------------------
 
     if (
-        Array.isArray(input)
+        Number.isFinite(
+            lineStart
+        ) &&
+        Number.isFinite(
+            lineEnd
+        ) &&
+        lineEnd > lineStart
     ) {
-        return input;
+        return {
+            start: lineStart,
+            end: lineEnd,
+        };
+    }
+
+    // --------------------------------------------------------
+    // WORD TIMING
+    // --------------------------------------------------------
+
+    const words =
+        Array.isArray(
+            line.words
+        )
+            ? line.words
+            : [];
+
+    const validWords =
+        words.filter(
+            (
+                word: LyricWord
+            ): boolean => {
+                const start =
+                    Number(word.start);
+
+                const end =
+                    Number(word.end);
+
+                return (
+                    Number.isFinite(
+                        start
+                    ) &&
+                    Number.isFinite(
+                        end
+                    ) &&
+                    end > start
+                );
+            }
+        );
+
+    if (
+        validWords.length === 0
+    ) {
+        return null;
+    }
+
+    let start =
+        Number.POSITIVE_INFINITY;
+
+    let end =
+        Number.NEGATIVE_INFINITY;
+
+    for (
+        let i = 0;
+        i < validWords.length;
+        i++
+    ) {
+        const word =
+            validWords[i];
+
+        const wordStart =
+            Number(word.start);
+
+        const wordEnd =
+            Number(word.end);
+
+        if (
+            wordStart < start
+        ) {
+            start =
+                wordStart;
+        }
+
+        if (
+            wordEnd > end
+        ) {
+            end =
+                wordEnd;
+        }
     }
 
     if (
-        Array.isArray(input?.lyrics)
+        !Number.isFinite(start) ||
+        !Number.isFinite(end) ||
+        end <= start
     ) {
-        return input.lyrics;
+        return null;
     }
 
-    if (
-        Array.isArray(input?.lines)
-    ) {
-        return input.lines;
-    }
-
-    if (
-        Array.isArray(input?.items)
-    ) {
-        return input.items;
-    }
-
-    console.error(
-        "[FFMPEG] Invalid lyrics:",
-        input
-    );
-
-    return [];
+    return {
+        start,
+        end,
+    };
 }
 
 // ============================================================
@@ -211,476 +396,398 @@ function normalizeLyrics(
 // ============================================================
 
 function buildASS(
-    inputLyrics: any
+    lyrics: LyricLine[]
 ): string {
-
-    const lyrics =
+    const normalizedLyrics =
         normalizeLyrics(
-            inputLyrics
+            lyrics
         );
 
-    const events: string[] = [];
-
-    // ========================================================
-    // SCRIPT HEADER
-    // ========================================================
-
-    const header = `
-[Script Info]
+    const header =
+        `[Script Info]
 ScriptType: v4.00+
 PlayResX: ${EXPORT_WIDTH}
 PlayResY: ${EXPORT_HEIGHT}
 ScaledBorderAndShadow: yes
 WrapStyle: 2
-YCbCr Matrix: TV.601
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Karaoke,Arial,42,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,4,2,5,0,0,0,1
+Style: Karaoke,Arial,42,&H00FFFFFF,&H0000FF00,&H00000000,&H64000000,0,0,0,0,100,100,0,0,1,2,2,5,10,10,10,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-`.trim();
+`;
 
-    // ========================================================
-    // LYRICS
-    // ========================================================
+    const events: string[] = [];
 
     for (
-        const line of lyrics
+        let lineIndex = 0;
+        lineIndex <
+        normalizedLyrics.length;
+        lineIndex++
     ) {
+        const line =
+            normalizedLyrics[
+                lineIndex
+            ];
 
-        if (
-            !line ||
-            !Array.isArray(line.words) ||
-            line.words.length === 0
-        ) {
-            continue;
-        }
+        // ----------------------------------------------------
+        // TIMING
+        // ----------------------------------------------------
 
-        const words =
-            line.words.filter(
-                (word: any) =>
-                    getText(word)
-                        .trim()
-                        .length > 0
+        const timing =
+            getLineTiming(
+                line
             );
 
-        if (
-            words.length === 0
-        ) {
+        if (!timing) {
+            console.warn(
+                "[ASS] SKIP LINE - NO TIMING:",
+                line.text
+            );
+
             continue;
         }
 
-        // ====================================================
-        // STYLE
-        // ====================================================
+        const lineStart =
+            timing.start;
 
-        const lineStyle =
+        const lineEnd =
+            timing.end;
+
+        // ----------------------------------------------------
+        // STYLE
+        // ----------------------------------------------------
+
+        const style =
             line.style ?? {};
 
         const fontFamily =
-            lineStyle.fontFamily ??
+            style.fontFamily ??
             "Arial";
 
         const fontSize =
-            Number(
-                lineStyle.fontSize ?? 21
+            numberOr(
+                style.fontSize,
+                21
             );
 
-        const textColor =
-            lineStyle.color ??
+        const normalColor =
+            style.color ??
             "#ffffff";
 
         const activeColor =
-            lineStyle.activeColor ??
+            style.activeColor ??
             "#00ff66";
 
         const outlineColor =
-            lineStyle.outline ??
+            style.outline ??
             "#000000";
 
         const outlineWidth =
-            Number(
-                lineStyle.outlineWidth ?? 2
+            numberOr(
+                style.outlineWidth,
+                2
             );
 
         const shadow =
-            lineStyle.shadow ??
+            style.shadow ??
             true;
 
-        // Preview canvas = 640x360
-        // Export = 1280x720
         const x =
-            Number(
-                lineStyle.x ?? 330
-            ) *
-            EXPORT_SCALE;
+            numberOr(
+                style.x,
+                330
+            );
 
         const y =
-            Number(
-                lineStyle.y ?? 180
-            ) *
-            EXPORT_SCALE;
+            numberOr(
+                style.y,
+                180
+            );
 
         const align =
-            lineStyle.align ??
+            style.align ??
             "center";
 
-        // ====================================================
-        // EXPORT STYLE
-        // ====================================================
+        // ----------------------------------------------------
+        // PREVIEW 640x360
+        // EXPORT 1280x720
+        // ----------------------------------------------------
+
+        const exportX =
+            x * 2;
+
+        const exportY =
+            y * 2;
 
         const exportFontSize =
-            fontSize *
-            EXPORT_SCALE;
+            fontSize * 2;
 
-        const exportOutline =
-            outlineWidth *
-            EXPORT_SCALE;
-
-        const shadowValue =
-            shadow
-                ? 2
-                : 0;
-
-        const normalColor =
-            assColor(
-                textColor
-            );
-
-        const activeColorASS =
-            assColor(
-                activeColor
-            );
-
-        const outlineColorASS =
-            assColor(
-                outlineColor
-            );
-
-        // ====================================================
-        // LINE TIMING
-        // ====================================================
-
-        const start =
-            Number(
-                line.start ?? 0
-            );
-
-        const end =
-            Number(
-                line.end ?? start
-            );
-
-        if (
-            !Number.isFinite(start) ||
-            !Number.isFinite(end) ||
-            end <= start
-        ) {
-            continue;
-        }
-
-        // ====================================================
-        // MEASURE WORDS
-        // ====================================================
-
-        const measuredWords =
-            words.map(
-                (word: any) => {
-
-                    const text =
-                        getText(word);
-
-                    const width =
-                        measureWord(
-                            text,
-                            fontFamily,
-                            fontSize
-                        ) *
-                        EXPORT_SCALE;
-
-                    return {
-                        word,
-                        text,
-                        width,
-                    };
-                }
-            );
-
-        const spaceWidth =
-            measureWord(
-                " ",
-                fontFamily,
-                fontSize
-            ) *
-            EXPORT_SCALE;
-
-        // ====================================================
-        // TOTAL WIDTH
-        // ====================================================
-
-        const totalWidth =
-            measuredWords.reduce(
-                (
-                    total: number,
-                    item: {
-                        word: any;
-                        text: string;
-                        width: number;
-                    }
-                ) => {
-
-                    return (
-                        total +
-                        item.width
-                    );
-                },
-                0
-            ) +
-            Math.max(
-                0,
-                measuredWords.length - 1
-            ) *
-            spaceWidth;
-
-        // ====================================================
-        // LINE START X
-        // ====================================================
-
-        let lineStartX =
-            x;
-
-        if (
-            align === "center"
-        ) {
-
-            lineStartX =
-                x -
-                totalWidth / 2;
-
-        }
-        else if (
-            align === "right"
-        ) {
-
-            lineStartX =
-                x -
-                totalWidth;
-        }
-
-        // ====================================================
+        // ----------------------------------------------------
         // ASS ALIGNMENT
-        // ====================================================
+        // ----------------------------------------------------
 
-        let assAlignment = 5;
+        let alignment = 5;
 
         if (
             align === "left"
         ) {
-
-            assAlignment = 4;
-
+            alignment = 4;
         }
-        else if (
+
+        if (
             align === "right"
         ) {
+            alignment = 6;
+        }
 
-            assAlignment = 6;
+        // ----------------------------------------------------
+        // WORDS
+        // ----------------------------------------------------
+
+        const words =
+            Array.isArray(
+                line.words
+            )
+                ? line.words
+                : [];
+
+        const validWords =
+            words.filter(
+                (
+                    word: LyricWord
+                ): boolean => {
+                    const text =
+                        getText(
+                            word
+                        );
+
+                    const start =
+                        Number(
+                            word.start
+                        );
+
+                    const end =
+                        Number(
+                            word.end
+                        );
+
+                    return (
+                        text.length > 0 &&
+                        Number.isFinite(
+                            start
+                        ) &&
+                        Number.isFinite(
+                            end
+                        ) &&
+                        end > start
+                    );
+                }
+            );
+
+        // ----------------------------------------------------
+        // COMMON ASS TAG
+        // ----------------------------------------------------
+
+        const commonTag =
+            `{\\fn${fontFamily}` +
+            `\\fs${exportFontSize}` +
+            `\\1c${assColor(
+                normalColor
+            )}` +
+            `\\2c${assColor(
+                activeColor
+            )}` +
+            `\\3c${assColor(
+                outlineColor
+            )}` +
+            `\\bord${outlineWidth * 2}` +
+            `\\shad${shadow ? 2 : 0}` +
+            `\\an${alignment}` +
+            `\\pos(${exportX},${exportY})}`;
+
+        // ====================================================
+        // WORD TIMING
+        // ====================================================
+
+        if (
+            validWords.length > 0
+        ) {
+            console.log(
+                "[ASS] LINE:",
+                line.text
+            );
+
+            console.log(
+                "[ASS] LINE TIMING:",
+                lineStart,
+                lineEnd
+            );
+
+            console.log(
+                "[ASS] WORD COUNT:",
+                validWords.length
+            );
+
+            const karaokeParts: string[] = [];
+
+            for (
+                let wordIndex = 0;
+                wordIndex <
+                validWords.length;
+                wordIndex++
+            ) {
+                const word =
+                    validWords[
+                        wordIndex
+                    ];
+
+                const text =
+                    getText(
+                        word
+                    );
+
+                const wordStart =
+                    Number(
+                        word.start
+                    );
+
+                const wordEnd =
+                    Number(
+                        word.end
+                    );
+
+                const duration =
+                    wordEnd -
+                    wordStart;
+
+                const centiseconds =
+                    Math.max(
+                        1,
+                        Math.round(
+                            duration * 100
+                        )
+                    );
+
+                karaokeParts.push(
+                    `{\\k${centiseconds}}` +
+                    escapeASS(
+                        text
+                    )
+                );
+            }
+
+            const karaokeText =
+                karaokeParts.join(
+                    " "
+                );
+
+            const eventText =
+                commonTag +
+                karaokeText;
+
+            const dialogue =
+                "Dialogue:" +
+                "0," +
+                assTime(lineStart) +
+                "," +
+                assTime(lineEnd) +
+                "," +
+                "Karaoke," +
+                "," +
+                "0,0,0,," +
+                eventText;
+
+            console.log(
+                "[ASS] DIALOGUE:",
+                dialogue
+            );
+
+            events.push(
+                dialogue
+            );
+
+            continue;
         }
 
         // ====================================================
-        // NORMAL TEXT
+        // FALLBACK - LINE TEXT
         // ====================================================
 
-        const normalText =
-            words
-                .map(
-                    (word: any) =>
-                        escapeASS(
-                            getText(word)
-                        )
-                )
-                .join(" ");
+        const fallbackText =
+            String(
+                line.text ?? ""
+            ).trim();
 
-        // ====================================================
-        // NORMAL OVERRIDE
-        // ====================================================
+        if (
+            fallbackText.length === 0
+        ) {
+            continue;
+        }
 
-        const normalOverride =
-            `{` +
-            `\\fn${fontFamily}` +
-            `\\fs${exportFontSize}` +
-            `\\1c${normalColor}` +
-            `\\3c${outlineColorASS}` +
-            `\\bord${exportOutline}` +
-            `\\shad${shadowValue}` +
-            `\\an${assAlignment}` +
-            `\\pos(${x.toFixed(2)},${y.toFixed(2)})` +
-            `}`;
+        const fallbackTextEscaped =
+            escapeASS(
+                fallbackText
+            );
 
-        // ====================================================
-        // NORMAL EVENT
-        // ====================================================
+        const fallbackEvent =
+            commonTag +
+            fallbackTextEscaped;
 
-        events.push(
-            [
-                "Dialogue: 0",
-                assTime(start),
-                assTime(end),
-                "Karaoke",
-                "",
-                "0",
-                "0",
-                "0",
-                "",
-                `${normalOverride}${normalText}`,
-            ].join(",")
+        const dialogue =
+            "Dialogue:" +
+            "0," +
+            assTime(lineStart) +
+            "," +
+            assTime(lineEnd) +
+            "," +
+            "Karaoke," +
+            "," +
+            "0,0,0,," +
+            fallbackEvent;
+
+        console.log(
+            "[ASS] FALLBACK DIALOGUE:",
+            dialogue
         );
 
-        // ====================================================
-        // ACTIVE WORDS
-        // ====================================================
-
-        let currentX =
-            lineStartX;
-
-        for (
-            const item of measuredWords
-        ) {
-
-            const word =
-                item.word;
-
-            const wordStart =
-                Number(
-                    word.start
-                );
-
-            const wordEnd =
-                Number(
-                    word.end
-                );
-
-            if (
-                !Number.isFinite(wordStart) ||
-                !Number.isFinite(wordEnd) ||
-                wordEnd <= wordStart
-            ) {
-
-                currentX +=
-                    item.width +
-                    spaceWidth;
-
-                continue;
-            }
-
-            const clipLeft =
-                currentX;
-
-            const clipRight =
-                currentX +
-                item.width;
-
-            const wordDuration =
-                wordEnd -
-                wordStart;
-
-            // =================================================
-            // 20 FPS ACTIVE COLOR
-            // =================================================
-
-            const STEP =
-                1 / 20;
-
-            let currentTime =
-                wordStart;
-
-            while (
-                currentTime < wordEnd
-            ) {
-
-                const nextTime =
-                    Math.min(
-                        wordEnd,
-                        currentTime + STEP
-                    );
-
-                const percent =
-                    Math.max(
-                        0,
-                        Math.min(
-                            1,
-                            (
-                                nextTime -
-                                wordStart
-                            ) /
-                            wordDuration
-                        )
-                    );
-
-                const currentClipRight =
-                    clipLeft +
-                    (
-                        clipRight -
-                        clipLeft
-                    ) *
-                    percent;
-
-                // =================================================
-                // ACTIVE OVERRIDE
-                // =================================================
-
-                const activeOverride =
-                    `{` +
-                    `\\fn${fontFamily}` +
-                    `\\fs${exportFontSize}` +
-                    `\\1c${activeColorASS}` +
-                    `\\3c${outlineColorASS}` +
-                    `\\bord${exportOutline}` +
-                    `\\shad${shadowValue}` +
-                    `\\an${assAlignment}` +
-                    `\\pos(${x.toFixed(2)},${y.toFixed(2)})` +
-                    `\\clip(` +
-                    `${clipLeft.toFixed(2)},` +
-                    `0,` +
-                    `${currentClipRight.toFixed(2)},` +
-                    `${EXPORT_HEIGHT}` +
-                    `)` +
-                    `}`;
-
-                events.push(
-                    [
-                        "Dialogue: 1",
-                        assTime(currentTime),
-                        assTime(nextTime),
-                        "Karaoke",
-                        "",
-                        "0",
-                        "0",
-                        "0",
-                        "",
-                        `${activeOverride}${escapeASS(
-                            item.text
-                        )}`,
-                    ].join(",")
-                );
-
-                currentTime =
-                    nextTime;
-            }
-
-            currentX +=
-                item.width +
-                spaceWidth;
-        }
+        events.push(
+            dialogue
+        );
     }
 
-    return (
+    const ass =
         header +
-        "\n" +
         events.join("\n") +
-        "\n"
+        "\n";
+
+    console.log(
+        "[ASS] TOTAL DIALOGUE:",
+        events.length
+    );
+
+    return ass;
+}
+
+// ============================================================
+// LOG ASS
+// ============================================================
+
+function logASS(
+    ass: string
+): void {
+    console.log(
+        "========== ASS BEGIN =========="
+    );
+
+    console.log(
+        ass
+    );
+
+    console.log(
+        "========== ASS END =========="
     );
 }
 
@@ -688,79 +795,54 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 // LOAD FFMPEG
 // ============================================================
 
-export async function loadFFmpeg(
-    onProgress?: (
-        progress: number
-    ) => void
-) {
-
-    if (loaded) {
-
-        console.log(
-            "[FFMPEG] Already loaded."
-        );
-
-        return;
+async function loadFFmpeg(): Promise<FFmpeg> {
+    if (
+        ffmpeg &&
+        ffmpegLoaded
+    ) {
+        return ffmpeg;
     }
 
     console.log(
-        "[FFMPEG] ===== LOAD START ====="
+        "[FFMPEG] Loading FFmpeg..."
     );
 
-    // IMPORTANT:
-    // Phải là URL thật, không phải Markdown.
-    const baseURL =
-        "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm";
+    const instance =
+        new FFmpeg();
 
-    // ========================================================
-    // EVENTS
-    // ========================================================
-
-    ffmpeg.on(
-        "progress",
-        ({ progress }) => {
-
-            const percent =
-                Math.round(
-                    Math.max(
-                        0,
-                        Math.min(
-                            1,
-                            progress
-                        ) *
-                        100
-                    )
-                );
-
-            console.log(
-                "[FFMPEG] Progress:",
-                percent
-            );
-
-            onProgress?.(
-                percent
-            );
-        }
-    );
-
-    ffmpeg.on(
+    instance.on(
         "log",
-        ({ message }) => {
-
+        ({
+            message,
+        }) => {
             console.log(
-                "[FFMPEG]",
+                "[FFMPEG LOG]",
                 message
             );
         }
     );
 
-    // ========================================================
-    // CORE JS
-    // ========================================================
-
-    console.log(
-        "[FFMPEG] Fetching core JS..."
+    instance.on(
+        "progress",
+        ({
+            progress,
+        }) => {
+            console.log(
+                "[FFMPEG PROGRESS]",
+                Math.round(
+                    progress * 100
+                )
+            );
+        }
     );
+
+    // --------------------------------------------------------
+    // IMPORTANT:
+    // KHÔNG CÓ MARKDOWN LINK Ở ĐÂY
+    // --------------------------------------------------------
+
+    const baseURL =
+        `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/esm`;
 
     const coreURL =
         await toBlobURL(
@@ -768,50 +850,46 @@ export async function loadFFmpeg(
             "text/javascript"
         );
 
-    console.log(
-        "[FFMPEG] Core JS ready."
-    );
-
-    // ========================================================
-    // WASM
-    // ========================================================
-
-    console.log(
-        "[FFMPEG] Fetching WASM..."
-    );
-
     const wasmURL =
         await toBlobURL(
             `${baseURL}/ffmpeg-core.wasm`,
             "application/wasm"
         );
 
-    console.log(
-        "[FFMPEG] WASM ready."
-    );
-
-    // ========================================================
-    // LOAD
-    // ========================================================
-
-    console.log(
-        "[FFMPEG] Calling ffmpeg.load()..."
-    );
-
-    await ffmpeg.load({
+    await instance.load({
         coreURL,
         wasmURL,
     });
 
+    ffmpeg =
+        instance;
+
+    ffmpegLoaded =
+        true;
+
     console.log(
-        "[FFMPEG] ffmpeg.load() completed."
+        "[FFMPEG] FFmpeg loaded successfully."
     );
 
-    loaded = true;
+    return instance;
+}
 
-    console.log(
-        "[FFMPEG] ===== LOAD SUCCESS ====="
-    );
+// ============================================================
+// DELETE FILE SAFE
+// ============================================================
+
+async function deleteFileSafe(
+    engine: FFmpeg,
+    filename: string
+): Promise<void> {
+    try {
+        await engine.deleteFile(
+            filename
+        );
+    }
+    catch {
+        // Ignore
+    }
 }
 
 // ============================================================
@@ -819,67 +897,89 @@ export async function loadFFmpeg(
 // ============================================================
 
 export async function exportVideo(
-    videoFile: string,
-    lyrics: any,
+    videoFile: string | File,
+    lyrics: LyricLine[],
     onProgress?: (
         progress: number
     ) => void
 ): Promise<Blob> {
-
     console.log(
         "[FFMPEG] Preparing karaoke export..."
     );
 
-    // ========================================================
-    // NORMALIZE LYRICS
-    // ========================================================
+    // --------------------------------------------------------
+    // VALIDATE
+    // --------------------------------------------------------
 
-    const safeLyrics =
-        normalizeLyrics(
-            lyrics
+    if (!videoFile) {
+        throw new Error(
+            "Không có video để export."
         );
+    }
 
-    console.log(
-        "[FFMPEG] Lyrics:",
-        safeLyrics
-    );
+    if (
+        !Array.isArray(
+            lyrics
+        )
+    ) {
+        throw new Error(
+            "Dữ liệu lyrics không hợp lệ."
+        );
+    }
 
     console.log(
         "[FFMPEG] Lyrics count:",
-        safeLyrics.length
+        lyrics.length
     );
 
-    if (
-        safeLyrics.length === 0
-    ) {
-
-        throw new Error(
-            "Không có lyrics hợp lệ để export."
-        );
-    }
-
-    // ========================================================
-    // LOAD FFMPEG
-    // ========================================================
-
-    await loadFFmpeg(
-        onProgress
-    );
-
-    // ========================================================
-    // INPUT VIDEO
-    // ========================================================
+    // --------------------------------------------------------
+    // PRINT LYRICS
+    // --------------------------------------------------------
 
     console.log(
-        "[FFMPEG] Fetching input video..."
+        "[EXPORT LYRICS]",
+        JSON.stringify(
+            lyrics,
+            null,
+            2
+        )
     );
 
-    if (!videoFile) {
+    // --------------------------------------------------------
+    // LOAD FFMPEG
+    // --------------------------------------------------------
 
-        throw new Error(
-            "Không có video đầu vào."
-        );
-    }
+    const engine =
+        await loadFFmpeg();
+
+    onProgress?.(5);
+
+    // --------------------------------------------------------
+    // CLEAN
+    // --------------------------------------------------------
+
+    await deleteFileSafe(
+        engine,
+        "input.mp4"
+    );
+
+    await deleteFileSafe(
+        engine,
+        "karaoke.ass"
+    );
+
+    await deleteFileSafe(
+        engine,
+        "output.mp4"
+    );
+
+    // --------------------------------------------------------
+    // WRITE VIDEO
+    // --------------------------------------------------------
+
+    console.log(
+        "[FFMPEG] Reading input video..."
+    );
 
     const inputData =
         await fetchFile(
@@ -888,183 +988,209 @@ export async function exportVideo(
 
     console.log(
         "[FFMPEG] Input size:",
-        inputData.byteLength,
-        "bytes"
+        inputData.length
     );
 
-    await ffmpeg.writeFile(
+    await engine.writeFile(
         "input.mp4",
         inputData
     );
 
-    console.log(
-        "[FFMPEG] Input video written."
-    );
+    onProgress?.(10);
 
-    // ========================================================
+    // --------------------------------------------------------
     // BUILD ASS
-    // ========================================================
+    // --------------------------------------------------------
 
     console.log(
-        "[FFMPEG] Building karaoke ASS..."
+        "[FFMPEG] Building ASS subtitles..."
     );
 
-    const assContent =
+    const ass =
         buildASS(
-            safeLyrics
+            lyrics
         );
 
-    console.log(
-        "[FFMPEG] ASS length:",
-        assContent.length
+    logASS(
+        ass
     );
 
-    // DEBUG
-    console.log(
-        "[FFMPEG] ===== ASS CONTENT ====="
-    );
+    if (
+        !ass.includes(
+            "Dialogue:"
+        )
+    ) {
+        console.warn(
+            "[FFMPEG] WARNING: ASS has NO Dialogue."
+        );
+    }
 
-    console.log(
-        assContent
-    );
-
-    console.log(
-        "[FFMPEG] ===== END ASS ====="
-    );
+    // --------------------------------------------------------
+    // WRITE ASS
+    // --------------------------------------------------------
 
     const assData =
         new TextEncoder().encode(
-            assContent
+            ass
         );
 
-    await ffmpeg.writeFile(
+    await engine.writeFile(
         "karaoke.ass",
         assData
     );
 
     console.log(
-        "[FFMPEG] ASS subtitle written."
+        "[FFMPEG] ASS written successfully."
     );
 
-    // ========================================================
-    // REMOVE OLD OUTPUT
-    // ========================================================
+    onProgress?.(15);
 
-    try {
+    // --------------------------------------------------------
+    // FILTER
+    // --------------------------------------------------------
 
-        await ffmpeg.deleteFile(
-            "output.mp4"
-        );
+    const videoFilter =
+        [
+            `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:force_original_aspect_ratio=decrease`,
+            `pad=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(ow-iw)/2:(oh-ih)/2`,
+            "subtitles=karaoke.ass:charenc=UTF-8",
+        ].join(",");
 
-    }
-    catch {
-        // output chưa tồn tại
-    }
+    console.log(
+        "[FFMPEG] Video filter:",
+        videoFilter
+    );
 
-    // ========================================================
+    // --------------------------------------------------------
     // EXPORT
-    // ========================================================
+    // --------------------------------------------------------
+
+    onProgress?.(20);
 
     console.log(
-        "[FFMPEG] ===== EXPORT START ====="
+        "[FFMPEG] Starting render..."
     );
 
-    await ffmpeg.exec([
-        "-i",
-        "input.mp4",
+    await engine.exec(
+        [
+            "-i",
+            "input.mp4",
 
-        "-vf",
-        `subtitles=karaoke.ass,scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:force_original_aspect_ratio=decrease,pad=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(ow-iw)/2:(oh-ih)/2`,
+            "-vf",
+            videoFilter,
 
-        "-r",
-        "30",
+            "-r",
+            String(
+                EXPORT_FPS
+            ),
 
-        "-c:v",
-        "libx264",
+            "-c:v",
+            "libx264",
 
-        "-preset",
-        "ultrafast",
+            "-preset",
+            "ultrafast",
 
-        "-pix_fmt",
-        "yuv420p",
+            "-crf",
+            "23",
 
-        "-c:a",
-        "aac",
+            "-pix_fmt",
+            "yuv420p",
 
-        "-b:a",
-        "192k",
+            "-c:a",
+            "aac",
 
-        "-movflags",
-        "+faststart",
+            "-b:a",
+            "192k",
 
-        "output.mp4",
-    ]);
+            "-movflags",
+            "+faststart",
 
-    console.log(
-        "[FFMPEG] ===== EXPORT COMPLETE ====="
+            "-y",
+
+            "output.mp4",
+        ]
     );
 
-    // ========================================================
+    onProgress?.(95);
+
+    // --------------------------------------------------------
     // READ OUTPUT
-    // ========================================================
+    // --------------------------------------------------------
+
+    console.log(
+        "[FFMPEG] Reading output..."
+    );
 
     const outputData =
-        await ffmpeg.readFile(
+        await engine.readFile(
             "output.mp4"
         );
 
-    if (
-        typeof outputData === "string"
-    ) {
+    // --------------------------------------------------------
+    // CHECK OUTPUT
+    // --------------------------------------------------------
 
+    if (
+        typeof outputData ===
+        "string"
+    ) {
         throw new Error(
-            "FFmpeg output không hợp lệ."
+            "FFmpeg trả về output không hợp lệ."
         );
     }
+
+    // --------------------------------------------------------
+    // FIX TYPESCRIPT BLOB ERROR
+    // --------------------------------------------------------
 
     const outputBytes =
         new Uint8Array(
             outputData
         );
 
+    const outputBuffer =
+        outputBytes.buffer;
+
     const outputBlob =
         new Blob(
-            [outputBytes],
+            [
+                outputBuffer,
+            ],
             {
-                type: "video/mp4",
+                type:
+                    "video/mp4",
             }
         );
 
     console.log(
         "[FFMPEG] Output size:",
-        outputBlob.size,
-        "bytes"
+        outputBlob.size
     );
 
-    // ========================================================
-    // CLEANUP
-    // ========================================================
+    onProgress?.(100);
 
-    try {
-        await ffmpeg.deleteFile(
-            "input.mp4"
-        );
-    }
-    catch {}
+    // --------------------------------------------------------
+    // CLEAN
+    // --------------------------------------------------------
 
-    try {
-        await ffmpeg.deleteFile(
-            "karaoke.ass"
-        );
-    }
-    catch {}
+    await deleteFileSafe(
+        engine,
+        "input.mp4"
+    );
 
-    try {
-        await ffmpeg.deleteFile(
-            "output.mp4"
-        );
-    }
-    catch {}
+    await deleteFileSafe(
+        engine,
+        "karaoke.ass"
+    );
+
+    await deleteFileSafe(
+        engine,
+        "output.mp4"
+    );
+
+    console.log(
+        "[FFMPEG] Export completed."
+    );
 
     return outputBlob;
 }
