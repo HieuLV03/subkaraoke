@@ -70,6 +70,17 @@ export default function TimingPage() {
      * window.addEventListener("keyup", ...)
      *
      * nên không cần thay đổi SyncRecorder.
+     *
+     * Pointer Events hoạt động cho:
+     *
+     * - Mouse
+     * - Touch
+     * - Pen
+     *
+     * Quan trọng:
+     * Không dùng onPointerLeave để kết thúc timing.
+     * Vì trên mobile ngón tay có thể lệch khỏi button
+     * trong lúc đang giữ.
      */
 
     const handleTimingPointerDown = (
@@ -77,10 +88,25 @@ export default function TimingPage() {
     ) => {
 
         e.preventDefault();
+        e.stopPropagation();
 
-        e.currentTarget.setPointerCapture(
-            e.pointerId
-        );
+
+        // Giữ pointer trên button.
+        // Nhờ vậy mobile vẫn giữ trạng thái nhấn
+        // ngay cả khi ngón tay di chuyển nhẹ.
+
+        try {
+
+            e.currentTarget.setPointerCapture(
+                e.pointerId
+            );
+
+        } catch {
+            // Browser không hỗ trợ thì bỏ qua.
+        }
+
+
+        // SPACE DOWN
 
         window.dispatchEvent(
             new KeyboardEvent(
@@ -92,6 +118,7 @@ export default function TimingPage() {
                 }
             )
         );
+
     };
 
 
@@ -100,6 +127,10 @@ export default function TimingPage() {
     ) => {
 
         e.preventDefault();
+        e.stopPropagation();
+
+
+        // SPACE UP
 
         window.dispatchEvent(
             new KeyboardEvent(
@@ -111,6 +142,85 @@ export default function TimingPage() {
                 }
             )
         );
+
+
+        // Release pointer capture
+
+        try {
+
+            if (
+                e.currentTarget.hasPointerCapture(
+                    e.pointerId
+                )
+            ) {
+
+                e.currentTarget.releasePointerCapture(
+                    e.pointerId
+                );
+
+            }
+
+        } catch {
+            // Browser không hỗ trợ thì bỏ qua.
+        }
+
+    };
+
+
+    // ============================================================
+    // POINTER CANCEL
+    // ============================================================
+
+    const handleTimingPointerCancel = (
+        e: React.PointerEvent<HTMLButtonElement>
+    ) => {
+
+        e.preventDefault();
+        e.stopPropagation();
+
+
+        // Nếu browser cancel pointer,
+        // vẫn phải gửi SPACE UP để SyncRecorder
+        // không bị mắc ở trạng thái đang timing.
+
+        window.dispatchEvent(
+            new KeyboardEvent(
+                "keyup",
+                {
+                    code: "Space",
+                    key: " ",
+                    bubbles: true
+                }
+            )
+        );
+
+    };
+
+
+    // ============================================================
+    // PREVENT CONTEXT MENU
+    // ============================================================
+
+    const handleTimingContextMenu = (
+        e: React.MouseEvent<HTMLButtonElement>
+    ) => {
+
+        e.preventDefault();
+        e.stopPropagation();
+
+    };
+
+
+    // ============================================================
+    // PREVENT TEXT SELECTION
+    // ============================================================
+
+    const handleTimingSelectStart = (
+        e: React.SyntheticEvent<HTMLButtonElement>
+    ) => {
+
+        e.preventDefault();
+
     };
 
 
@@ -132,6 +242,7 @@ export default function TimingPage() {
                 synced: false
             }
         );
+
     };
 
 
@@ -377,34 +488,54 @@ export default function TimingPage() {
                 <div className="timing-actions">
 
                     {/* ==================================================
-                        MOBILE SPACE BUTTON
+                        MOBILE TIMING BUTTON
                     ================================================== */}
-<button
-    type="button"
-    className="timing-btn timing-space-btn"
-    onPointerDown={handleTimingPointerDown}
-    onPointerUp={handleTimingPointerUp}
-    onPointerCancel={handleTimingPointerUp}
-    onPointerLeave={(e) => {
-        // Nếu ngón tay rời khỏi nút trong lúc đang giữ,
-        // vẫn kết thúc timing.
-        handleTimingPointerUp(e);
-    }}
-    onContextMenu={(e) => {
-        e.preventDefault();
-    }}
-    onSelect={(e) => {
-        e.preventDefault();
-    }}
->
-    <span className="timing-space-icon">
-        ●
-    </span>
 
-    <span>
-        TIMING
-    </span>
-</button>
+                    <button
+                        type="button"
+
+                        className="timing-btn timing-space-btn"
+
+                        onPointerDown={
+                            handleTimingPointerDown
+                        }
+
+                        onPointerUp={
+                            handleTimingPointerUp
+                        }
+
+                        onPointerCancel={
+                            handleTimingPointerCancel
+                        }
+
+                        onContextMenu={
+                            handleTimingContextMenu
+                        }
+
+                        onSelect={
+                            handleTimingSelectStart
+                        }
+
+                        onDragStart={
+                            e => {
+                                e.preventDefault();
+                            }
+                        }
+                    >
+
+                        <span
+                            className="timing-space-icon"
+                        >
+                            ●
+                        </span>
+
+                        <span>
+                            TIMING
+                        </span>
+
+                    </button>
+
+
                     {/* ==================================================
                         RESET LAST
                     ================================================== */}
