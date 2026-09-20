@@ -23,11 +23,6 @@ return (
 
 
 <div>
-🤖 AI Tools
-</div>
-
-
-<div>
 🎬 Render
 </div>
 

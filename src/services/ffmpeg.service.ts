@@ -13,6 +13,7 @@ const FFMPEG_CORE_VERSION = "0.12.10";
 
 const PREVIEW_WIDTH = 640;
 const PREVIEW_HEIGHT = 360;
+
 const PREVIEW_SCALE =
     EXPORT_WIDTH / PREVIEW_WIDTH;
 
@@ -494,13 +495,20 @@ function drawLyricFrame(
         );
     }
 
-    // Transparent canvas
+    // ========================================================
+    // CLEAR
+    // ========================================================
+
     ctx.clearRect(
         0,
         0,
         canvas.width,
         canvas.height
     );
+
+    // ========================================================
+    // DRAW ACTIVE LINES
+    // ========================================================
 
     for (const line of lyrics) {
         const lineStart =
@@ -851,7 +859,7 @@ async function safeDelete(
         );
     }
     catch {
-        // ignore
+        // Ignore.
     }
 }
 
@@ -861,14 +869,18 @@ async function safeDelete(
 
 export async function exportVideo(
     videoFile: string | File | Blob,
+
     imageFile:
         | string
         | File
         | Blob
         | null
         | undefined,
+
     lyrics: LyricLine[],
+
     duration: number,
+
     onProgress?: (
         progress: number
     ) => void
@@ -920,15 +932,6 @@ export async function exportVideo(
     const isImageMode =
         !!imageFile;
 
-    if (
-        isImageMode &&
-        !imageFile
-    ) {
-        throw new Error(
-            "Chế độ Image chưa có ảnh nền."
-        );
-    }
-
     // ========================================================
     // CANVAS
     // ========================================================
@@ -961,7 +964,7 @@ export async function exportVideo(
         EXPORT_HEIGHT;
 
     // ========================================================
-    // CLEAN OLD FILES
+    // FILE NAMES
     // ========================================================
 
     const inputVideoName =
@@ -972,6 +975,13 @@ export async function exportVideo(
 
     const outputName =
         "output.mp4";
+
+    const framePattern =
+        "frame-%07d.png";
+
+    // ========================================================
+    // CLEAN OLD FILES
+    // ========================================================
 
     await safeDelete(
         engine,
@@ -1044,7 +1054,7 @@ export async function exportVideo(
         );
 
     console.log(
-        "[EXPORT] Total frames:",
+        "[EXPORT] Total lyric frames:",
         totalFrames
     );
 
@@ -1114,13 +1124,6 @@ export async function exportVideo(
     }
 
     // ========================================================
-    // INPUT PATTERN
-    // ========================================================
-
-    const framePattern =
-        "frame-%07d.png";
-
-    // ========================================================
     // FFMPEG ARGS
     // ========================================================
 
@@ -1129,15 +1132,32 @@ export async function exportVideo(
     // ========================================================
     // IMAGE MODE
     //
-    // input 0 = background image
+    // input 0 = ONE background image
     // input 1 = lyric PNG frames
-    // input 2 = timing video/audio
+    // input 2 = timing video / audio
     //
-    // IMPORTANT:
-    // - Background image is explicitly 25 FPS.
-    // - Lyric frames are explicitly 25 FPS.
-    // - Both are converted to stable formats.
-    // - Output is constant frame rate.
+    // IMPORTANT FIX:
+    //
+    // KHÔNG dùng:
+    //
+    // -loop 1
+    // -framerate 21
+    // -i background-image
+    //
+    // Vì cách đó khiến FFmpeg decode PNG
+    // liên tục như một video input.
+    //
+    // Thay vào đó:
+    //
+    // PNG chỉ được đọc 1 frame.
+    //
+    // Sau đó filter:
+    //
+    // loop=loop=-1:size=1:start=0
+    //
+    // sẽ clone chính frame đó.
+    //
+    // Như vậy ảnh nền luôn giống hệt nhau.
     // ========================================================
 
     if (isImageMode) {
@@ -1146,13 +1166,9 @@ export async function exportVideo(
 
             // =================================================
             // BACKGROUND IMAGE
+            //
+            // READ ONLY ONE FRAME
             // =================================================
-
-            "-loop",
-            "1",
-
-            "-framerate",
-            String(EXPORT_FPS),
 
             "-i",
             inputImageName,
@@ -1181,27 +1197,74 @@ export async function exportVideo(
             "-filter_complex",
 
             `[0:v]` +
+
+            // -------------------------------------------------
+            // Convert image to RGBA first
+            // -------------------------------------------------
+
+            `format=rgba,` +
+
+            // -------------------------------------------------
+            // Scale image
+            // -------------------------------------------------
+
             `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
             `force_original_aspect_ratio=decrease,` +
+
+            // -------------------------------------------------
+            // Center image
+            // -------------------------------------------------
+
             `pad=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
             `(ow-iw)/2:(oh-ih)/2,` +
+
+            // -------------------------------------------------
+            // IMPORTANT:
+            //
+            // Repeat ONE decoded frame.
+            //
+            // No repeated PNG decoding.
+            // -------------------------------------------------
+
+            `loop=loop=-1:size=1:start=0,` +
+
+            // -------------------------------------------------
+            // Force constant FPS
+            // -------------------------------------------------
+
+            `fps=${EXPORT_FPS},` +
+
+            // -------------------------------------------------
+            // Convert background to YUV
+            // -------------------------------------------------
+
             `format=yuv420p[bg];` +
 
+            // -------------------------------------------------
+            // LYRIC STREAM
+            // -------------------------------------------------
+
             `[1:v]` +
+
             `format=rgba[lyrics];` +
 
+            // -------------------------------------------------
+            // OVERLAY
+            // -------------------------------------------------
+
             `[bg][lyrics]` +
+
             `overlay=0:0:format=yuv420[outv]`,
 
             // =================================================
-            // VIDEO OUTPUT
+            // VIDEO MAP
             // =================================================
 
             "-map",
             "[outv]",
 
             // =================================================
-            // AUDIO OUTPUT
+            // AUDIO MAP
             // =================================================
 
             "-map",
@@ -1215,7 +1278,7 @@ export async function exportVideo(
             String(duration),
 
             // =================================================
-            // CONSTANT FPS
+            // FPS
             // =================================================
 
             "-r",
@@ -1258,15 +1321,13 @@ export async function exportVideo(
             "+faststart",
 
             "-y",
+
             outputName,
         ];
     }
 
     // ========================================================
     // VIDEO MODE
-    //
-    // input 0 = video background
-    // input 1 = lyric PNG frames
     // ========================================================
 
     else {
@@ -1297,15 +1358,21 @@ export async function exportVideo(
             "-filter_complex",
 
             `[0:v]` +
+
             `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+
             `force_original_aspect_ratio=decrease,` +
+
             `pad=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+
             `(ow-iw)/2:(oh-ih)/2[bg];` +
 
             `[1:v]` +
+
             `format=rgba[lyrics];` +
 
             `[bg][lyrics]` +
+
             `overlay=0:0:format=yuv420[outv]`,
 
             // =================================================
@@ -1373,6 +1440,7 @@ export async function exportVideo(
             "+faststart",
 
             "-y",
+
             outputName,
         ];
     }
@@ -1389,12 +1457,22 @@ export async function exportVideo(
     );
 
     console.log(
+        "[EXPORT] FPS:",
+        EXPORT_FPS
+    );
+
+    console.log(
+        "[EXPORT] Total frames:",
+        totalFrames
+    );
+
+    console.log(
         "[EXPORT] FFmpeg args:",
         args
     );
 
     // ========================================================
-    // FFMPEG
+    // FFMPEG EXPORT
     // ========================================================
 
     onProgress?.(50);
@@ -1433,12 +1511,14 @@ export async function exportVideo(
         );
 
     }
-    finally {
+    catch (error) {
 
-        // FFmpeg API does not provide
-        // a reliable remove-listener API
-        // across every version.
+        console.error(
+            "[EXPORT] FFmpeg ERROR:",
+            error
+        );
 
+        throw error;
     }
 
     // ========================================================
@@ -1456,6 +1536,7 @@ export async function exportVideo(
         typeof outputData ===
         "string"
     ) {
+
         throw new Error(
             "FFmpeg trả về output không hợp lệ."
         );
@@ -1498,7 +1579,7 @@ export async function exportVideo(
     }
 
     // ========================================================
-    // CLEAN FRAMES
+    // CLEAN LYRIC FRAMES
     // ========================================================
 
     for (

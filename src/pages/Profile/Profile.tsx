@@ -1534,7 +1534,7 @@ async function handleResetPassword() {
                                 </h2>
 
                                 <p>
-                                    Đăng ký SubKaraokeAI
+                                    Đăng ký SubKaraoke
                                 </p>
 
                             </div>

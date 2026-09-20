@@ -681,7 +681,7 @@ export default function ExportPage() {
             // =================================================
 
             const filename =
-                `subkaraokeai-${Date.now()}.mp4`;
+                `subkaraoke-${Date.now()}.mp4`;
 
 
             downloadBlob(
