@@ -86,6 +86,17 @@ export default function ExportPage() {
     const videoFile =
         project?.videoFile;
 
+    const imageFile =
+        project?.imageFile;
+
+
+    // =========================================================
+    // DETECT BACKGROUND MODE
+    // =========================================================
+
+    const isImageMode =
+        !!imageFile;
+
 
     // =========================================================
     // STATE
@@ -126,7 +137,9 @@ export default function ExportPage() {
 
                         return (
                             total +
-                            line.words.length
+                            (
+                                line.words?.length ?? 0
+                            )
                         );
 
                     },
@@ -258,6 +271,10 @@ export default function ExportPage() {
         lyrics.length > 0 &&
         duration > 0 &&
         !!videoFile &&
+        (
+            !isImageMode ||
+            !!imageFile
+        ) &&
         !exporting;
 
 
@@ -298,9 +315,11 @@ export default function ExportPage() {
 
         window.setTimeout(
             () => {
+
                 URL.revokeObjectURL(
                     url
                 );
+
             },
             1000
         );
@@ -505,7 +524,19 @@ export default function ExportPage() {
             if (!videoFile) {
 
                 throw new Error(
-                    "Chưa có video nền."
+                    "Chưa có video timing."
+                );
+
+            }
+
+
+            if (
+                isImageMode &&
+                !imageFile
+            ) {
+
+                throw new Error(
+                    "Chế độ Image chưa có ảnh nền."
                 );
 
             }
@@ -560,7 +591,14 @@ export default function ExportPage() {
                     email:
                         currentSession.user.email,
 
+                    mode:
+                        isImageMode
+                            ? "IMAGE"
+                            : "VIDEO",
+
                     videoFile,
+
+                    imageFile,
 
                     duration,
 
@@ -589,49 +627,54 @@ export default function ExportPage() {
             // REAL FFMPEG.WASM EXPORT
             // =================================================
 
-    const outputBlob =
-    await exportVideo(
-        videoFile,
-        lyrics,
-        (
-            ffmpegProgress
-        ) => {
-
-            const safeProgress =
-                Math.max(
-                    0,
-                    Math.min(
-                        99,
+            const outputBlob =
+                await exportVideo(
+                    videoFile,
+                    imageFile,
+                    lyrics,
+                    duration,
+                    (
                         ffmpegProgress
-                    )
+                    ) => {
+
+                        const safeProgress =
+                            Math.max(
+                                0,
+                                Math.min(
+                                    99,
+                                    Math.round(
+                                        ffmpegProgress
+                                    )
+                                )
+                            );
+
+
+                        setProgress(
+                            safeProgress
+                        );
+
+
+                        if (
+                            safeProgress <= 5
+                        ) {
+
+                            setMessage(
+                                "Đang tải FFmpeg..."
+                            );
+
+                        }
+
+                        else {
+
+                            setMessage(
+                                `Đang render video... ${safeProgress}%`
+                            );
+
+                        }
+
+                    }
                 );
 
-
-            setProgress(
-                safeProgress
-            );
-
-
-            if (
-                safeProgress <= 5
-            ) {
-
-                setMessage(
-                    "Đang tải FFmpeg..."
-                );
-
-            }
-
-            else {
-
-                setMessage(
-                    `Đang render video... ${safeProgress}%`
-                );
-
-            }
-
-        }
-    );
 
             // =================================================
             // DOWNLOAD
@@ -733,8 +776,11 @@ export default function ExportPage() {
                         </h2>
 
                         <p>
-                            Xuất video karaoke hoàn chỉnh
-                            với video nền và lyrics.
+
+                            {isImageMode
+                                ? "Xuất video karaoke với ảnh nền và lyrics."
+                                : "Xuất video karaoke hoàn chỉnh với video nền và lyrics."}
+
                         </p>
 
                     </div>
@@ -751,12 +797,54 @@ export default function ExportPage() {
                         </span>
 
 
-                        {/* VIDEO */}
+                        {/* BACKGROUND */}
 
                         <div className="export-info-row">
 
                             <strong>
-                                Video Background
+                                {isImageMode
+                                    ? "Image Background"
+                                    : "Video Background"}
+                            </strong>
+
+
+                            <div
+                                className={
+                                    (
+                                        isImageMode
+                                            ? imageFile
+                                            : videoFile
+                                    )
+                                        ? "export-info-value"
+                                        : "export-info-value missing"
+                                }
+                            >
+
+                                {isImageMode
+
+                                    ? (
+                                        imageFile
+                                            ? imageFile
+                                            : "❌ Chưa chọn ảnh nền"
+                                    )
+
+                                    : (
+                                        videoFile
+                                            ? videoFile
+                                            : "❌ Chưa chọn video nền"
+                                    )}
+
+                            </div>
+
+                        </div>
+
+
+                        {/* TIMING VIDEO */}
+
+                        <div className="export-info-row">
+
+                            <strong>
+                                Timing Video
                             </strong>
 
                             <div
@@ -766,9 +854,11 @@ export default function ExportPage() {
                                         : "export-info-value missing"
                                 }
                             >
+
                                 {videoFile
                                     ? videoFile
-                                    : "❌ Chưa chọn video"}
+                                    : "❌ Chưa có video"}
+
                             </div>
 
                         </div>
@@ -784,8 +874,30 @@ export default function ExportPage() {
 
                             <div className="export-info-value">
 
-                                Sử dụng audio có sẵn
-                                trong video nền
+                                {isImageMode
+
+                                    ? "Sử dụng audio từ video timing"
+
+                                    : "Sử dụng audio từ video nền"}
+
+                            </div>
+
+                        </div>
+
+
+                        {/* MODE */}
+
+                        <div className="export-info-row">
+
+                            <strong>
+                                Background Mode
+                            </strong>
+
+                            <div className="export-info-value">
+
+                                {isImageMode
+                                    ? "IMAGE"
+                                    : "VIDEO"}
 
                             </div>
 
@@ -892,11 +1004,23 @@ export default function ExportPage() {
 
                         <div className="export-message">
 
-                            ⚠️ Bạn chưa import video nền.
+                            ⚠️ Bạn chưa import video timing.
 
                         </div>
 
                     )}
+
+
+                    {isImageMode &&
+                        !imageFile && (
+
+                            <div className="export-message">
+
+                                ⚠️ Chế độ Image nhưng chưa có ảnh nền.
+
+                            </div>
+
+                        )}
 
 
                     {/* =================================================
@@ -999,7 +1123,9 @@ export default function ExportPage() {
                             )
                         }
                     >
+
                         ← Previous
+
                     </button>
 
 
@@ -1018,9 +1144,13 @@ export default function ExportPage() {
                     >
 
                         {exporting
+
                             ? "Exporting..."
+
                             : authChecking
+
                                 ? "Checking..."
+
                                 : "Export Karaoke Video"}
 
                     </button>
