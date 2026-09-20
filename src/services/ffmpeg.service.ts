@@ -8,7 +8,7 @@ import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 const EXPORT_WIDTH = 1280;
 const EXPORT_HEIGHT = 720;
-const EXPORT_FPS = 30;
+const EXPORT_FPS = 25;
 
 const FFMPEG_CORE_VERSION = "0.12.10";
 
