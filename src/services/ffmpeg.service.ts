@@ -1,23 +1,23 @@
+
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { toBlobURL } from "@ffmpeg/util";
+
+import {
+    EXPORT_WIDTH,
+    EXPORT_HEIGHT,
+    EXPORT_SCALE,
+    calculateLyricLayout,
+    getLyricStyle,
+    getWordText,
+    getCanvasFont,
+} from "../components/karaoke/KaraokeLayout";
 
 // ============================================================
 // CONFIG
 // ============================================================
 
-const EXPORT_WIDTH = 1920;
-const EXPORT_HEIGHT = 1080;
 const EXPORT_FPS = 20;
-
 const FFMPEG_CORE_VERSION = "0.12.10";
-
-const PREVIEW_WIDTH = 640;
-const PREVIEW_HEIGHT = 360;
-
-const PREVIEW_SCALE =
-    EXPORT_WIDTH / PREVIEW_WIDTH;
-
-const WORD_GAP = 12;
 
 // ============================================================
 // TYPES
@@ -27,8 +27,10 @@ type LyricWord = {
     id?: string;
     word?: string;
     text?: string;
+
     start?: number;
     end?: number;
+
     synced?: boolean;
     measuredWidth?: number;
 };
@@ -36,23 +38,33 @@ type LyricWord = {
 type LyricStyle = {
     fontFamily?: string;
     fontSize?: number;
+
     color?: string;
     activeColor?: string;
+
     outline?: string;
     outlineWidth?: number;
+
     shadow?: boolean;
+
     x?: number;
     y?: number;
+
     scale?: number;
+
     align?: "left" | "center" | "right";
 };
 
 type LyricLine = {
     id?: string;
+
     start?: number;
     end?: number;
+
     text?: string;
+
     words?: LyricWord[];
+
     style?: LyricStyle;
 };
 
@@ -88,20 +100,18 @@ async function loadFFmpeg(): Promise<FFmpeg> {
         );
     });
 
-   const baseURL =
-    `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/esm`;
+    const baseURL =
+        `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/esm`;
 
-    const coreURL =
-        await toBlobURL(
-            `${baseURL}/ffmpeg-core.js`,
-            "text/javascript"
-        );
+    const coreURL = await toBlobURL(
+        `${baseURL}/ffmpeg-core.js`,
+        "text/javascript"
+    );
 
-    const wasmURL =
-        await toBlobURL(
-            `${baseURL}/ffmpeg-core.wasm`,
-            "application/wasm"
-        );
+    const wasmURL = await toBlobURL(
+        `${baseURL}/ffmpeg-core.wasm`,
+        "application/wasm"
+    );
 
     await instance.load({
         coreURL,
@@ -124,44 +134,11 @@ function clamp(
     value: number,
     min: number,
     max: number
-) {
+): number {
     return Math.max(
         min,
         Math.min(max, value)
     );
-}
-
-function getText(word: LyricWord) {
-    return String(
-        word.word ??
-        word.text ??
-        ""
-    );
-}
-
-function getDefaultStyle(): Required<LyricStyle> {
-    return {
-        fontFamily: "Arial",
-        fontSize: 120,
-        color: "#ffffff",
-        activeColor: "#00ff66",
-        outline: "#000000",
-        outlineWidth: 6,
-        shadow: true,
-        x: 320,
-        y: 180,
-        scale: 1,
-        align: "center",
-    };
-}
-
-function getStyle(
-    line: LyricLine
-): Required<LyricStyle> {
-    return {
-        ...getDefaultStyle(),
-        ...(line.style ?? {}),
-    };
 }
 
 // ============================================================
@@ -198,7 +175,7 @@ function normalizeLyrics(
                             `line-${lineIndex}-word-${wordIndex}`,
 
                         word:
-                            getText(word),
+                            getWordText(word),
 
                         start:
                             Number(
@@ -222,7 +199,7 @@ function normalizeLyrics(
 function getWordPercent(
     word: LyricWord,
     currentTime: number
-) {
+): number {
     const start =
         Number(word.start ?? 0);
 
@@ -261,113 +238,7 @@ function getWordPercent(
 }
 
 // ============================================================
-// CANVAS FONT
-// ============================================================
-
-function buildFont(
-    style: Required<LyricStyle>
-) {
-    return `700 ${style.fontSize}px "${style.fontFamily}"`;
-}
-
-// ============================================================
-// MEASURE WORDS
-// ============================================================
-
-function prepareMeasuredLyrics(
-    lyrics: LyricLine[],
-    measureCanvas: HTMLCanvasElement
-) {
-    const ctx =
-        measureCanvas.getContext("2d");
-
-    if (!ctx) {
-        throw new Error(
-            "Không thể tạo Canvas 2D."
-        );
-    }
-
-    const cache =
-        new Map<string, number>();
-
-    for (const line of lyrics) {
-        const style =
-            getStyle(line);
-
-        ctx.font =
-            buildFont(style);
-
-        for (const word of line.words ?? []) {
-            const text =
-                getText(word);
-
-            const key =
-                JSON.stringify({
-                    text,
-                    font: ctx.font,
-                });
-
-            if (cache.has(key)) {
-                word.measuredWidth =
-                    cache.get(key) ?? 0;
-
-                continue;
-            }
-
-            const width =
-                ctx.measureText(text).width;
-
-            cache.set(
-                key,
-                width
-            );
-
-            word.measuredWidth =
-                width;
-
-            console.log(
-                "[MEASURE]",
-                JSON.stringify(text),
-                "font:",
-                ctx.font,
-                "width:",
-                width
-            );
-        }
-    }
-
-    return lyrics;
-}
-
-// ============================================================
-// WORD WIDTH
-// ============================================================
-
-function getWordWidth(
-    word: LyricWord,
-    style: Required<LyricStyle>
-) {
-    const measured =
-        Number(
-            word.measuredWidth ?? 0
-        );
-
-    if (
-        !Number.isFinite(measured) ||
-        measured <= 0
-    ) {
-        return 0;
-    }
-
-    return (
-        measured *
-        PREVIEW_SCALE *
-        style.scale
-    );
-}
-
-// ============================================================
-// DRAW TEXT
+// DRAW WORD
 // ============================================================
 
 function drawWord(
@@ -381,30 +252,30 @@ function drawWord(
 ) {
     ctx.save();
 
+    // Preview → Export
+    const scale =
+        EXPORT_SCALE * style.scale;
+
     const fontSize =
-        style.fontSize *
-        PREVIEW_SCALE *
-        style.scale;
+        style.fontSize * scale;
 
     const outlineWidth =
-        style.outlineWidth *
-        PREVIEW_SCALE *
-        style.scale;
+        style.outlineWidth * scale;
+
+    // ========================================================
+    // FONT
+    // ========================================================
 
     ctx.font =
-        `700 ${fontSize}px "${style.fontFamily}"`;
+        getCanvasFont(
+            style,
+            scale
+        );
 
-    ctx.textBaseline =
-        "middle";
-
-    ctx.textAlign =
-        "left";
-
-    ctx.lineJoin =
-        "round";
-
-    ctx.miterLimit =
-        2;
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "left";
+    ctx.lineJoin = "round";
+    ctx.miterLimit = 2;
 
     // ========================================================
     // SHADOW
@@ -412,16 +283,15 @@ function drawWord(
 
     if (style.shadow) {
         ctx.shadowColor =
-            "rgba(0,0,0,0.8)";
+            "rgba(0,0,0,0.6)";
 
         ctx.shadowBlur =
-            6;
+            4 * scale;
 
-        ctx.shadowOffsetX =
-            3;
+        ctx.shadowOffsetX = 0;
 
         ctx.shadowOffsetY =
-            3;
+            2 * scale;
     }
 
     // ========================================================
@@ -484,7 +354,8 @@ function drawWord(
 function drawLyricFrame(
     canvas: HTMLCanvasElement,
     lyrics: LyricLine[],
-    currentTime: number
+    currentTime: number,
+    measureCtx: CanvasRenderingContext2D
 ) {
     const ctx =
         canvas.getContext("2d");
@@ -525,7 +396,7 @@ function drawLyricFrame(
         }
 
         const style =
-            getStyle(line);
+            getLyricStyle(line);
 
         const words =
             line.words ?? [];
@@ -534,82 +405,67 @@ function drawLyricFrame(
             continue;
         }
 
-        const scale =
-            style.scale;
+        // ====================================================
+        // SHARED LAYOUT
+        // ====================================================
 
-        const wordWidths =
-            words.map(
-                word =>
-                    getWordWidth(
-                        word,
-                        style
-                    )
+        const layout =
+            calculateLyricLayout(
+                line,
+                measureCtx
             );
 
-        const gap =
-            WORD_GAP *
-            PREVIEW_SCALE *
-            scale;
-
-        const totalWidth =
-            wordWidths.reduce(
-                (
-                    total,
-                    width
-                ) =>
-                    total + width,
-                0
-            ) +
-            Math.max(
-                0,
-                words.length - 1
-            ) *
-            gap;
-
-        const centerX =
-            style.x *
-            PREVIEW_SCALE;
-
-        let startX =
-            centerX;
-
-        if (
-            style.align ===
-            "center"
-        ) {
-            startX =
-                centerX -
-                totalWidth / 2;
-        }
-        else if (
-            style.align ===
-            "right"
-        ) {
-            startX =
-                centerX -
-                totalWidth;
-        }
+        // ====================================================
+        // PREVIEW 640x360
+        // →
+        // EXPORT 1920x1080
+        // ====================================================
 
         const y =
-            style.y *
-            PREVIEW_SCALE;
+            layout.y *
+            EXPORT_SCALE;
 
-        let currentX =
-            startX;
+        // ====================================================
+        // DRAW WORDS
+        //
+        // layoutWord.x đã được calculateLyricLayout()
+        // tính sẵn.
+        //
+        // Không tính currentX thủ công nữa.
+        // ====================================================
 
         for (
             let i = 0;
-            i < words.length;
+            i < layout.words.length;
             i++
         ) {
+            const layoutWord =
+                layout.words[i];
+
             const word =
                 words[i];
 
             const text =
-                getText(word);
+                getWordText(word);
+
+            // ------------------------------------------------
+            // X của word trong Preview → Export
+            // ------------------------------------------------
+
+            const currentX =
+                layoutWord.x *
+                EXPORT_SCALE;
+
+            // ------------------------------------------------
+            // Width của word đã bao gồm style.scale
+            // trong calculateLyricLayout().
+            //
+            // Vì vậy KHÔNG nhân style.scale lần nữa.
+            // ------------------------------------------------
 
             const wordWidth =
-                wordWidths[i];
+                layoutWord.width *
+                EXPORT_SCALE;
 
             const percent =
                 getWordPercent(
@@ -634,9 +490,7 @@ function drawLyricFrame(
             // ACTIVE
             // =================================================
 
-            if (
-                percent >= 100
-            ) {
+            if (percent >= 100) {
                 drawWord(
                     ctx,
                     text,
@@ -652,10 +506,7 @@ function drawLyricFrame(
             ) {
                 const clipWidth =
                     wordWidth *
-                    (
-                        percent /
-                        100
-                    );
+                    (percent / 100);
 
                 drawWord(
                     ctx,
@@ -666,17 +517,6 @@ function drawLyricFrame(
                     style.activeColor,
                     clipWidth
                 );
-            }
-
-            currentX +=
-                wordWidth;
-
-            if (
-                i <
-                words.length - 1
-            ) {
-                currentX +=
-                    gap;
             }
         }
     }
@@ -695,7 +535,7 @@ async function canvasToBlob(
             reject
         ) => {
             canvas.toBlob(
-                blob => {
+                (blob) => {
                     if (!blob) {
                         reject(
                             new Error(
@@ -725,14 +565,11 @@ async function getInputFile(
     data: Uint8Array;
     name: string;
 }> {
-
     // ========================================================
     // FILE
     // ========================================================
 
-    if (
-        input instanceof File
-    ) {
+    if (input instanceof File) {
         return {
             data:
                 new Uint8Array(
@@ -749,9 +586,7 @@ async function getInputFile(
     // BLOB
     // ========================================================
 
-    if (
-        input instanceof Blob
-    ) {
+    if (input instanceof Blob) {
         return {
             data:
                 new Uint8Array(
@@ -779,50 +614,43 @@ async function getInputFile(
     const blob =
         await response.blob();
 
-    let extension =
-        "";
+    let extension = "";
 
     if (
         blob.type ===
         "image/png"
     ) {
-        extension =
-            ".png";
+        extension = ".png";
     }
     else if (
         blob.type ===
         "image/jpeg"
     ) {
-        extension =
-            ".jpg";
+        extension = ".jpg";
     }
     else if (
         blob.type ===
         "image/webp"
     ) {
-        extension =
-            ".webp";
+        extension = ".webp";
     }
     else if (
         blob.type ===
         "video/webm"
     ) {
-        extension =
-            ".webm";
+        extension = ".webm";
     }
     else if (
         blob.type ===
         "video/mp4"
     ) {
-        extension =
-            ".mp4";
+        extension = ".mp4";
     }
     else if (
         blob.type ===
         "video/quicktime"
     ) {
-        extension =
-            ".mov";
+        extension = ".mov";
     }
 
     const name =
@@ -905,8 +733,16 @@ export async function exportVideo(
         duration
     );
 
+    // ========================================================
+    // LOAD FFMPEG
+    // ========================================================
+
     const engine =
         await loadFFmpeg();
+
+    // ========================================================
+    // NORMALIZE LYRICS
+    // ========================================================
 
     const normalizedLyrics =
         normalizeLyrics(
@@ -921,9 +757,7 @@ export async function exportVideo(
         );
     }
 
-    if (
-        !videoFile
-    ) {
+    if (!videoFile) {
         throw new Error(
             "Chưa có video timing."
         );
@@ -933,7 +767,11 @@ export async function exportVideo(
         !!imageFile;
 
     // ========================================================
-    // CANVAS
+    // MEASURE CANVAS
+    //
+    // Dùng đúng hệ tọa độ Preview:
+    //
+    // 640 x 360
     // ========================================================
 
     const measureCanvas =
@@ -942,15 +780,31 @@ export async function exportVideo(
         );
 
     measureCanvas.width =
-        EXPORT_WIDTH;
+        EXPORT_WIDTH /
+        EXPORT_SCALE;
 
     measureCanvas.height =
-        EXPORT_HEIGHT;
+        EXPORT_HEIGHT /
+        EXPORT_SCALE;
 
-    prepareMeasuredLyrics(
-        normalizedLyrics,
-        measureCanvas
-    );
+    const measureCtx =
+        measureCanvas.getContext(
+            "2d"
+        );
+
+    if (!measureCtx) {
+        throw new Error(
+            "Không thể tạo measure canvas."
+        );
+    }
+
+    await document.fonts.ready;
+
+    // ========================================================
+    // RENDER CANVAS
+    //
+    // 1920 x 1080
+    // ========================================================
 
     const renderCanvas =
         document.createElement(
@@ -1025,7 +879,6 @@ export async function exportVideo(
     // ========================================================
 
     if (isImageMode) {
-
         const imageInput =
             await getInputFile(
                 imageFile!,
@@ -1063,7 +916,6 @@ export async function exportVideo(
         frame < totalFrames;
         frame++
     ) {
-
         const currentTime =
             frame /
             EXPORT_FPS;
@@ -1071,7 +923,8 @@ export async function exportVideo(
         drawLyricFrame(
             renderCanvas,
             normalizedLyrics,
-            currentTime
+            currentTime,
+            measureCtx
         );
 
         const blob =
@@ -1131,226 +984,238 @@ export async function exportVideo(
 
     // ========================================================
     // IMAGE MODE
-    //
-    // input 0 = ONE background image
-    // input 1 = lyric PNG frames
-    // input 2 = timing video / audio
-    //
-    // IMPORTANT FIX:
-    //
-    // KHÔNG dùng:
-    //
-    // -loop 1
-    // -framerate 21
-    // -i background-image
-    //
-    // Vì cách đó khiến FFmpeg decode PNG
-    // liên tục như một video input.
-    //
-    // Thay vào đó:
-    //
-    // PNG chỉ được đọc 1 frame.
-    //
-    // Sau đó filter:
-    //
-    // loop=loop=-1:size=1:start=0
-    //
-    // sẽ clone chính frame đó.
-    //
-    // Như vậy ảnh nền luôn giống hệt nhau.
     // ========================================================
 
-if (isImageMode) {
-    args = [
-        "-i",
-        inputImageName,
+    if (isImageMode) {
+        args = [
 
-        "-framerate",
-        String(EXPORT_FPS),
-        "-i",
-        framePattern,
+            // ------------------------------------------------
+            // BACKGROUND IMAGE
+            // ------------------------------------------------
 
-        "-i",
-        inputVideoName,
+            "-i",
+            inputImageName,
 
-        "-filter_complex",
+            // ------------------------------------------------
+            // LYRIC FRAMES
+            // ------------------------------------------------
 
-        // =================================================
-        // IMAGE BACKGROUND
-        // Preview dùng object-fit: cover
-        // =================================================
-        `[0\:v]` +
-        `format=rgba,` +
-        `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
-        `force_original_aspect_ratio=increase,` +
-        `crop=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(iw-ow)/2:(ih-oh)/2,` +
-        `loop=loop=-1\:size=1\:start=0,` +
-        `fps=${EXPORT_FPS},` +
-        `format=yuv420p[bg];` +
+            "-framerate",
+            String(EXPORT_FPS),
 
-        // =================================================
-        // LYRICS
-        // =================================================
-        `[1\:v]` +
-        `format=rgba[lyrics];` +
+            "-i",
+            framePattern,
 
-        // =================================================
-        // OVERLAY
-        // =================================================
-        `[bg][lyrics]` +
-        `overlay=0:0[outv]`,
+            // ------------------------------------------------
+            // TIMING VIDEO / AUDIO
+            // ------------------------------------------------
 
-        "-map",
-        "[outv]",
+            "-i",
+            inputVideoName,
 
-        "-map",
-        "2\:a?",
+            // ------------------------------------------------
+            // FILTER
+            // ------------------------------------------------
 
-        "-t",
-        String(duration),
+            "-filter_complex",
 
-        "-r",
-        String(EXPORT_FPS),
+            `[0:v]` +
+            `format=rgba,` +
+            `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+            `force_original_aspect_ratio=increase,` +
+            `crop=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(iw-ow)/2:(ih-oh)/2,` +
+            `loop=loop=-1:size=1:start=0,` +
+            `fps=${EXPORT_FPS},` +
+            `format=yuv420p[bg];` +
 
-        "-fps_mode",
-        "cfr",
+            `[1:v]` +
+            `format=rgba[lyrics];` +
 
-        "-c\:v",
-        "libx264",
+            `[bg][lyrics]` +
+            `overlay=0:0[outv]`,
 
-        "-preset",
-        "ultrafast",
+            // ------------------------------------------------
+            // VIDEO
+            // ------------------------------------------------
 
-        "-crf",
-        "23",
+            "-map",
+            "[outv]",
 
-        "-pix_fmt",
-        "yuv420p",
+            // ------------------------------------------------
+            // AUDIO
+            // ------------------------------------------------
 
-        "-c\:a",
-        "aac",
+            "-map",
+            "2:a?",
 
-        "-b\:a",
-        "192k",
+            // ------------------------------------------------
+            // DURATION
+            // ------------------------------------------------
 
-        "-movflags",
-        "+faststart",
+            "-t",
+            String(duration),
 
-        "-y",
-        outputName,
-    ];
-}
+            // ------------------------------------------------
+            // FPS
+            // ------------------------------------------------
+
+            "-r",
+            String(EXPORT_FPS),
+
+            "-fps_mode",
+            "cfr",
+
+            // ------------------------------------------------
+            // H264
+            // ------------------------------------------------
+
+            "-c:v",
+            "libx264",
+
+            "-preset",
+            "ultrafast",
+
+            "-crf",
+            "23",
+
+            "-pix_fmt",
+            "yuv420p",
+
+            // ------------------------------------------------
+            // AUDIO
+            // ------------------------------------------------
+
+            "-c:a",
+            "aac",
+
+            "-b:a",
+            "192k",
+
+            // ------------------------------------------------
+            // MP4
+            // ------------------------------------------------
+
+            "-movflags",
+            "+faststart",
+
+            "-y",
+
+            outputName,
+        ];
+    }
 
     // ========================================================
     // VIDEO MODE
     // ========================================================
 
-  else {
-    args = [
-        // =================================================
-        // VIDEO BACKGROUND
-        // =================================================
-        "-i",
-        inputVideoName,
+    else {
+        args = [
 
-        // =================================================
-        // LYRIC FRAMES
-        // =================================================
-        "-framerate",
-        String(EXPORT_FPS),
-        "-i",
-        framePattern,
+            // ------------------------------------------------
+            // VIDEO BACKGROUND
+            // ------------------------------------------------
 
-        // =================================================
-        // FILTER
-        // =================================================
-        "-filter_complex",
+            "-i",
+            inputVideoName,
 
-        // -------------------------------------------------
-        // VIDEO
-        // Preview:
-        // object-fit: cover
-        // -------------------------------------------------
-        `[0\:v]` +
-        `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
-        `force_original_aspect_ratio=increase,` +
-        `crop=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(iw-ow)/2:(ih-oh)/2,` +
-        `fps=${EXPORT_FPS},` +
-        `format=yuv420p[bg];` +
+            // ------------------------------------------------
+            // LYRIC FRAMES
+            // ------------------------------------------------
 
-        // -------------------------------------------------
-        // LYRICS
-        // -------------------------------------------------
-        `[1\:v]` +
-        `format=rgba[lyrics];` +
+            "-framerate",
+            String(EXPORT_FPS),
 
-        // -------------------------------------------------
-        // OVERLAY
-        // -------------------------------------------------
-        `[bg][lyrics]` +
-        `overlay=0:0[outv]`,
+            "-i",
+            framePattern,
 
-        // =================================================
-        // VIDEO
-        // =================================================
-        "-map",
-        "[outv]",
+            // ------------------------------------------------
+            // FILTER
+            // ------------------------------------------------
 
-        // =================================================
-        // AUDIO
-        // =================================================
-        "-map",
-        "0\:a?",
+            "-filter_complex",
 
-        // =================================================
-        // DURATION
-        // =================================================
-        "-t",
-        String(duration),
+            `[0:v]` +
+            `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+            `force_original_aspect_ratio=increase,` +
+            `crop=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(iw-ow)/2:(ih-oh)/2,` +
+            `fps=${EXPORT_FPS},` +
+            `format=yuv420p[bg];` +
 
-        // =================================================
-        // FPS
-        // =================================================
-        "-r",
-        String(EXPORT_FPS),
+            `[1:v]` +
+            `format=rgba[lyrics];` +
 
-        "-fps_mode",
-        "cfr",
+            `[bg][lyrics]` +
+            `overlay=0:0[outv]`,
 
-        // =================================================
-        // H264
-        // =================================================
-        "-c\:v",
-        "libx264",
+            // ------------------------------------------------
+            // VIDEO
+            // ------------------------------------------------
 
-        "-preset",
-        "ultrafast",
+            "-map",
+            "[outv]",
 
-        "-crf",
-        "23",
+            // ------------------------------------------------
+            // AUDIO
+            // ------------------------------------------------
 
-        "-pix_fmt",
-        "yuv420p",
+            "-map",
+            "0:a?",
 
-        // =================================================
-        // AUDIO
-        // =================================================
-        "-c\:a",
-        "aac",
+            // ------------------------------------------------
+            // DURATION
+            // ------------------------------------------------
 
-        "-b\:a",
-        "192k",
+            "-t",
+            String(duration),
 
-        // =================================================
-        // MP4
-        // =================================================
-        "-movflags",
-        "+faststart",
+            // ------------------------------------------------
+            // FPS
+            // ------------------------------------------------
 
-        "-y",
-        outputName,
-    ];
-}
+            "-r",
+            String(EXPORT_FPS),
+
+            "-fps_mode",
+            "cfr",
+
+            // ------------------------------------------------
+            // H264
+            // ------------------------------------------------
+
+            "-c:v",
+            "libx264",
+
+            "-preset",
+            "ultrafast",
+
+            "-crf",
+            "23",
+
+            "-pix_fmt",
+            "yuv420p",
+
+            // ------------------------------------------------
+            // AUDIO
+            // ------------------------------------------------
+
+            "-c:a",
+            "aac",
+
+            "-b:a",
+            "192k",
+
+            // ------------------------------------------------
+            // MP4
+            // ------------------------------------------------
+
+            "-movflags",
+            "+faststart",
+
+            "-y",
+
+            outputName,
+        ];
+    }
 
     // ========================================================
     // LOG
@@ -1389,7 +1254,6 @@ if (isImageMode) {
     }: {
         progress: number;
     }) => {
-
         const safe =
             clamp(
                 progress,
@@ -1406,21 +1270,30 @@ if (isImageMode) {
         );
     };
 
-engine.on("progress", progressHandler);
-
-try {
-    await engine.exec(args);
-}
-catch (error) {
-    console.error(
-        "[EXPORT] FFmpeg ERROR:",
-        error
+    engine.on(
+        "progress",
+        progressHandler
     );
-    throw error;
-}
-finally {
-    engine.off("progress", progressHandler);
-}
+
+    try {
+        await engine.exec(
+            args
+        );
+    }
+    catch (error) {
+        console.error(
+            "[EXPORT] FFmpeg ERROR:",
+            error
+        );
+
+        throw error;
+    }
+    finally {
+        engine.off(
+            "progress",
+            progressHandler
+        );
+    }
 
     // ========================================================
     // READ OUTPUT
@@ -1437,7 +1310,6 @@ finally {
         typeof outputData ===
         "string"
     ) {
-
         throw new Error(
             "FFmpeg trả về output không hợp lệ."
         );
@@ -1472,7 +1344,6 @@ finally {
     );
 
     if (isImageMode) {
-
         await safeDelete(
             engine,
             inputImageName
@@ -1488,7 +1359,6 @@ finally {
         frame < totalFrames;
         frame++
     ) {
-
         await safeDelete(
             engine,
             `frame-${String(

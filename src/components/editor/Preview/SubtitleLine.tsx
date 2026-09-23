@@ -1,116 +1,100 @@
-
 "use client";
 
 import "./Preview.css";
+
 import SubtitleWord from "./SubtitleWord";
 
 import { useLyricsStore } from "@/stores/lyrics.store";
 
+import {
+    getLyricStyle,
+} from "../../karaoke/KaraokeLayout";
+
+
 export default function SubtitleLine({
+
     line,
     currentTime,
     color,
     activeColor,
+
 }: any) {
 
-    // ========================================
+
+    // ========================================================
     // STORE
-    // ========================================
+    // ========================================================
 
-    const selectLine = useLyricsStore(
-        (state) => state.selectLine
-    );
-
-    const moveLine = useLyricsStore(
-        (state) => state.moveLine
-    );
-
-    const selectedLineId = useLyricsStore(
-        (state) => state.selectedLineId
-    );
+    const selectLine =
+        useLyricsStore(
+            (state) =>
+                state.selectLine
+        );
 
 
-    // ========================================
+    const moveLine =
+        useLyricsStore(
+            (state) =>
+                state.moveLine
+        );
+
+
+    const selectedLineId =
+        useLyricsStore(
+            (state) =>
+                state.selectedLineId
+        );
+
+
+    // ========================================================
     // SAFETY
-    // ========================================
+    // ========================================================
 
-    if (!line?.words) {
+    if (
+        !line?.words
+    ) {
+
         return null;
+
     }
 
 
-    // ========================================
+    // ========================================================
     // STYLE
-    // ========================================
+    // ========================================================
 
     const style =
-        line.style ?? {};
+        getLyricStyle(line);
 
 
-    // ========================================
+    // ========================================================
     // POSITION
-    // ========================================
+    // ========================================================
 
     const x =
-        style.x ?? 330;
+        style.x;
 
     const y =
-        style.y ?? 180;
+        style.y;
 
 
-    // ========================================
-    // TEXT STYLE
-    // ========================================
-
-    const fontFamily =
-        style.fontFamily ??
-        "Arial";
-
-    const fontSize =
-        style.fontSize ??
-        21;
-
-    const textColor =
-        style.color ??
-        color ??
-        "#ffffff";
-
-    const highlightColor =
-        style.activeColor ??
-        activeColor ??
-        "#00ff66";
-
-    const outline =
-        style.outline ??
-        "#000000";
-
-    const outlineWidth =
-        style.outlineWidth ??
-        2;
-
-    const shadow =
-        style.shadow ??
-        true;
-
-    const align =
-        style.align ??
-        "center";
-
-
-    // ========================================
+    // ========================================================
     // SELECTED
-    // ========================================
+    // ========================================================
 
     const isSelected =
-        selectedLineId === line.id;
+        selectedLineId ===
+        line.id;
 
 
-    // ========================================
+    // ========================================================
     // DRAG
-    // ========================================
+    // ========================================================
 
     const handlePointerDown = (
+
         e: React.PointerEvent<HTMLDivElement>
+
     ) => {
 
         e.preventDefault();
@@ -118,24 +102,26 @@ export default function SubtitleLine({
         e.stopPropagation();
 
 
-        // Chọn line
-        selectLine(line.id);
+        selectLine(
+            line.id
+        );
 
 
-        // Giữ pointer hiện tại
-        // để tiếp tục nhận move trên mobile
         try {
 
-            e.currentTarget.setPointerCapture(
-                e.pointerId
-            );
+            e.currentTarget
+                .setPointerCapture(
+                    e.pointerId
+                );
 
-        } catch {
-            // Một số browser có thể không hỗ trợ
+        }
+        catch {
+
+            // Ignore
+
         }
 
 
-        // Vị trí pointer lúc bắt đầu kéo
         const startPointerX =
             e.clientX;
 
@@ -143,7 +129,6 @@ export default function SubtitleLine({
             e.clientY;
 
 
-        // Vị trí line lúc bắt đầu kéo
         const startX =
             x;
 
@@ -151,17 +136,16 @@ export default function SubtitleLine({
             y;
 
 
-        // ========================================
-        // POINTER MOVE
-        // ========================================
-
         const handlePointerMove = (
+
             event: PointerEvent
+
         ) => {
 
             const deltaX =
                 event.clientX -
                 startPointerX;
+
 
             const deltaY =
                 event.clientY -
@@ -172,18 +156,16 @@ export default function SubtitleLine({
 
                 line.id,
 
-                startX + deltaX,
+                startX +
+                    deltaX,
 
-                startY + deltaY
+                startY +
+                    deltaY
 
             );
 
         };
 
-
-        // ========================================
-        // POINTER UP
-        // ========================================
 
         const handlePointerUp = () => {
 
@@ -205,10 +187,6 @@ export default function SubtitleLine({
         };
 
 
-        // ========================================
-        // EVENTS
-        // ========================================
-
         window.addEventListener(
             "pointermove",
             handlePointerMove
@@ -227,9 +205,9 @@ export default function SubtitleLine({
     };
 
 
-    // ========================================
+    // ========================================================
     // RENDER
-    // ========================================
+    // ========================================================
 
     return (
 
@@ -247,11 +225,14 @@ export default function SubtitleLine({
 
             style={{
 
-                position: "absolute",
+                position:
+                    "absolute",
 
-                left: `${x}px`,
+                left:
+                    `${x}px`,
 
-                top: `${y}px`,
+                top:
+                    `${y}px`,
 
                 transform:
                     "translate(-50%, -50%)",
@@ -268,9 +249,6 @@ export default function SubtitleLine({
                 userSelect:
                     "none",
 
-                // Quan trọng cho mobile:
-                // không để browser hiểu thao tác
-                // này là scroll/gesture
                 touchAction:
                     "none",
 
@@ -290,19 +268,23 @@ export default function SubtitleLine({
                 style={{
 
                     fontFamily:
-                        fontFamily,
+                        style.fontFamily,
 
                     fontSize:
-                        `${fontSize}px`,
+                        `${style.fontSize}px`,
+
+                    fontWeight:
+                        400,
 
                     textAlign:
-                        align,
+                        style.align,
 
                 }}
 
             >
 
                 {line.words.map(
+
                     (word: any) => (
 
                         <SubtitleWord
@@ -320,36 +302,39 @@ export default function SubtitleLine({
                             }
 
                             color={
-                                textColor
+                                style.color ??
+                                color
                             }
 
                             activeColor={
-                                highlightColor
+                                style.activeColor ??
+                                activeColor
                             }
 
                             fontFamily={
-                                fontFamily
+                                style.fontFamily
                             }
 
                             fontSize={
-                                fontSize
+                                style.fontSize
                             }
 
                             outline={
-                                outline
+                                style.outline
                             }
 
                             outlineWidth={
-                                outlineWidth
+                                style.outlineWidth
                             }
 
                             shadow={
-                                shadow
+                                style.shadow
                             }
 
                         />
 
                     )
+
                 )}
 
             </div>
