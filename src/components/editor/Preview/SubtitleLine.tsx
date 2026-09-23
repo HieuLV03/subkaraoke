@@ -1,3 +1,4 @@
+
 "use client";
 
 import "./Preview.css";
@@ -7,9 +8,15 @@ import SubtitleWord from "./SubtitleWord";
 import { useLyricsStore } from "@/stores/lyrics.store";
 
 import {
+    PREVIEW_WIDTH,
+    calculateLyricLayout,
     getLyricStyle,
 } from "../../karaoke/KaraokeLayout";
 
+
+// ============================================================
+// COMPONENT
+// ============================================================
 
 export default function SubtitleLine({
 
@@ -51,7 +58,7 @@ export default function SubtitleLine({
     // ========================================================
 
     if (
-        !line?.words
+        !line?.words?.length
     ) {
 
         return null;
@@ -69,6 +76,9 @@ export default function SubtitleLine({
 
     // ========================================================
     // POSITION
+    //
+    // x / y là tâm của line
+    // trong hệ tọa độ 640x360.
     // ========================================================
 
     const x =
@@ -89,6 +99,10 @@ export default function SubtitleLine({
 
     // ========================================================
     // DRAG
+    //
+    // Mouse movement là pixel màn hình.
+    //
+    // Phải đổi về coordinate 640x360.
     // ========================================================
 
     const handlePointerDown = (
@@ -136,21 +150,63 @@ export default function SubtitleLine({
             y;
 
 
+        // ====================================================
+        // FIND PREVIEW CONTAINER
+        // ====================================================
+
+        const target =
+            e.currentTarget.closest(
+                ".karaoke-canvas"
+            ) as HTMLElement | null;
+
+
+        const rect =
+            target?.getBoundingClientRect();
+
+
+        const previewScaleX =
+            rect
+                ? rect.width /
+                  PREVIEW_WIDTH
+                : 1;
+
+
+        const previewScaleY =
+            rect
+                ? rect.height /
+                  360
+                : 1;
+
+
         const handlePointerMove = (
 
             event: PointerEvent
 
         ) => {
 
+            // ------------------------------------------------
+            // SCREEN → PREVIEW
+            // ------------------------------------------------
+
             const deltaX =
-                event.clientX -
-                startPointerX;
+                (
+                    event.clientX -
+                    startPointerX
+                ) /
+                previewScaleX;
 
 
             const deltaY =
-                event.clientY -
-                startPointerY;
+                (
+                    event.clientY -
+                    startPointerY
+                ) /
+                previewScaleY;
 
+
+            // ------------------------------------------------
+            // MOVE
+            // ------------------------------------------------
 
             moveLine(
 
@@ -206,6 +262,40 @@ export default function SubtitleLine({
 
 
     // ========================================================
+    // SHARED LAYOUT
+    //
+    // Preview cũng dùng chính layout
+    // mà Export sử dụng.
+    //
+    // Canvas chỉ dùng để measure text.
+    // ========================================================
+
+    const measureCanvas =
+        document.createElement(
+            "canvas"
+        );
+
+    const measureCtx =
+        measureCanvas.getContext(
+            "2d"
+        );
+
+
+    if (!measureCtx) {
+
+        return null;
+
+    }
+
+
+    const layout =
+        calculateLyricLayout(
+            line,
+            measureCtx
+        );
+
+
+    // ========================================================
     // RENDER
     // ========================================================
 
@@ -234,11 +324,14 @@ export default function SubtitleLine({
                 top:
                     `${y}px`,
 
+                width:
+                    `${layout.width}px`,
+
+                height:
+                    `${layout.height}px`,
+
                 transform:
                     "translate(-50%, -50%)",
-
-                display:
-                    "inline-block",
 
                 cursor:
                     "move",
@@ -267,73 +360,109 @@ export default function SubtitleLine({
 
                 style={{
 
+                    position:
+                        "relative",
+
+                    width:
+                        `${layout.width}px`,
+
+                    height:
+                        `${layout.height}px`,
+
                     fontFamily:
                         style.fontFamily,
 
                     fontSize:
-                        `${style.fontSize}px`,
+                        `${style.fontSize * style.scale}px`,
 
                     fontWeight:
                         400,
 
                     textAlign:
-                        style.align,
+                        "left",
 
                 }}
 
             >
 
-                {line.words.map(
+                {layout.words.map(
 
-                    (word: any) => (
+                    (
+                        layoutWord,
+                        index
+                    ) => {
 
-                        <SubtitleWord
+                        const word =
+                            layoutWord.word;
 
-                            key={
-                                word.id
-                            }
 
-                            word={
-                                word
-                            }
+                        return (
 
-                            currentTime={
-                                currentTime
-                            }
+                            <SubtitleWord
 
-                            color={
-                                style.color ??
-                                color
-                            }
+                                key={
+                                    word.id ??
+                                    `${line.id}-word-${index}`
+                                }
 
-                            activeColor={
-                                style.activeColor ??
-                                activeColor
-                            }
+                                word={
+                                    word
+                                }
 
-                            fontFamily={
-                                style.fontFamily
-                            }
+                                currentTime={
+                                    currentTime
+                                }
 
-                            fontSize={
-                                style.fontSize
-                            }
+                                color={
+                                    style.color ??
+                                    color ??
+                                    "#ffffff"
+                                }
 
-                            outline={
-                                style.outline
-                            }
+                                activeColor={
+                                    style.activeColor ??
+                                    activeColor ??
+                                    "#00ff66"
+                                }
 
-                            outlineWidth={
-                                style.outlineWidth
-                            }
+                                fontFamily={
+                                    style.fontFamily
+                                }
 
-                            shadow={
-                                style.shadow
-                            }
+                                fontSize={
+                                    style.fontSize
+                                }
 
-                        />
+                                outline={
+                                    style.outline
+                                }
 
-                    )
+                                outlineWidth={
+                                    style.outlineWidth
+                                }
+
+                                shadow={
+                                    style.shadow
+                                }
+
+                                x={
+                                    layoutWord.x -
+                                    layout.startX
+                                }
+
+                                width={
+                                    layoutWord.width
+                                }
+
+                                scale={
+                                    style.scale
+                                }
+
+                            />
+
+                        );
+
+                    }
 
                 )}
 

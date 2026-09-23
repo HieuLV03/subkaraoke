@@ -1,3 +1,4 @@
+
 // src/karaoke/KaraokeLayout.ts
 
 // ============================================================
@@ -67,7 +68,7 @@ export const EXPORT_HEIGHT = 1080;
 
 
 // ============================================================
-// SCALE
+// EXPORT SCALE
 // ============================================================
 
 export const EXPORT_SCALE =
@@ -76,11 +77,6 @@ export const EXPORT_SCALE =
 
 // ============================================================
 // WORD GAP
-//
-// Đây là khoảng cách giữa các word.
-//
-// Quan trọng:
-// Preview và Export đều dùng giá trị này.
 // ============================================================
 
 export const WORD_GAP = 12;
@@ -158,13 +154,7 @@ export function getWordText(
 
 
 // ============================================================
-// FONT
-//
-// Preview SubtitleWord hiện không set font-weight,
-// nên layout chung dùng 400.
-//
-// Nếu sau này Preview đổi sang bold,
-// chỉ cần đổi một chỗ này.
+// FONT WEIGHT
 // ============================================================
 
 export function getFontWeight(): number {
@@ -189,16 +179,17 @@ export function getCSSFont(
 
 // ============================================================
 // CANVAS FONT
+//
+// Layout luôn được tính ở Preview coordinate.
 // ============================================================
 
 export function getCanvasFont(
-    style: Required<LyricStyle>,
-    scale = 1
+    style: Required<LyricStyle>
 ): string {
 
     const fontSize =
         style.fontSize *
-        scale;
+        style.scale;
 
     return `${getFontWeight()} ${fontSize}px "${style.fontFamily}"`;
 
@@ -286,51 +277,53 @@ export type LayoutLine = {
 // ============================================================
 // CALCULATE LINE LAYOUT
 //
-// Đây là hàm QUAN TRỌNG NHẤT.
+// QUAN TRỌNG:
 //
-// Preview và Export đều phải dùng logic này.
+// Hàm này LUÔN tính layout ở hệ tọa độ Preview 640x360.
+//
+// Preview:
+//     x = 330
+//     y = 180
+//
+// Export:
+//     x = 330 * 3
+//     y = 180 * 3
+//
+// Không truyền coordinateScale vào đây nữa.
 // ============================================================
 
 export function calculateLyricLayout(
     line: LyricLine,
-    ctx: CanvasRenderingContext2D,
-    coordinateScale = 1
+    ctx: CanvasRenderingContext2D
 ): LayoutLine {
 
     const style =
         getLyricStyle(line);
-
 
     const words =
         line.words ?? [];
 
 
     // --------------------------------------------------------
-    // FONT SCALE
-    // --------------------------------------------------------
-
-    const fontScale =
-        coordinateScale;
-
-
-    // --------------------------------------------------------
     // FONT
+    //
+    // Font đã bao gồm style.scale.
     // --------------------------------------------------------
 
     ctx.font =
-        getCanvasFont(
-            style,
-            fontScale
-        );
+        getCanvasFont(style);
 
 
     // --------------------------------------------------------
-    // WORD WIDTH
+    // WORD LAYOUT
     // --------------------------------------------------------
 
     const wordLayouts: LayoutWord[] = [];
 
     let totalWidth = 0;
+
+    const gap =
+        getWordGap(style);
 
 
     for (
@@ -346,15 +339,12 @@ export function calculateLyricLayout(
             getWordText(word);
 
 
-        const measuredWidth =
-            ctx.measureText(
-                text
-            ).width;
-
+        // ----------------------------------------------------
+        // ĐO WIDTH
+        // ----------------------------------------------------
 
         const width =
-            measuredWidth *
-            style.scale;
+            ctx.measureText(text).width;
 
 
         wordLayouts.push({
@@ -373,15 +363,16 @@ export function calculateLyricLayout(
         totalWidth += width;
 
 
+        // ----------------------------------------------------
+        // GAP
+        // ----------------------------------------------------
+
         if (
             i <
             words.length - 1
         ) {
 
-            totalWidth +=
-                WORD_GAP *
-                style.scale *
-                coordinateScale;
+            totalWidth += gap;
 
         }
 
@@ -389,19 +380,19 @@ export function calculateLyricLayout(
 
 
     // --------------------------------------------------------
-    // POSITION
-    //
-    // style.x / style.y luôn là tâm của line.
+    // CENTER
     // --------------------------------------------------------
 
     const centerX =
-        style.x *
-        coordinateScale;
+        style.x;
 
     const centerY =
-        style.y *
-        coordinateScale;
+        style.y;
 
+
+    // --------------------------------------------------------
+    // START X
+    // --------------------------------------------------------
 
     let startX =
         centerX;
@@ -461,9 +452,7 @@ export function calculateLyricLayout(
         ) {
 
             currentX +=
-                WORD_GAP *
-                style.scale *
-                coordinateScale;
+                gap;
 
         }
 
@@ -476,8 +465,7 @@ export function calculateLyricLayout(
 
     const height =
         style.fontSize *
-        style.scale *
-        coordinateScale;
+        style.scale;
 
 
     // --------------------------------------------------------

@@ -1,6 +1,12 @@
+
 "use client";
 
 import "./Preview.css";
+
+
+// ============================================================
+// PROPS
+// ============================================================
 
 type Props = {
     word: any;
@@ -16,7 +22,17 @@ type Props = {
     outlineWidth?: number;
 
     shadow?: boolean;
+
+    // Position calculated by KaraokeLayout
+    x?: number;
+    width?: number;
+    scale?: number;
 };
+
+
+// ============================================================
+// COMPONENT
+// ============================================================
 
 export default function SubtitleWord({
 
@@ -34,12 +50,16 @@ export default function SubtitleWord({
 
     shadow = true,
 
+    x = 0,
+    width = 0,
+    scale = 1,
+
 }: Props) {
 
 
-    // ========================================
+    // ========================================================
     // KARAOKE PERCENT
-    // ========================================
+    // ========================================================
 
     let percent = 0;
 
@@ -64,9 +84,16 @@ export default function SubtitleWord({
 
             percent =
                 (
-                    (currentTime - word.start) /
-                    (word.end - word.start)
-                ) * 100;
+                    (
+                        currentTime -
+                        word.start
+                    ) /
+                    (
+                        word.end -
+                        word.start
+                    )
+                ) *
+                100;
 
         }
 
@@ -83,9 +110,9 @@ export default function SubtitleWord({
         );
 
 
-    // ========================================
+    // ========================================================
     // TEXT
-    // ========================================
+    // ========================================================
 
     const text =
         word.word ??
@@ -93,96 +120,191 @@ export default function SubtitleWord({
         "";
 
 
-    // ========================================
-    // TEXT STYLE
-    // ========================================
+    // ========================================================
+    // SCALED STYLE
+    //
+    // KaraokeLayout already calculates the word width
+    // using fontSize * scale.
+    //
+    // Preview must therefore use the same scale.
+    // ========================================================
 
-    const textStyle: React.CSSProperties = {
+    const actualFontSize =
+        fontSize *
+        scale;
+
+
+    const actualOutlineWidth =
+        outlineWidth *
+        scale;
+
+
+    // ========================================================
+    // TEXT STYLE
+    // ========================================================
+
+    const textStyle:
+        React.CSSProperties = {
+
+        position:
+            "absolute",
+
+        left:
+            `${x}px`,
+
+        top:
+            "50%",
+
+        transform:
+            "translateY(-50%)",
+
+        width:
+            `${width}px`,
+
+        height:
+            `${actualFontSize}px`,
 
         fontFamily:
-
             fontFamily,
 
         fontSize:
+            `${actualFontSize}px`,
 
-            `${fontSize}px`,
+        fontWeight:
+            400,
+
+        lineHeight:
+            "normal",
+
+        whiteSpace:
+            "nowrap",
 
         WebkitTextStroke:
-
-            `${outlineWidth}px ${outline}`,
+            `${actualOutlineWidth}px ${outline}`,
 
         paintOrder:
-
             "stroke fill",
 
         textShadow:
-
             shadow
-                ? `0 2px 4px rgba(0,0,0,0.6)`
+                ? "0 2px 4px rgba(0,0,0,0.6)"
                 : "none",
+
+        pointerEvents:
+            "none",
 
     };
 
 
-    // ========================================
+    // ========================================================
+    // FILL STYLE
+    // ========================================================
+
+    const fillStyle:
+        React.CSSProperties = {
+
+        position:
+            "absolute",
+
+        left:
+            0,
+
+        top:
+            0,
+
+        width:
+            `${percent}%`,
+
+        height:
+            "100%",
+
+        overflow:
+            "hidden",
+
+        whiteSpace:
+            "nowrap",
+
+        color:
+            activeColor,
+
+        pointerEvents:
+            "none",
+
+    };
+
+
+    // ========================================================
+    // NORMAL TEXT STYLE
+    // ========================================================
+
+    const normalStyle:
+        React.CSSProperties = {
+
+        color:
+            color,
+
+        whiteSpace:
+            "nowrap",
+
+    };
+
+
+    // ========================================================
     // RENDER
-    // ========================================
+    // ========================================================
 
     return (
 
         <span
+
             className="subtitle-word"
-            style={textStyle}
+
+            style={
+                textStyle
+            }
+
         >
 
-
-            {/* =================================
+            {/* ================================================
                 NORMAL TEXT
-            ================================= */}
+            ================================================ */}
 
             <span
 
                 className="subtitle-normal"
 
-                style={{
-
-                    color:
-
-                        color,
-
-                }}
+                style={
+                    normalStyle
+                }
 
             >
 
-                {text}&nbsp;
+                {text}
 
             </span>
 
 
-            {/* =================================
-                KARAOKE FILL
-            ================================= */}
+            {/* ================================================
+                KARAOKE ACTIVE FILL
+            ================================================ */}
 
-            <span
+            {percent > 0 && (
 
-                className="subtitle-fill"
+                <span
 
-                style={{
+                    className="subtitle-fill"
 
-                    width:
-                        `${percent}%`,
+                    style={
+                        fillStyle
+                    }
 
-                    color:
-                        activeColor,
+                >
 
-                }}
+                    {text}
 
-            >
+                </span>
 
-                {text}&nbsp;
-
-            </span>
-
+            )}
 
         </span>
 

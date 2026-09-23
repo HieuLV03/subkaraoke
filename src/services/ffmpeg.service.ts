@@ -80,6 +80,7 @@ let ffmpegLoaded = false;
 // ============================================================
 
 async function loadFFmpeg(): Promise<FFmpeg> {
+
     if (ffmpeg && ffmpegLoaded) {
         return ffmpeg;
     }
@@ -135,6 +136,7 @@ function clamp(
     min: number,
     max: number
 ): number {
+
     return Math.max(
         min,
         Math.min(max, value)
@@ -148,8 +150,10 @@ function clamp(
 function normalizeLyrics(
     lyrics: LyricLine[]
 ): LyricLine[] {
+
     return lyrics.map(
         (line, lineIndex) => ({
+
             ...line,
 
             id:
@@ -168,6 +172,7 @@ function normalizeLyrics(
             words:
                 (line.words ?? []).map(
                     (word, wordIndex) => ({
+
                         ...word,
 
                         id:
@@ -200,6 +205,7 @@ function getWordPercent(
     word: LyricWord,
     currentTime: number
 ): number {
+
     const start =
         Number(word.start ?? 0);
 
@@ -239,6 +245,22 @@ function getWordPercent(
 
 // ============================================================
 // DRAW WORD
+//
+// QUAN TRỌNG:
+//
+// Layout được tính ở Preview 640x360.
+//
+// Khi export:
+//
+// Preview font 21px
+//        ↓
+// Export font 63px
+//
+// Preview x 330
+//        ↓
+// Export x 990
+//
+// Không nhân style.scale lần thứ hai.
 // ============================================================
 
 function drawWord(
@@ -250,48 +272,84 @@ function drawWord(
     color: string,
     clipWidth?: number
 ) {
+
     ctx.save();
 
-    // Preview → Export
+    // ========================================================
+    // EXPORT SCALE
+    // ========================================================
+
     const scale =
-        EXPORT_SCALE * style.scale;
+        EXPORT_SCALE;
 
     const fontSize =
-        style.fontSize * scale;
+        style.fontSize *
+        style.scale *
+        scale;
 
     const outlineWidth =
-        style.outlineWidth * scale;
+        style.outlineWidth *
+        style.scale *
+        scale;
 
     // ========================================================
     // FONT
+    //
+    // getCanvasFont() đã xử lý style.scale.
+    //
+    // Sau đó Export scale toàn bộ lên 3.
     // ========================================================
 
+    const exportFont =
+        getCanvasFont(style);
+
+    const previewFontSize =
+        style.fontSize *
+        style.scale;
+
+    const exportFontSize =
+        previewFontSize *
+        EXPORT_SCALE;
+
     ctx.font =
-        getCanvasFont(
-            style,
-            scale
+        exportFont.replace(
+            `${previewFontSize}px`,
+            `${exportFontSize}px`
         );
 
-    ctx.textBaseline = "middle";
-    ctx.textAlign = "left";
-    ctx.lineJoin = "round";
-    ctx.miterLimit = 2;
+    ctx.textBaseline =
+        "middle";
+
+    ctx.textAlign =
+        "left";
+
+    ctx.lineJoin =
+        "round";
+
+    ctx.miterLimit =
+        2;
 
     // ========================================================
     // SHADOW
     // ========================================================
 
     if (style.shadow) {
+
         ctx.shadowColor =
             "rgba(0,0,0,0.6)";
 
         ctx.shadowBlur =
-            4 * scale;
+            4 *
+            scale *
+            style.scale;
 
-        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetX =
+            0;
 
         ctx.shadowOffsetY =
-            2 * scale;
+            2 *
+            scale *
+            style.scale;
     }
 
     // ========================================================
@@ -301,6 +359,7 @@ function drawWord(
     if (
         typeof clipWidth === "number"
     ) {
+
         ctx.beginPath();
 
         ctx.rect(
@@ -317,7 +376,10 @@ function drawWord(
     // OUTLINE
     // ========================================================
 
-    if (outlineWidth > 0) {
+    if (
+        outlineWidth > 0
+    ) {
+
         ctx.strokeStyle =
             style.outline;
 
@@ -357,10 +419,12 @@ function drawLyricFrame(
     currentTime: number,
     measureCtx: CanvasRenderingContext2D
 ) {
+
     const ctx =
         canvas.getContext("2d");
 
     if (!ctx) {
+
         throw new Error(
             "Không thể tạo Canvas context."
         );
@@ -382,6 +446,7 @@ function drawLyricFrame(
     // ========================================================
 
     for (const line of lyrics) {
+
         const lineStart =
             Number(line.start ?? 0);
 
@@ -407,6 +472,8 @@ function drawLyricFrame(
 
         // ====================================================
         // SHARED LAYOUT
+        //
+        // Luôn tính ở 640x360.
         // ====================================================
 
         const layout =
@@ -416,9 +483,7 @@ function drawLyricFrame(
             );
 
         // ====================================================
-        // PREVIEW 640x360
-        // →
-        // EXPORT 1920x1080
+        // Y
         // ====================================================
 
         const y =
@@ -426,12 +491,7 @@ function drawLyricFrame(
             EXPORT_SCALE;
 
         // ====================================================
-        // DRAW WORDS
-        //
-        // layoutWord.x đã được calculateLyricLayout()
-        // tính sẵn.
-        //
-        // Không tính currentX thủ công nữa.
+        // WORDS
         // ====================================================
 
         for (
@@ -439,6 +499,7 @@ function drawLyricFrame(
             i < layout.words.length;
             i++
         ) {
+
             const layoutWord =
                 layout.words[i];
 
@@ -448,24 +509,29 @@ function drawLyricFrame(
             const text =
                 getWordText(word);
 
-            // ------------------------------------------------
-            // X của word trong Preview → Export
-            // ------------------------------------------------
+            // =================================================
+            // X
+            //
+            // layoutWord.x đã là Preview coordinate.
+            // =================================================
 
             const currentX =
                 layoutWord.x *
                 EXPORT_SCALE;
 
-            // ------------------------------------------------
-            // Width của word đã bao gồm style.scale
-            // trong calculateLyricLayout().
+            // =================================================
+            // WIDTH
             //
-            // Vì vậy KHÔNG nhân style.scale lần nữa.
-            // ------------------------------------------------
+            // layoutWord.width đã bao gồm style.scale.
+            // =================================================
 
             const wordWidth =
                 layoutWord.width *
                 EXPORT_SCALE;
+
+            // =================================================
+            // WORD PROGRESS
+            // =================================================
 
             const percent =
                 getWordPercent(
@@ -490,7 +556,10 @@ function drawLyricFrame(
             // ACTIVE
             // =================================================
 
-            if (percent >= 100) {
+            if (
+                percent >= 100
+            ) {
+
                 drawWord(
                     ctx,
                     text,
@@ -500,10 +569,16 @@ function drawLyricFrame(
                     style.activeColor
                 );
             }
+
+            // =================================================
+            // PARTIAL ACTIVE
+            // =================================================
+
             else if (
                 percent > 0 &&
                 wordWidth > 0
             ) {
+
                 const clipWidth =
                     wordWidth *
                     (percent / 100);
@@ -529,14 +604,18 @@ function drawLyricFrame(
 async function canvasToBlob(
     canvas: HTMLCanvasElement
 ): Promise<Blob> {
+
     return new Promise(
         (
             resolve,
             reject
         ) => {
+
             canvas.toBlob(
                 (blob) => {
+
                     if (!blob) {
+
                         reject(
                             new Error(
                                 "Không thể tạo PNG frame."
@@ -565,12 +644,15 @@ async function getInputFile(
     data: Uint8Array;
     name: string;
 }> {
+
     // ========================================================
     // FILE
     // ========================================================
 
     if (input instanceof File) {
+
         return {
+
             data:
                 new Uint8Array(
                     await input.arrayBuffer()
@@ -587,7 +669,9 @@ async function getInputFile(
     // ========================================================
 
     if (input instanceof Blob) {
+
         return {
+
             data:
                 new Uint8Array(
                     await input.arrayBuffer()
@@ -606,6 +690,7 @@ async function getInputFile(
         await fetch(input);
 
     if (!response.ok) {
+
         throw new Error(
             `Không thể đọc file: ${response.status}`
         );
@@ -664,6 +749,7 @@ async function getInputFile(
         );
 
     return {
+
         data:
             new Uint8Array(
                 await blob.arrayBuffer()
@@ -681,12 +767,15 @@ async function safeDelete(
     engine: FFmpeg,
     filename: string
 ) {
+
     try {
+
         await engine.deleteFile(
             filename
         );
     }
     catch {
+
         // Ignore.
     }
 }
@@ -712,6 +801,7 @@ export async function exportVideo(
     onProgress?: (
         progress: number
     ) => void
+
 ): Promise<Blob> {
 
     console.log(
@@ -752,12 +842,14 @@ export async function exportVideo(
     if (
         !normalizedLyrics.length
     ) {
+
         throw new Error(
             "Không có lyrics để export."
         );
     }
 
     if (!videoFile) {
+
         throw new Error(
             "Chưa có video timing."
         );
@@ -769,9 +861,9 @@ export async function exportVideo(
     // ========================================================
     // MEASURE CANVAS
     //
-    // Dùng đúng hệ tọa độ Preview:
-    //
     // 640 x 360
+    //
+    // Đây là coordinate system chung của Preview + Export.
     // ========================================================
 
     const measureCanvas =
@@ -793,6 +885,7 @@ export async function exportVideo(
         );
 
     if (!measureCtx) {
+
         throw new Error(
             "Không thể tạo measure canvas."
         );
@@ -879,6 +972,7 @@ export async function exportVideo(
     // ========================================================
 
     if (isImageMode) {
+
         const imageInput =
             await getInputFile(
                 imageFile!,
@@ -916,6 +1010,7 @@ export async function exportVideo(
         frame < totalFrames;
         frame++
     ) {
+
         const currentTime =
             frame /
             EXPORT_FPS;
@@ -967,6 +1062,7 @@ export async function exportVideo(
         if (
             frame % 30 === 0
         ) {
+
             console.log(
                 "[EXPORT] Frame:",
                 frame + 1,
@@ -987,6 +1083,7 @@ export async function exportVideo(
     // ========================================================
 
     if (isImageMode) {
+
         args = [
 
             // ------------------------------------------------
@@ -1109,6 +1206,7 @@ export async function exportVideo(
     // ========================================================
 
     else {
+
         args = [
 
             // ------------------------------------------------
@@ -1254,6 +1352,7 @@ export async function exportVideo(
     }: {
         progress: number;
     }) => {
+
         const safe =
             clamp(
                 progress,
@@ -1276,19 +1375,24 @@ export async function exportVideo(
     );
 
     try {
+
         await engine.exec(
             args
         );
+
     }
     catch (error) {
+
         console.error(
             "[EXPORT] FFmpeg ERROR:",
             error
         );
 
         throw error;
+
     }
     finally {
+
         engine.off(
             "progress",
             progressHandler
@@ -1310,6 +1414,7 @@ export async function exportVideo(
         typeof outputData ===
         "string"
     ) {
+
         throw new Error(
             "FFmpeg trả về output không hợp lệ."
         );
@@ -1344,6 +1449,7 @@ export async function exportVideo(
     );
 
     if (isImageMode) {
+
         await safeDelete(
             engine,
             inputImageName
@@ -1359,6 +1465,7 @@ export async function exportVideo(
         frame < totalFrames;
         frame++
     ) {
+
         await safeDelete(
             engine,
             `frame-${String(
