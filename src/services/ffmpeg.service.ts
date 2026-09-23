@@ -1359,13 +1359,9 @@ export async function exportVideo(
 
             `[0:v]` +
 
-            `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
-
-            `force_original_aspect_ratio=decrease,` +
-
-            `pad=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
-
-            `(ow-iw)/2:(oh-ih)/2[bg];` +
+          `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+`force_original_aspect_ratio=increase,` +
+`crop=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(iw-ow)/2:(ih-oh)/2,` +
 
             `[1:v]` +
 
