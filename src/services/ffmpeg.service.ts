@@ -5,8 +5,8 @@ import { toBlobURL } from "@ffmpeg/util";
 // CONFIG
 // ============================================================
 
-const EXPORT_WIDTH = 1280;
-const EXPORT_HEIGHT = 720;
+const EXPORT_WIDTH = 1920;
+const EXPORT_HEIGHT = 1080;
 const EXPORT_FPS = 21;
 
 const FFMPEG_CORE_VERSION = "0.12.10";
