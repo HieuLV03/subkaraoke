@@ -88,8 +88,8 @@ async function loadFFmpeg(): Promise<FFmpeg> {
         );
     });
 
-    const baseURL =
-        `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/esm`;
+const baseURL =
+    `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/esm`;
 
     const coreURL =
         await toBlobURL(
@@ -1355,21 +1355,22 @@ export async function exportVideo(
             // FILTER
             // =================================================
 
-            "-filter_complex",
+    "-filter_complex",
 
-            `[0:v]` +
-
-          `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+`[0\:v]` +
+`format=rgba,` +
+`scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
 `force_original_aspect_ratio=increase,` +
 `crop=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(iw-ow)/2:(ih-oh)/2,` +
+`loop=loop=-1\:size=1\:start=0,` +
+`fps=${EXPORT_FPS},` +
+`format=yuv420p[bg];` +
 
-            `[1:v]` +
+`[1\:v]` +
+`format=rgba[lyrics];` +
 
-            `format=rgba[lyrics];` +
-
-            `[bg][lyrics]` +
-
-            `overlay=0:0:format=yuv420[outv]`,
+`[bg][lyrics]` +
+`overlay=0:0\:format=yuv420[outv]`,
 
             // =================================================
             // VIDEO
