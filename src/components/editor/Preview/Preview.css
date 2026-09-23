@@ -199,4 +199,192 @@
     .preview-empty {
         font-size: 14px;
     }
+}/* =========================================================
+   KARAOKE
+   Design coordinate system: 640 × 360
+========================================================= */
+
+.karaoke-overlay {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: 2;
+
+    pointer-events: none;
+
+    overflow: hidden;
+}
+
+
+/*
+   IMPORTANT:
+
+   .karaoke-canvas itself is always 640 × 360.
+
+   KaraokeCanvas.tsx will scale this canvas
+   to fit .karaoke-overlay.
+*/
+
+.karaoke-canvas {
+    position: absolute;
+
+    width: 640px;
+    height: 360px;
+
+    left: 50%;
+    top: 50%;
+
+    transform-origin: center center;
+
+    pointer-events: none;
+
+    overflow: visible;
+}
+
+
+/* =========================================================
+   LYRIC LAYER
+========================================================= */
+
+.karaoke-lyrics-layer {
+    position: absolute;
+
+    inset: 0;
+
+    width: 640px;
+    height: 360px;
+
+    pointer-events: none;
+
+    overflow: visible;
+}
+
+
+/* =========================================================
+   LYRIC LINE
+========================================================= */
+
+.subtitle-drag-box {
+    box-sizing: border-box;
+
+    pointer-events: auto;
+
+    overflow: visible;
+}
+
+
+/* Selected line */
+
+.subtitle-drag-box-selected {
+    outline: 1px dashed rgba(255, 255, 255, 0.7);
+}
+
+
+/* =========================================================
+   LINE
+========================================================= */
+
+.subtitle-line {
+    position: relative;
+
+    box-sizing: border-box;
+
+    overflow: visible;
+
+    white-space: nowrap;
+
+    line-height: normal;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   WORD
+========================================================= */
+
+.subtitle-word {
+    position: absolute;
+
+    display: block;
+
+    box-sizing: border-box;
+
+    margin: 0;
+    padding: 0;
+
+    white-space: nowrap;
+
+    line-height: normal;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   NORMAL TEXT
+========================================================= */
+
+.subtitle-normal {
+    display: block;
+
+    margin: 0;
+    padding: 0;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   ACTIVE KARAOKE TEXT
+========================================================= */
+
+.subtitle-fill {
+    display: block;
+
+    margin: 0;
+    padding: 0;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   EMPTY PREVIEW
+========================================================= */
+
+.preview-empty {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 3;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color: #aaa;
+
+    font-size: clamp(14px, 2vw, 20px);
+
+    text-align: center;
+
+    background: #111;
+
+    padding: 20px;
+
+    box-sizing: border-box;
 }
