@@ -216,14 +216,9 @@ export default function NewProjectPage() {
             <div className="project-option-content">
 
               <h3>
-                Manual Karaoke
+                Video Background
               </h3>
 
-              <p>
-                Skip AI processing and go directly
-                to the editor. You can add and sync
-                lyrics manually.
-              </p>
 
               <span className="project-option-flow">
 
@@ -262,14 +257,9 @@ export default function NewProjectPage() {
             <div className="project-option-content">
 
               <h3>
-                Image Karaoke
+                Image Background
               </h3>
 
-              <p>
-                Use a video as the timing and audio source,
-                while using your own image as the karaoke
-                background.
-              </p>
 
               <span className="project-option-flow">
 
@@ -299,11 +289,6 @@ export default function NewProjectPage() {
         ================================================== */}
 
         <div className="new-project-info">
-
-          <p>
-            💡 You can choose AI, Manual Video or Image
-            Karaoke mode for each project.
-          </p>
 
         </div>
 
