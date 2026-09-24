@@ -152,12 +152,6 @@ export default function SubtitleWord({
         left:
             `${x}px`,
 
-        top:
-            "50%",
-
-        transform:
-            "translateY(-50%)",
-
         width:
             `${width}px`,
 

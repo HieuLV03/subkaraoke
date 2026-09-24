@@ -317,7 +317,6 @@ const y = layout.y;
                 height:
                     `${layout.height}px`,
 
-
                 cursor:
                     "move",
 
