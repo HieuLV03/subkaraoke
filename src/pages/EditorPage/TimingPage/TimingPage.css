@@ -1338,3 +1338,51 @@
             14px 24px;
     }
 }
+
+/* =========================================================
+   TOUCH / COPY PROTECTION
+========================================================= */
+
+.timing-page,
+.timing-page * {
+    -webkit-user-select: none;
+    user-select: none;
+
+    -webkit-touch-callout: none;
+
+    -webkit-user-drag: none;
+}
+
+
+/* =========================================================
+   INPUTS
+   Cho phép nhập số bình thường
+========================================================= */
+
+.timing-page input,
+.timing-page textarea {
+    -webkit-user-select: text;
+    user-select: text;
+
+    -webkit-touch-callout: default;
+}
+
+
+/* =========================================================
+   TIMING BUTTON
+========================================================= */
+
+.timing-space-btn,
+.timing-space-btn *,
+.timing-space-btn span {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+
+    -webkit-touch-callout: none !important;
+
+    -webkit-user-drag: none !important;
+
+    -webkit-tap-highlight-color: transparent;
+
+    touch-action: none;
+}

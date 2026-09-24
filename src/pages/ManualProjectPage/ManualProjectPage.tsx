@@ -311,7 +311,7 @@ export default function ManualProjectPage() {
               <strong>
 
                 {!project.videoFile
-                  ? "Import Video First"
+                  ? "Vui lòng chọn Video trước"
                   : "Bắt đầu"
                 }
 

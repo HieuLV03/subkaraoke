@@ -222,7 +222,32 @@ export default function TimingPage() {
         e.preventDefault();
 
     };
+// ============================================================
+// PREVENT TEXT SELECTION / COPY
+// ============================================================
 
+const handleTimingSelectStartPage = (
+    e: React.SyntheticEvent<HTMLDivElement>
+) => {
+    const target = e.target as HTMLElement;
+
+    // Cho phép input chọn/sửa text bình thường
+    if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA"
+    ) {
+        return;
+    }
+
+    e.preventDefault();
+};
+
+const handleTimingContextMenuPage = (
+    e: React.MouseEvent<HTMLDivElement>
+) => {
+    e.preventDefault();
+    e.stopPropagation();
+};
 
     // ============================================================
     // RESET ONE WORD

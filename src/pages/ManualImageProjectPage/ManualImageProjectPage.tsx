@@ -554,11 +554,11 @@ export default function ManualImageProjectPage() {
 
                 {!hasVideo
 
-                  ? "Import Video để timing"
+                  ? "Vui lòng chọn Video timing"
 
                   : !hasImage
 
-                    ? "Import Image làm Background"
+                    ? "Vui lòng chọn Image làm Background"
 
                     : "Bắt đầu"
 
@@ -596,17 +596,6 @@ export default function ManualImageProjectPage() {
         </div>
 
 
-        {hasVideo && !hasImage && (
-
-          <p className="manual-image-workflow-message">
-
-            🖼️ Now import an image to use as the karaoke background.
-
-          </p>
-
-        )}
-
-
         {canStartEditor && (
 
           <p className="manual-image-workflow-message success">
@@ -624,10 +613,6 @@ export default function ManualImageProjectPage() {
         ================================================== */}
 
         <div className="manual-image-info">
-
-          <div className="manual-image-info-icon">
-            💡
-          </div>
 
 
         </div>
