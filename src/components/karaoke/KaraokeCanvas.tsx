@@ -177,10 +177,6 @@ export default function KaraokeCanvas() {
 
             <div
                 className="karaoke-canvas"
-                style={{
-                    transform:
-                        `translate(-50%, -50%) scale(${scale})`,
-                }}
             >
 
                 <div className="karaoke-lyrics-layer">
