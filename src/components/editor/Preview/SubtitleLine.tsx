@@ -11,7 +11,7 @@ import {
     PREVIEW_WIDTH,
     calculateLyricLayout,
     getLyricStyle,
-} from "../../../components/karaoke/KaraokeLayout";
+} from "../../karaoke/KaraokeLayout";
 
 
 // ============================================================
@@ -317,8 +317,6 @@ const y = layout.y;
                 height:
                     `${layout.height}px`,
 
-                transform:
-                    "translate(-50%, -50%)",
 
                 cursor:
                     "move",
