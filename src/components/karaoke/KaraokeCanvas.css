@@ -1,4 +1,3 @@
-
 /* ============================================================
    KARAOKE CANVAS
    ============================================================
@@ -20,16 +19,39 @@
        1920 × 1080
 ============================================================ */
 
+
+/* ============================================================
+   CANVAS CONTAINER
+============================================================ */
+
+.karaoke-canvas-container {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    pointer-events: none;
+}
+
+
+/* ============================================================
+   KARAOKE CANVAS
+============================================================ */
+
 .karaoke-canvas {
     position: absolute;
 
     width: 640px;
     height: 360px;
 
-    left: 50%;
-    top: 50%;
+    left: 0;
+    top: 0;
 
-    transform-origin: center center;
+    transform-origin: top left;
 
     overflow: visible;
 
@@ -76,10 +98,10 @@
     overflow: visible;
 
     /*
-       Không dùng max-width ở đây.
+       Không dùng max-width.
 
-       Vì width của line được calculate bởi
-       KaraokeLayout.ts.
+       Width của line được tính
+       bởi KaraokeLayout.ts.
     */
 }
 
@@ -123,7 +145,7 @@
        justify-content: center;
        flex-wrap: wrap;
 
-       Vì word position đã được
+       Vì vị trí word đã được
        calculateLyricLayout() tính.
     */
 
@@ -216,8 +238,7 @@
     left: 50%;
     top: 50%;
 
-    transform:
-        translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 
     color: #aaa;
 

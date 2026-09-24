@@ -177,6 +177,9 @@ export default function KaraokeCanvas() {
 
             <div
                 className="karaoke-canvas"
+          style={{
+    transform: `scale(${scale})`,
+}}
             >
 
                 <div className="karaoke-lyrics-layer">
