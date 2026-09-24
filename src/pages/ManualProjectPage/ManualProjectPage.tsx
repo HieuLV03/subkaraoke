@@ -312,19 +312,10 @@ export default function ManualProjectPage() {
 
                 {!project.videoFile
                   ? "Import Video First"
-                  : "Open Editor"
+                  : "Bắt đầu"
                 }
 
               </strong>
-
-              <span>
-
-                {!project.videoFile
-                  ? "Choose a video before opening the editor"
-                  : "Start creating your karaoke lyrics manually"
-                }
-
-              </span>
 
             </div>
 
@@ -342,16 +333,6 @@ export default function ManualProjectPage() {
             MESSAGE
         ================================================== */}
 
-        {!project.videoFile && (
-
-          <p className="manual-workflow-message">
-
-            👆 Import your video background to continue.
-
-          </p>
-
-        )}
-
 
         {project.videoFile && (
 
@@ -364,33 +345,6 @@ export default function ManualProjectPage() {
           </p>
 
         )}
-
-
-        {/* ==================================================
-            INFO
-        ================================================== */}
-
-        <div className="manual-info">
-
-          <div className="manual-info-icon">
-            💡
-          </div>
-
-          <div>
-
-            <strong>
-              Manual Mode
-            </strong>
-
-            <p>
-              Create, edit and synchronize
-              your karaoke lyrics directly
-              in the editor.
-            </p>
-
-          </div>
-
-        </div>
 
 
       </div>

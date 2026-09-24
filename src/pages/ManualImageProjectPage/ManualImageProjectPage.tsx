@@ -554,13 +554,13 @@ export default function ManualImageProjectPage() {
 
                 {!hasVideo
 
-                  ? "Import Video First"
+                  ? "Import Video để timing"
 
                   : !hasImage
 
-                    ? "Import Image First"
+                    ? "Import Image làm Background"
 
-                    : "Open Editor"
+                    : "Bắt đầu"
 
                 }
 
@@ -596,21 +596,6 @@ export default function ManualImageProjectPage() {
         </div>
 
 
-        {/* ==================================================
-            MESSAGE
-        ================================================== */}
-
-        {!hasVideo && (
-
-          <p className="manual-image-workflow-message">
-
-            👆 Import a video to use as the timing and audio source.
-
-          </p>
-
-        )}
-
-
         {hasVideo && !hasImage && (
 
           <p className="manual-image-workflow-message">
@@ -644,23 +629,6 @@ export default function ManualImageProjectPage() {
             💡
           </div>
 
-
-          <div>
-
-            <strong>
-              Image Karaoke Mode
-            </strong>
-
-
-            <p>
-              The imported video is only used as the
-              audio and timing source. The video itself
-              will not be used as the exported background.
-              Your selected image will be displayed for
-              the entire duration of the karaoke project.
-            </p>
-
-          </div>
 
         </div>
 
