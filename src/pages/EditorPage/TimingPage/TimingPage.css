@@ -20,6 +20,9 @@
         ),
         #080d13;
     box-sizing: border-box;
+    user-select: none;
+-webkit-user-select: none;
+-webkit-touch-callout: none;
 }
 
 /* =========================================================
@@ -35,10 +38,13 @@
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 12px;
+    gap: 6px;
+    padding: 6px;
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
+    user-select: none;
+-webkit-user-select: none;
+-webkit-touch-callout: none;
 }
 
 /* =========================================================
@@ -72,8 +78,8 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 14px;
+    gap: 6px;
+    padding: 6px;
 
     background:
         linear-gradient(
@@ -104,7 +110,7 @@
     position: absolute;
     top: 0;
     left: 14px;
-    width: 28px;
+    width: 24px;
     height: 2px;
     background: #334e63;
     border-radius: 999px;
@@ -1077,7 +1083,7 @@
     }
 
     .timing-line {
-        padding: 11px;
+        padding: 9px;
         gap: 10px;
         border-radius: 8px;
     }
@@ -1132,17 +1138,17 @@
     .timing-footer {
         min-height: 60px;
 
-        padding: 8px;
+        padding: 6px;
 
         gap: 5px;
     }
 
     .timing-footer > .timing-btn {
-        min-width: 72px;
+        min-width: 69px;
 
         height: 38px;
 
-        padding: 0 7px;
+        padding: 0 6px;
 
         font-size: 9px;
     }
@@ -1152,9 +1158,9 @@
     }
 
     .timing-footer .timing-actions .timing-btn {
-        min-width: 60px;
+        min-width: 54px;
 
-        padding: 0 5px;
+        padding: 0 3px;
 
         font-size: 8px;
     }
