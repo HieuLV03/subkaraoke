@@ -9,7 +9,7 @@ import {
     calculateLyricLayout,
     getLyricStyle,
     getWordText,
-    getCanvasFont,
+    getFontWeight,
 } from "../components/karaoke/KaraokeLayout";
 
 // ============================================================
@@ -272,15 +272,9 @@ function drawWord(
     color: string,
     clipWidth?: number
 ) {
-
     ctx.save();
 
-    // ========================================================
-    // EXPORT SCALE
-    // ========================================================
-
-    const scale =
-        EXPORT_SCALE;
+    const scale = EXPORT_SCALE;
 
     const fontSize =
         style.fontSize *
@@ -294,47 +288,22 @@ function drawWord(
 
     // ========================================================
     // FONT
-    //
-    // getCanvasFont() đã xử lý style.scale.
-    //
-    // Sau đó Export scale toàn bộ lên 3.
     // ========================================================
 
-    const exportFont =
-        getCanvasFont(style);
-
-    const previewFontSize =
-        style.fontSize *
-        style.scale;
-
-    const exportFontSize =
-        previewFontSize *
-        EXPORT_SCALE;
-
     ctx.font =
-        exportFont.replace(
-            `${previewFontSize}px`,
-            `${exportFontSize}px`
-        );
+        `${getFontWeight()} ${fontSize}px "${style.fontFamily}"`;
 
-    ctx.textBaseline =
-        "middle";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "left";
 
-    ctx.textAlign =
-        "left";
-
-    ctx.lineJoin =
-        "round";
-
-    ctx.miterLimit =
-        2;
+    ctx.lineJoin = "round";
+    ctx.miterLimit = 2;
 
     // ========================================================
     // SHADOW
     // ========================================================
 
     if (style.shadow) {
-
         ctx.shadowColor =
             "rgba(0,0,0,0.6)";
 
@@ -343,8 +312,7 @@ function drawWord(
             scale *
             style.scale;
 
-        ctx.shadowOffsetX =
-            0;
+        ctx.shadowOffsetX = 0;
 
         ctx.shadowOffsetY =
             2 *
@@ -356,10 +324,7 @@ function drawWord(
     // CLIP
     // ========================================================
 
-    if (
-        typeof clipWidth === "number"
-    ) {
-
+    if (typeof clipWidth === "number") {
         ctx.beginPath();
 
         ctx.rect(
@@ -376,10 +341,7 @@ function drawWord(
     // OUTLINE
     // ========================================================
 
-    if (
-        outlineWidth > 0
-    ) {
-
+    if (outlineWidth > 0) {
         ctx.strokeStyle =
             style.outline;
 

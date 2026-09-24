@@ -81,12 +81,24 @@ export default function SubtitleLine({
     // trong hệ tọa độ 640x360.
     // ========================================================
 
-    const x =
-        style.x;
+const measureCanvas =
+    document.createElement("canvas");
 
-    const y =
-        style.y;
+const measureCtx =
+    measureCanvas.getContext("2d");
 
+if (!measureCtx) {
+    return null;
+}
+
+const layout =
+    calculateLyricLayout(
+        line,
+        measureCtx
+    );
+
+const x = layout.x;
+const y = layout.y;
 
     // ========================================================
     // SELECTED
@@ -269,31 +281,6 @@ export default function SubtitleLine({
     //
     // Canvas chỉ dùng để measure text.
     // ========================================================
-
-    const measureCanvas =
-        document.createElement(
-            "canvas"
-        );
-
-    const measureCtx =
-        measureCanvas.getContext(
-            "2d"
-        );
-
-
-    if (!measureCtx) {
-
-        return null;
-
-    }
-
-
-    const layout =
-        calculateLyricLayout(
-            line,
-            measureCtx
-        );
-
 
     // ========================================================
     // RENDER
