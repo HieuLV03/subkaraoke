@@ -11,7 +11,7 @@ import {
     PREVIEW_WIDTH,
     calculateLyricLayout,
     getLyricStyle,
-} from "../../karaoke/KaraokeLayout";
+} from "../../../components/karaoke/KaraokeLayout";
 
 
 // ============================================================
