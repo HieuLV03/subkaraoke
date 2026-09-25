@@ -1,13 +1,17 @@
 /* ============================================================
    KARAOKE CANVAS
+   ============================================================
 
    DESIGN SPACE:
+
    640 × 360
+
+   Đây là hệ tọa độ chung của Preview và Export.
 
    Preview:
        640 × 360
            ↓
-       scale theo UI
+       scale theo kích thước UI
 
    Export:
        640 × 360
@@ -58,101 +62,6 @@
 
 
 /* ============================================================
-   BACKGROUND LAYER
-============================================================ */
-
-.karaoke-background-layer {
-    position: absolute;
-
-    left: 0;
-    top: 0;
-
-    width: 640px;
-    height: 360px;
-
-    z-index: 1;
-
-    overflow: hidden;
-
-    pointer-events: none;
-
-    background: #000;
-}
-
-
-/* ============================================================
-   BACKGROUND MEDIA
-
-   Dùng CHUNG cho:
-
-       <img>
-       <video>
-
-   Media luôn cover đầy:
-
-       640 × 360
-
-   Sau đó:
-
-       transform scale()
-
-   để zoom.
-============================================================ */
-.karaoke-background-media {
-position: absolute;
-
-left: 320px;
-top: 180px;
-
-/*
-   width / height được React tính
-   theo kích thước thật của ảnh/video.
-
-   KHÔNG cố định 640×360 nữa.
-*/
-
-display: block;
-
-/*
-   Không dùng object-fit: contain/cover.
-
-   React đã tính kích thước media
-   theo đúng aspect ratio.
-*/
-
-max-width: none;
-max-height: none;
-
-object-fit: fill;
-
-object-position: center center;
-
-transform-origin: center center;
-
-user-select: none;
-
--webkit-user-select: none;
-
--webkit-user-drag: none;
-
-pointer-events: auto;
-
-touch-action: none;
-
-cursor: grab;
-}
-
-.karaoke-background-media:active {
-cursor: grabbing;
-}
-
-
-.karaoke-background-media:active {
-    cursor: grabbing;
-}
-
-
-/* ============================================================
    LYRICS
 ============================================================ */
 
@@ -187,6 +96,13 @@ cursor: grabbing;
     user-select: none;
 
     overflow: visible;
+
+    /*
+       Không dùng max-width.
+
+       Width của line được tính
+       bởi KaraokeLayout.ts.
+    */
 }
 
 
@@ -221,6 +137,17 @@ cursor: grabbing;
     pointer-events: none;
 
     overflow: visible;
+
+    /*
+       Không dùng:
+
+       display: flex;
+       justify-content: center;
+       flex-wrap: wrap;
+
+       Vì vị trí word đã được
+       calculateLyricLayout() tính.
+    */
 
     white-space: nowrap;
 
@@ -311,8 +238,7 @@ cursor: grabbing;
     left: 50%;
     top: 50%;
 
-    transform:
-        translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 
     color: #aaa;
 
