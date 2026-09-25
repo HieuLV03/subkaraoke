@@ -1,6 +1,7 @@
-
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { toBlobURL } from "@ffmpeg/util";
+
+import { useEditorStore } from "../stores/editor.store";
 
 import {
     EXPORT_WIDTH,
@@ -17,6 +18,7 @@ import {
 // ============================================================
 
 const EXPORT_FPS = 20;
+
 const FFMPEG_CORE_VERSION = "0.12.10";
 
 // ============================================================
@@ -32,6 +34,7 @@ type LyricWord = {
     end?: number;
 
     synced?: boolean;
+
     measuredWidth?: number;
 };
 
@@ -52,7 +55,10 @@ type LyricStyle = {
 
     scale?: number;
 
-    align?: "left" | "center" | "right";
+    align?:
+        | "left"
+        | "center"
+        | "right";
 };
 
 type LyricLine = {
@@ -73,6 +79,7 @@ type LyricLine = {
 // ============================================================
 
 let ffmpeg: FFmpeg | null = null;
+
 let ffmpegLoaded = false;
 
 // ============================================================
@@ -81,48 +88,76 @@ let ffmpegLoaded = false;
 
 async function loadFFmpeg(): Promise<FFmpeg> {
 
-    if (ffmpeg && ffmpegLoaded) {
+    if (
+        ffmpeg &&
+        ffmpegLoaded
+    ) {
         return ffmpeg;
     }
 
-    console.log("[FFMPEG] Loading...");
+    console.log(
+        "[FFMPEG] Loading..."
+    );
 
-    const instance = new FFmpeg();
+    const instance =
+        new FFmpeg();
 
-    instance.on("log", ({ message }) => {
-        console.log("[FFMPEG]", message);
-    });
+    instance.on(
+        "log",
+        ({ message }) => {
 
-    instance.on("progress", ({ progress }) => {
-        console.log(
-            "[FFMPEG PROGRESS]",
-            Math.round(progress * 100),
-            "%"
-        );
-    });
+            console.log(
+                "[FFMPEG]",
+                message
+            );
+
+        }
+    );
+
+    instance.on(
+        "progress",
+        ({ progress }) => {
+
+            console.log(
+                "[FFMPEG PROGRESS]",
+                Math.round(
+                    progress * 100
+                ),
+                "%"
+            );
+
+        }
+    );
 
     const baseURL =
         `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/esm`;
 
-    const coreURL = await toBlobURL(
-        `${baseURL}/ffmpeg-core.js`,
-        "text/javascript"
-    );
+    const coreURL =
+        await toBlobURL(
+            `${baseURL}/ffmpeg-core.js`,
+            "text/javascript"
+        );
 
-    const wasmURL = await toBlobURL(
-        `${baseURL}/ffmpeg-core.wasm`,
-        "application/wasm"
-    );
+    const wasmURL =
+        await toBlobURL(
+            `${baseURL}/ffmpeg-core.wasm`,
+            "application/wasm"
+        );
 
     await instance.load({
         coreURL,
         wasmURL,
     });
 
-    ffmpeg = instance;
-    ffmpegLoaded = true;
+    ffmpeg =
+        instance;
 
-    console.log("[FFMPEG] Loaded.");
+    ffmpegLoaded =
+        true;
+
+    console.log(
+        "[FFMPEG] Loaded."
+    );
 
     return instance;
 }
@@ -139,7 +174,10 @@ function clamp(
 
     return Math.max(
         min,
-        Math.min(max, value)
+        Math.min(
+            max,
+            value
+        )
     );
 }
 
@@ -152,7 +190,10 @@ function normalizeLyrics(
 ): LyricLine[] {
 
     return lyrics.map(
-        (line, lineIndex) => ({
+        (
+            line,
+            lineIndex
+        ) => ({
 
             ...line,
 
@@ -161,17 +202,26 @@ function normalizeLyrics(
                 `line-${lineIndex}`,
 
             start:
-                Number(line.start ?? 0),
+                Number(
+                    line.start ?? 0
+                ),
 
             end:
-                Number(line.end ?? 0),
+                Number(
+                    line.end ?? 0
+                ),
 
             text:
                 line.text ?? "",
 
             words:
-                (line.words ?? []).map(
-                    (word, wordIndex) => ({
+                (
+                    line.words ?? []
+                ).map(
+                    (
+                        word,
+                        wordIndex
+                    ) => ({
 
                         ...word,
 
@@ -180,19 +230,25 @@ function normalizeLyrics(
                             `line-${lineIndex}-word-${wordIndex}`,
 
                         word:
-                            getWordText(word),
+                            getWordText(
+                                word
+                            ),
 
                         start:
                             Number(
-                                word.start ?? 0
+                                word.start ??
+                                0
                             ),
 
                         end:
                             Number(
-                                word.end ?? 0
+                                word.end ??
+                                0
                             ),
+
                     })
                 ),
+
         })
     );
 }
@@ -207,10 +263,14 @@ function getWordPercent(
 ): number {
 
     const start =
-        Number(word.start ?? 0);
+        Number(
+            word.start ?? 0
+        );
 
     const end =
-        Number(word.end ?? 0);
+        Number(
+            word.end ?? 0
+        );
 
     if (
         !Number.isFinite(start) ||
@@ -219,24 +279,36 @@ function getWordPercent(
         return 0;
     }
 
-    if (end <= start) {
+    if (
+        end <= start
+    ) {
         return currentTime >= end
             ? 100
             : 0;
     }
 
-    if (currentTime <= start) {
+    if (
+        currentTime <= start
+    ) {
         return 0;
     }
 
-    if (currentTime >= end) {
+    if (
+        currentTime >= end
+    ) {
         return 100;
     }
 
     return clamp(
         (
-            (currentTime - start) /
-            (end - start)
+            (
+                currentTime -
+                start
+            ) /
+            (
+                end -
+                start
+            )
         ) * 100,
         0,
         100
@@ -246,35 +318,34 @@ function getWordPercent(
 // ============================================================
 // DRAW WORD
 //
-// QUAN TRỌNG:
-//
 // Layout được tính ở Preview 640x360.
 //
-// Khi export:
+// Export:
+// 1920x1080
 //
-// Preview font 21px
-//        ↓
-// Export font 63px
-//
-// Preview x 330
-//        ↓
-// Export x 990
-//
-// Không nhân style.scale lần thứ hai.
+// EXPORT_SCALE = 3
 // ============================================================
 
 function drawWord(
     ctx: CanvasRenderingContext2D,
+
     text: string,
+
     x: number,
+
     y: number,
+
     style: Required<LyricStyle>,
+
     color: string,
+
     clipWidth?: number
 ) {
+
     ctx.save();
 
-    const scale = EXPORT_SCALE;
+    const scale =
+        EXPORT_SCALE;
 
     const fontSize =
         style.fontSize *
@@ -293,17 +364,26 @@ function drawWord(
     ctx.font =
         `${getFontWeight()} ${fontSize}px "${style.fontFamily}"`;
 
-    ctx.textBaseline = "middle";
-    ctx.textAlign = "left";
+    ctx.textBaseline =
+        "middle";
 
-    ctx.lineJoin = "round";
-    ctx.miterLimit = 2;
+    ctx.textAlign =
+        "left";
+
+    ctx.lineJoin =
+        "round";
+
+    ctx.miterLimit =
+        2;
 
     // ========================================================
     // SHADOW
     // ========================================================
 
-    if (style.shadow) {
+    if (
+        style.shadow
+    ) {
+
         ctx.shadowColor =
             "rgba(0,0,0,0.6)";
 
@@ -312,7 +392,8 @@ function drawWord(
             scale *
             style.scale;
 
-        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetX =
+            0;
 
         ctx.shadowOffsetY =
             2 *
@@ -324,7 +405,11 @@ function drawWord(
     // CLIP
     // ========================================================
 
-    if (typeof clipWidth === "number") {
+    if (
+        typeof clipWidth ===
+        "number"
+    ) {
+
         ctx.beginPath();
 
         ctx.rect(
@@ -341,7 +426,10 @@ function drawWord(
     // OUTLINE
     // ========================================================
 
-    if (outlineWidth > 0) {
+    if (
+        outlineWidth > 0
+    ) {
+
         ctx.strokeStyle =
             style.outline;
 
@@ -377,13 +465,18 @@ function drawWord(
 
 function drawLyricFrame(
     canvas: HTMLCanvasElement,
+
     lyrics: LyricLine[],
+
     currentTime: number,
+
     measureCtx: CanvasRenderingContext2D
 ) {
 
     const ctx =
-        canvas.getContext("2d");
+        canvas.getContext(
+            "2d"
+        );
 
     if (!ctx) {
 
@@ -407,13 +500,19 @@ function drawLyricFrame(
     // DRAW ACTIVE LINES
     // ========================================================
 
-    for (const line of lyrics) {
+    for (
+        const line of lyrics
+    ) {
 
         const lineStart =
-            Number(line.start ?? 0);
+            Number(
+                line.start ?? 0
+            );
 
         const lineEnd =
-            Number(line.end ?? 0);
+            Number(
+                line.end ?? 0
+            );
 
         if (
             currentTime < lineStart ||
@@ -423,12 +522,16 @@ function drawLyricFrame(
         }
 
         const style =
-            getLyricStyle(line);
+            getLyricStyle(
+                line
+            );
 
         const words =
             line.words ?? [];
 
-        if (!words.length) {
+        if (
+            !words.length
+        ) {
             continue;
         }
 
@@ -469,12 +572,12 @@ function drawLyricFrame(
                 words[i];
 
             const text =
-                getWordText(word);
+                getWordText(
+                    word
+                );
 
             // =================================================
             // X
-            //
-            // layoutWord.x đã là Preview coordinate.
             // =================================================
 
             const currentX =
@@ -483,8 +586,6 @@ function drawLyricFrame(
 
             // =================================================
             // WIDTH
-            //
-            // layoutWord.width đã bao gồm style.scale.
             // =================================================
 
             const wordWidth =
@@ -530,6 +631,7 @@ function drawLyricFrame(
                     style,
                     style.activeColor
                 );
+
             }
 
             // =================================================
@@ -543,7 +645,10 @@ function drawLyricFrame(
 
                 const clipWidth =
                     wordWidth *
-                    (percent / 100);
+                    (
+                        percent /
+                        100
+                    );
 
                 drawWord(
                     ctx,
@@ -574,7 +679,9 @@ async function canvasToBlob(
         ) => {
 
             canvas.toBlob(
-                (blob) => {
+                (
+                    blob
+                ) => {
 
                     if (!blob) {
 
@@ -587,10 +694,13 @@ async function canvasToBlob(
                         return;
                     }
 
-                    resolve(blob);
+                    resolve(
+                        blob
+                    );
                 },
                 "image/png"
             );
+
         }
     );
 }
@@ -600,7 +710,11 @@ async function canvasToBlob(
 // ============================================================
 
 async function getInputFile(
-    input: string | File | Blob,
+    input:
+        | string
+        | File
+        | Blob,
+
     fallbackName: string
 ): Promise<{
     data: Uint8Array;
@@ -611,7 +725,9 @@ async function getInputFile(
     // FILE
     // ========================================================
 
-    if (input instanceof File) {
+    if (
+        input instanceof File
+    ) {
 
         return {
 
@@ -623,6 +739,7 @@ async function getInputFile(
             name:
                 input.name ||
                 fallbackName,
+
         };
     }
 
@@ -630,7 +747,9 @@ async function getInputFile(
     // BLOB
     // ========================================================
 
-    if (input instanceof Blob) {
+    if (
+        input instanceof Blob
+    ) {
 
         return {
 
@@ -641,6 +760,7 @@ async function getInputFile(
 
             name:
                 fallbackName,
+
         };
     }
 
@@ -649,9 +769,13 @@ async function getInputFile(
     // ========================================================
 
     const response =
-        await fetch(input);
+        await fetch(
+            input
+        );
 
-    if (!response.ok) {
+    if (
+        !response.ok
+    ) {
 
         throw new Error(
             `Không thể đọc file: ${response.status}`
@@ -661,43 +785,61 @@ async function getInputFile(
     const blob =
         await response.blob();
 
-    let extension = "";
+    let extension =
+        "";
 
     if (
         blob.type ===
         "image/png"
     ) {
-        extension = ".png";
+
+        extension =
+            ".png";
+
     }
     else if (
         blob.type ===
         "image/jpeg"
     ) {
-        extension = ".jpg";
+
+        extension =
+            ".jpg";
+
     }
     else if (
         blob.type ===
         "image/webp"
     ) {
-        extension = ".webp";
+
+        extension =
+            ".webp";
+
     }
     else if (
         blob.type ===
         "video/webm"
     ) {
-        extension = ".webm";
+
+        extension =
+            ".webm";
+
     }
     else if (
         blob.type ===
         "video/mp4"
     ) {
-        extension = ".mp4";
+
+        extension =
+            ".mp4";
+
     }
     else if (
         blob.type ===
         "video/quicktime"
     ) {
-        extension = ".mov";
+
+        extension =
+            ".mov";
     }
 
     const name =
@@ -718,6 +860,7 @@ async function getInputFile(
             ),
 
         name,
+
     };
 }
 
@@ -735,10 +878,12 @@ async function safeDelete(
         await engine.deleteFile(
             filename
         );
+
     }
     catch {
 
         // Ignore.
+
     }
 }
 
@@ -747,7 +892,11 @@ async function safeDelete(
 // ============================================================
 
 export async function exportVideo(
-    videoFile: string | File | Blob,
+
+    videoFile:
+        | string
+        | File
+        | Blob,
 
     imageFile:
         | string
@@ -810,7 +959,9 @@ export async function exportVideo(
         );
     }
 
-    if (!videoFile) {
+    if (
+        !videoFile
+    ) {
 
         throw new Error(
             "Chưa có video timing."
@@ -821,11 +972,138 @@ export async function exportVideo(
         !!imageFile;
 
     // ========================================================
+    // GET BACKGROUND MEDIA TRANSFORM
+    //
+    // QUAN TRỌNG:
+    //
+    // Lấy đúng state hiện tại từ Preview.
+    //
+    // Preview coordinate:
+    // 640 x 360
+    //
+    // Export coordinate:
+    // 1920 x 1080
+    //
+    // x / y được nhân EXPORT_SCALE.
+    // scale giữ nguyên.
+    // ========================================================
+
+    const backgroundMedia =
+        useEditorStore
+            .getState()
+            .backgroundMedia;
+
+    const backgroundX =
+        backgroundMedia.x *
+        EXPORT_SCALE;
+
+    const backgroundY =
+        backgroundMedia.y *
+        EXPORT_SCALE;
+
+    const backgroundScale =
+        Math.max(
+            0.1,
+            backgroundMedia.scale
+        );
+
+    console.log(
+        "[EXPORT] Background media state:",
+        backgroundMedia
+    );
+
+    console.log(
+        "[EXPORT] Background X:",
+        backgroundX
+    );
+
+    console.log(
+        "[EXPORT] Background Y:",
+        backgroundY
+    );
+
+    console.log(
+        "[EXPORT] Background scale:",
+        backgroundScale
+    );
+
+    // ========================================================
+    // BACKGROUND MEDIA SIZE
+    //
+    // Đây chính là kích thước 640x360 của Preview
+    // sau đó nhân scale.
+    //
+    // Export:
+    // 1920 x 1080
+    //
+    // scale 1:
+    // 1920 x 1080
+    //
+    // scale 1.5:
+    // 2880 x 1620
+    // ========================================================
+
+    const backgroundWidth =
+        Math.round(
+            EXPORT_WIDTH *
+            backgroundScale
+        );
+
+    const backgroundHeight =
+        Math.round(
+            EXPORT_HEIGHT *
+            backgroundScale
+        );
+
+    // ========================================================
+    // BACKGROUND TOP-LEFT
+    //
+    // Preview dùng:
+    //
+    // left: x
+    // top: y
+    // transform:
+    // translate(-50%, -50%)
+    // scale(...)
+    //
+    // Vì vậy top-left của background là:
+    //
+    // centerX - width / 2
+    // centerY - height / 2
+    // ========================================================
+
+    const backgroundLeft =
+        Math.round(
+            backgroundX -
+            backgroundWidth / 2
+        );
+
+    const backgroundTop =
+        Math.round(
+            backgroundY -
+            backgroundHeight / 2
+        );
+
+    console.log(
+        "[EXPORT] Background size:",
+        backgroundWidth,
+        "x",
+        backgroundHeight
+    );
+
+    console.log(
+        "[EXPORT] Background position:",
+        backgroundLeft,
+        backgroundTop
+    );
+
+    // ========================================================
     // MEASURE CANVAS
     //
     // 640 x 360
     //
-    // Đây là coordinate system chung của Preview + Export.
+    // Đây là coordinate system chung
+    // của Preview + Export.
     // ========================================================
 
     const measureCanvas =
@@ -859,6 +1137,9 @@ export async function exportVideo(
     // RENDER CANVAS
     //
     // 1920 x 1080
+    //
+    // Chỉ chứa lyrics.
+    // Background do FFmpeg xử lý.
     // ========================================================
 
     const renderCanvas =
@@ -911,7 +1192,9 @@ export async function exportVideo(
     // WRITE VIDEO
     // ========================================================
 
-    onProgress?.(2);
+    onProgress?.(
+        2
+    );
 
     const videoInput =
         await getInputFile(
@@ -933,7 +1216,9 @@ export async function exportVideo(
     // WRITE IMAGE
     // ========================================================
 
-    if (isImageMode) {
+    if (
+        isImageMode
+    ) {
 
         const imageInput =
             await getInputFile(
@@ -1042,15 +1327,28 @@ export async function exportVideo(
 
     // ========================================================
     // IMAGE MODE
+    //
+    // imageFile tồn tại:
+    //
+    // IMAGE = background duy nhất
+    //
+    // videoFile = timing + audio
+    //
+    // Không render video phía dưới image.
     // ========================================================
 
-    if (isImageMode) {
+    if (
+        isImageMode
+    ) {
 
         args = [
 
             // ------------------------------------------------
             // BACKGROUND IMAGE
             // ------------------------------------------------
+
+            "-loop",
+            "1",
 
             "-i",
             inputImageName,
@@ -1060,7 +1358,9 @@ export async function exportVideo(
             // ------------------------------------------------
 
             "-framerate",
-            String(EXPORT_FPS),
+            String(
+                EXPORT_FPS
+            ),
 
             "-i",
             framePattern,
@@ -1078,20 +1378,62 @@ export async function exportVideo(
 
             "-filter_complex",
 
+            // =================================================
+            // IMAGE BACKGROUND
+            //
+            // 1.
+            // scale theo backgroundScale
+            //
+            // 2.
+            // force aspect ratio increase
+            //
+            // 3.
+            // crop đúng kích thước background sau scale
+            //
+            // 4.
+            // đặt background tại x/y hiện tại
+            // =================================================
+
             `[0:v]` +
+
             `format=rgba,` +
-            `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+
+            `scale=${backgroundWidth}:${backgroundHeight}:` +
             `force_original_aspect_ratio=increase,` +
-            `crop=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(iw-ow)/2:(ih-oh)/2,` +
-            `loop=loop=-1:size=1:start=0,` +
+
+            `crop=${backgroundWidth}:${backgroundHeight}:(iw-ow)/2:(ih-oh)/2,` +
+
             `fps=${EXPORT_FPS},` +
-            `format=yuv420p[bg];` +
+
+            `format=rgba` +
+
+            `[bg];` +
+
+            // =================================================
+            // LYRICS
+            // =================================================
 
             `[1:v]` +
-            `format=rgba[lyrics];` +
+
+            `format=rgba` +
+
+            `[lyrics];` +
+
+            // =================================================
+            // OVERLAY
+            //
+            // backgroundLeft/backgroundTop chính là
+            // vị trí top-left sau khi áp dụng:
+            //
+            // translate(-50%, -50%)
+            // =================================================
 
             `[bg][lyrics]` +
-            `overlay=0:0[outv]`,
+
+            `overlay=${backgroundLeft}:${backgroundTop}:` +
+            `shortest=0` +
+
+            `[outv]`,
 
             // ------------------------------------------------
             // VIDEO
@@ -1112,14 +1454,18 @@ export async function exportVideo(
             // ------------------------------------------------
 
             "-t",
-            String(duration),
+            String(
+                duration
+            ),
 
             // ------------------------------------------------
             // FPS
             // ------------------------------------------------
 
             "-r",
-            String(EXPORT_FPS),
+            String(
+                EXPORT_FPS
+            ),
 
             "-fps_mode",
             "cfr",
@@ -1160,11 +1506,16 @@ export async function exportVideo(
             "-y",
 
             outputName,
+
         ];
     }
 
     // ========================================================
     // VIDEO MODE
+    //
+    // Không có imageFile:
+    //
+    // VIDEO = background + timing + audio
     // ========================================================
 
     else {
@@ -1183,7 +1534,9 @@ export async function exportVideo(
             // ------------------------------------------------
 
             "-framerate",
-            String(EXPORT_FPS),
+            String(
+                EXPORT_FPS
+            ),
 
             "-i",
             framePattern,
@@ -1194,18 +1547,43 @@ export async function exportVideo(
 
             "-filter_complex",
 
+            // =================================================
+            // VIDEO BACKGROUND
+            // =================================================
+
             `[0:v]` +
-            `scale=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:` +
+
+            `scale=${backgroundWidth}:${backgroundHeight}:` +
             `force_original_aspect_ratio=increase,` +
-            `crop=${EXPORT_WIDTH}:${EXPORT_HEIGHT}:(iw-ow)/2:(ih-oh)/2,` +
+
+            `crop=${backgroundWidth}:${backgroundHeight}:(iw-ow)/2:(ih-oh)/2,` +
+
             `fps=${EXPORT_FPS},` +
-            `format=yuv420p[bg];` +
+
+            `format=rgba` +
+
+            `[bg];` +
+
+            // =================================================
+            // LYRICS
+            // =================================================
 
             `[1:v]` +
-            `format=rgba[lyrics];` +
+
+            `format=rgba` +
+
+            `[lyrics];` +
+
+            // =================================================
+            // OVERLAY
+            // =================================================
 
             `[bg][lyrics]` +
-            `overlay=0:0[outv]`,
+
+            `overlay=${backgroundLeft}:${backgroundTop}:` +
+            `shortest=0` +
+
+            `[outv]`,
 
             // ------------------------------------------------
             // VIDEO
@@ -1226,14 +1604,18 @@ export async function exportVideo(
             // ------------------------------------------------
 
             "-t",
-            String(duration),
+            String(
+                duration
+            ),
 
             // ------------------------------------------------
             // FPS
             // ------------------------------------------------
 
             "-r",
-            String(EXPORT_FPS),
+            String(
+                EXPORT_FPS
+            ),
 
             "-fps_mode",
             "cfr",
@@ -1274,6 +1656,7 @@ export async function exportVideo(
             "-y",
 
             outputName,
+
         ];
     }
 
@@ -1299,6 +1682,38 @@ export async function exportVideo(
     );
 
     console.log(
+        "[EXPORT] Background:",
+        {
+            x:
+                backgroundMedia.x,
+
+            y:
+                backgroundMedia.y,
+
+            scale:
+                backgroundMedia.scale,
+
+            exportX:
+                backgroundX,
+
+            exportY:
+                backgroundY,
+
+            width:
+                backgroundWidth,
+
+            height:
+                backgroundHeight,
+
+            left:
+                backgroundLeft,
+
+            top:
+                backgroundTop,
+        }
+    );
+
+    console.log(
         "[EXPORT] FFmpeg args:",
         args
     );
@@ -1307,7 +1722,9 @@ export async function exportVideo(
     // FFMPEG EXPORT
     // ========================================================
 
-    onProgress?.(50);
+    onProgress?.(
+        50
+    );
 
     const progressHandler = ({
         progress,
@@ -1327,7 +1744,9 @@ export async function exportVideo(
             safe * 49;
 
         onProgress?.(
-            Math.round(value)
+            Math.round(
+                value
+            )
         );
     };
 
@@ -1343,7 +1762,9 @@ export async function exportVideo(
         );
 
     }
-    catch (error) {
+    catch (
+        error
+    ) {
 
         console.error(
             "[EXPORT] FFmpeg ERROR:",
@@ -1365,7 +1786,9 @@ export async function exportVideo(
     // READ OUTPUT
     // ========================================================
 
-    onProgress?.(99);
+    onProgress?.(
+        99
+    );
 
     const outputData =
         await engine.readFile(
@@ -1389,7 +1812,9 @@ export async function exportVideo(
 
     const outputBlob =
         new Blob(
-            [outputBytes],
+            [
+                outputBytes,
+            ],
             {
                 type:
                     "video/mp4",
@@ -1410,7 +1835,9 @@ export async function exportVideo(
         inputVideoName
     );
 
-    if (isImageMode) {
+    if (
+        isImageMode
+    ) {
 
         await safeDelete(
             engine,
@@ -1430,6 +1857,7 @@ export async function exportVideo(
 
         await safeDelete(
             engine,
+
             `frame-${String(
                 frame
             ).padStart(
@@ -1443,7 +1871,9 @@ export async function exportVideo(
     // DONE
     // ========================================================
 
-    onProgress?.(100);
+    onProgress?.(
+        100
+    );
 
     console.log(
         "[EXPORT] SUCCESS",
