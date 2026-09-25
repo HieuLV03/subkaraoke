@@ -53,22 +53,40 @@ export default function KaraokeCanvas() {
                 state.currentTime
         );
 
-    const backgroundImage =
+    const playing =
         useEditorStore(
             (state) =>
-                state.backgroundImage
+                state.playing
         );
 
-    const setBackgroundImagePosition =
+    const playbackRate =
         useEditorStore(
             (state) =>
-                state.setBackgroundImagePosition
+                state.playbackRate
+        );
+
+    const backgroundMedia =
+        useEditorStore(
+            (state) =>
+                state.backgroundMedia
+        );
+
+    const setBackgroundMediaPosition =
+        useEditorStore(
+            (state) =>
+                state.setBackgroundMediaPosition
         );
 
     const imageFile =
         useProjectStore(
             (state) =>
                 state.project?.imageFile
+        );
+
+    const videoFile =
+        useProjectStore(
+            (state) =>
+                state.project?.videoFile
         );
 
 
@@ -81,8 +99,8 @@ export default function KaraokeCanvas() {
             null
         );
 
-    const imageRef =
-        useRef<HTMLImageElement | null>(
+    const videoRef =
+        useRef<HTMLVideoElement | null>(
             null
         );
 
@@ -104,15 +122,19 @@ export default function KaraokeCanvas() {
     const dragRef =
         useRef<{
             pointerId: number;
+
             startPointerX: number;
+
             startPointerY: number;
+
             startX: number;
+
             startY: number;
         } | null>(null);
 
 
     // ========================================================
-    // CALCULATE SCALE
+    // CALCULATE PREVIEW SCALE
     // ========================================================
 
     useEffect(() => {
@@ -191,12 +213,146 @@ export default function KaraokeCanvas() {
 
 
     // ========================================================
-    // IMAGE POINTER DOWN
+    // VIDEO CURRENT TIME SYNC
     // ========================================================
 
-    const handleImagePointerDown =
+    useEffect(() => {
+
+        const video =
+            videoRef.current;
+
+        if (!video) {
+            return;
+        }
+
+
+        /*
+         * Video background luôn bám
+         * theo currentTime của Editor.
+         *
+         * Video chỉ được hiển thị khi
+         * không có imageFile.
+         */
+
+        const difference =
+            Math.abs(
+                video.currentTime -
+                currentTime
+            );
+
+
+        if (
+            difference >
+            0.05
+        ) {
+
+            try {
+
+                video.currentTime =
+                    currentTime;
+
+            } catch {
+                // Video chưa sẵn sàng.
+            }
+
+        }
+
+
+        video.playbackRate =
+            playbackRate;
+
+
+        if (playing) {
+
+            if (
+                video.paused &&
+                video.readyState >= 2
+            ) {
+
+                video.play().catch(
+                    () => {}
+                );
+
+            }
+
+        } else {
+
+            if (!video.paused) {
+
+                video.pause();
+
+            }
+
+        }
+
+    }, [
+        currentTime,
+        playing,
+        playbackRate,
+        videoFile,
+    ]);
+
+
+    // ========================================================
+    // VIDEO LOAD / RESET
+    // ========================================================
+
+    useEffect(() => {
+
+        const video =
+            videoRef.current;
+
+        if (!video) {
+            return;
+        }
+
+
+        const handleLoadedMetadata =
+            () => {
+
+                try {
+
+                    video.currentTime =
+                        currentTime;
+
+                } catch {
+                    // Ignore.
+                }
+
+            };
+
+
+        video.addEventListener(
+            "loadedmetadata",
+            handleLoadedMetadata
+        );
+
+
+        return () => {
+
+            video.removeEventListener(
+                "loadedmetadata",
+                handleLoadedMetadata
+            );
+
+        };
+
+    }, [
+        videoFile,
+    ]);
+
+
+    // ========================================================
+    // MEDIA POINTER DOWN
+    // ========================================================
+
+    const handleMediaPointerDown =
         (
-            event: React.PointerEvent<HTMLImageElement>
+            event:
+                React.PointerEvent<
+                    HTMLImageElement |
+                    HTMLVideoElement
+                >
         ) => {
 
             event.preventDefault();
@@ -204,11 +360,11 @@ export default function KaraokeCanvas() {
             event.stopPropagation();
 
 
-            const image =
+            const media =
                 event.currentTarget;
 
 
-            image.setPointerCapture(
+            media.setPointerCapture(
                 event.pointerId
             );
 
@@ -225,10 +381,10 @@ export default function KaraokeCanvas() {
                     event.clientY,
 
                 startX:
-                    backgroundImage.x,
+                    backgroundMedia.x,
 
                 startY:
-                    backgroundImage.y,
+                    backgroundMedia.y,
 
             };
 
@@ -236,12 +392,16 @@ export default function KaraokeCanvas() {
 
 
     // ========================================================
-    // IMAGE POINTER MOVE
+    // MEDIA POINTER MOVE
     // ========================================================
 
-    const handleImagePointerMove =
+    const handleMediaPointerMove =
         (
-            event: React.PointerEvent<HTMLImageElement>
+            event:
+                React.PointerEvent<
+                    HTMLImageElement |
+                    HTMLVideoElement
+                >
         ) => {
 
             const drag =
@@ -272,11 +432,11 @@ export default function KaraokeCanvas() {
 
 
             /*
-             * Preview đang được scale.
+             * Preview được scale từ
+             * 640×360 ra kích thước thật.
              *
-             * Vì vậy phải chuyển
-             * pixel màn hình về
-             * pixel design 640×360.
+             * Chuyển delta màn hình
+             * về design coordinate.
              */
 
             const deltaDesignX =
@@ -289,7 +449,7 @@ export default function KaraokeCanvas() {
                 scale;
 
 
-            setBackgroundImagePosition(
+            setBackgroundMediaPosition(
 
                 drag.startX +
                     deltaDesignX,
@@ -303,12 +463,16 @@ export default function KaraokeCanvas() {
 
 
     // ========================================================
-    // IMAGE POINTER UP
+    // MEDIA POINTER UP
     // ========================================================
 
-    const handleImagePointerUp =
+    const handleMediaPointerUp =
         (
-            event: React.PointerEvent<HTMLImageElement>
+            event:
+                React.PointerEvent<
+                    HTMLImageElement |
+                    HTMLVideoElement
+                >
         ) => {
 
             const drag =
@@ -335,8 +499,7 @@ export default function KaraokeCanvas() {
                 );
 
             } catch {
-                // Pointer capture có thể
-                // đã được release trước đó.
+                // Pointer capture đã được release.
             }
 
 
@@ -347,12 +510,16 @@ export default function KaraokeCanvas() {
 
 
     // ========================================================
-    // IMAGE POINTER CANCEL
+    // MEDIA POINTER CANCEL
     // ========================================================
 
-    const handleImagePointerCancel =
+    const handleMediaPointerCancel =
         (
-            event: React.PointerEvent<HTMLImageElement>
+            event:
+                React.PointerEvent<
+                    HTMLImageElement |
+                    HTMLVideoElement
+                >
         ) => {
 
             const drag =
@@ -393,22 +560,44 @@ export default function KaraokeCanvas() {
 
 
     // ========================================================
-    // IMAGE STYLE
+    // BACKGROUND MEDIA STYLE
     // ========================================================
 
-    const backgroundImageStyle =
-        imageFile
-            ? {
-                left:
-                    backgroundImage.x,
+    const backgroundMediaStyle =
+        {
+            left:
+                backgroundMedia.x,
 
-                top:
-                    backgroundImage.y,
+            top:
+                backgroundMedia.y,
 
-                transform:
-                    `translate(-50%, -50%) scale(${backgroundImage.scale})`,
-            }
-            : undefined;
+            transform:
+                `translate(-50%, -50%) scale(${backgroundMedia.scale})`,
+        };
+
+
+    // ========================================================
+    // WHICH MEDIA IS BACKGROUND?
+    // ========================================================
+
+    /*
+     * Nếu có imageFile:
+     *
+     *     image = background
+     *     video = timing/master clock
+     *
+     * Nếu không có imageFile nhưng có videoFile:
+     *
+     *     video = background
+     */
+
+    const showImageBackground =
+        Boolean(imageFile);
+
+
+    const showVideoBackground =
+        !imageFile &&
+        Boolean(videoFile);
 
 
     // ========================================================
@@ -431,46 +620,91 @@ export default function KaraokeCanvas() {
             >
 
                 {/* ==================================================
-                    BACKGROUND IMAGE
+                    BACKGROUND MEDIA
                 ================================================== */}
 
-                {imageFile && (
+                <div
+                    className="karaoke-background-layer"
+                >
 
-                    <div
-                        className="karaoke-background-layer"
-                    >
+                    {/* ==================================================
+                        IMAGE BACKGROUND
+                    ================================================== */}
 
-                        <img
-                            ref={imageRef}
-                            src={imageFile}
+                    {showImageBackground && (
+
+                 <img
+    src={imageFile ?? undefined}
                             alt=""
                             className="karaoke-background-image"
+
                             style={
-                                backgroundImageStyle
+                                backgroundMediaStyle
                             }
 
                             draggable={false}
 
                             onPointerDown={
-                                handleImagePointerDown
+                                handleMediaPointerDown
                             }
 
                             onPointerMove={
-                                handleImagePointerMove
+                                handleMediaPointerMove
                             }
 
                             onPointerUp={
-                                handleImagePointerUp
+                                handleMediaPointerUp
                             }
 
                             onPointerCancel={
-                                handleImagePointerCancel
+                                handleMediaPointerCancel
                             }
                         />
 
-                    </div>
+                    )}
 
-                )}
+
+                    {/* ==================================================
+                        VIDEO BACKGROUND
+                    ================================================== */}
+
+                    {showVideoBackground && (
+
+                <video
+    ref={videoRef}
+    src={videoFile ?? undefined}
+                            className="karaoke-background-video"
+
+                            style={
+                                backgroundMediaStyle
+                            }
+
+                            muted
+
+                            playsInline
+
+                            preload="auto"
+
+                            onPointerDown={
+                                handleMediaPointerDown
+                            }
+
+                            onPointerMove={
+                                handleMediaPointerMove
+                            }
+
+                            onPointerUp={
+                                handleMediaPointerUp
+                            }
+
+                            onPointerCancel={
+                                handleMediaPointerCancel
+                            }
+                        />
+
+                    )}
+
+                </div>
 
 
                 {/* ==================================================
