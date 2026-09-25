@@ -98,58 +98,52 @@
 
    để zoom.
 ============================================================ */
-
 .karaoke-background-media {
-    position: absolute;
+position: absolute;
 
-    left: 320px;
-    top: 180px;
+left: 320px;
+top: 180px;
 
-    width: 640px;
-    height: 360px;
+/*
+   width / height được React tính
+   theo kích thước thật của ảnh/video.
 
-    /*
-       Quan trọng:
+   KHÔNG cố định 640×360 nữa.
+*/
 
-       Cover toàn bộ canvas.
-    */
-    object-fit: cover;
+display: block;
 
-    object-position: center center;
+/*
+   Không dùng object-fit: contain/cover.
 
-    display: block;
+   React đã tính kích thước media
+   theo đúng aspect ratio.
+*/
 
-    /*
-       Không giới hạn kích thước.
-    */
-    max-width: none;
-    max-height: none;
+max-width: none;
+max-height: none;
 
-    /*
-       Transform được điều khiển
-       bằng React.
-    */
-    transform-origin: center center;
+object-fit: fill;
 
-    /*
-       Không cho browser kéo/copy media.
-    */
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-user-drag: none;
+object-position: center center;
 
-    /*
-       Chỉ media nhận pointer.
-    */
-    pointer-events: auto;
+transform-origin: center center;
 
-    /*
-       Quan trọng cho drag/zoom
-       trên mobile.
-    */
-    touch-action: none;
+user-select: none;
 
-    cursor: grab;
+-webkit-user-select: none;
+
+-webkit-user-drag: none;
+
+pointer-events: auto;
+
+touch-action: none;
+
+cursor: grab;
+}
+
+.karaoke-background-media:active {
+cursor: grabbing;
 }
 
 
