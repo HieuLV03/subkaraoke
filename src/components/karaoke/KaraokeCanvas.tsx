@@ -1,3 +1,4 @@
+
 "use client";
 
 import "./KaraokeCanvas.css";
@@ -17,10 +18,6 @@ import {
 import {
     useEditorStore,
 } from "@/stores/editor.store";
-
-import {
-    useProjectStore,
-} from "@/stores/project.store";
 
 
 // ============================================================
@@ -53,42 +50,6 @@ export default function KaraokeCanvas() {
                 state.currentTime
         );
 
-    const playing =
-        useEditorStore(
-            (state) =>
-                state.playing
-        );
-
-    const playbackRate =
-        useEditorStore(
-            (state) =>
-                state.playbackRate
-        );
-
-    const backgroundMedia =
-        useEditorStore(
-            (state) =>
-                state.backgroundMedia
-        );
-
-    const setBackgroundMediaPosition =
-        useEditorStore(
-            (state) =>
-                state.setBackgroundMediaPosition
-        );
-
-    const imageFile =
-        useProjectStore(
-            (state) =>
-                state.project?.imageFile
-        );
-
-    const videoFile =
-        useProjectStore(
-            (state) =>
-                state.project?.videoFile
-        );
-
 
     // ========================================================
     // REF
@@ -96,11 +57,6 @@ export default function KaraokeCanvas() {
 
     const containerRef =
         useRef<HTMLDivElement | null>(
-            null
-        );
-
-    const videoRef =
-        useRef<HTMLVideoElement | null>(
             null
         );
 
@@ -116,25 +72,7 @@ export default function KaraokeCanvas() {
 
 
     // ========================================================
-    // DRAG STATE
-    // ========================================================
-
-    const dragRef =
-        useRef<{
-            pointerId: number;
-
-            startPointerX: number;
-
-            startPointerY: number;
-
-            startX: number;
-
-            startY: number;
-        } | null>(null);
-
-
-    // ========================================================
-    // CALCULATE PREVIEW SCALE
+    // CALCULATE SCALE
     // ========================================================
 
     useEffect(() => {
@@ -213,339 +151,6 @@ export default function KaraokeCanvas() {
 
 
     // ========================================================
-    // VIDEO CURRENT TIME SYNC
-    // ========================================================
-
-    useEffect(() => {
-
-        const video =
-            videoRef.current;
-
-        if (!video) {
-            return;
-        }
-
-
-        /*
-         * Video background luôn bám
-         * theo currentTime của Editor.
-         *
-         * Video chỉ được hiển thị khi
-         * không có imageFile.
-         */
-
-        const difference =
-            Math.abs(
-                video.currentTime -
-                currentTime
-            );
-
-
-        if (
-            difference >
-            0.05
-        ) {
-
-            try {
-
-                video.currentTime =
-                    currentTime;
-
-            } catch {
-                // Video chưa sẵn sàng.
-            }
-
-        }
-
-
-        video.playbackRate =
-            playbackRate;
-
-
-        if (playing) {
-
-            if (
-                video.paused &&
-                video.readyState >= 2
-            ) {
-
-                video.play().catch(
-                    () => {}
-                );
-
-            }
-
-        } else {
-
-            if (!video.paused) {
-
-                video.pause();
-
-            }
-
-        }
-
-    }, [
-        currentTime,
-        playing,
-        playbackRate,
-        videoFile,
-    ]);
-
-
-    // ========================================================
-    // VIDEO LOAD / RESET
-    // ========================================================
-
-    useEffect(() => {
-
-        const video =
-            videoRef.current;
-
-        if (!video) {
-            return;
-        }
-
-
-        const handleLoadedMetadata =
-            () => {
-
-                try {
-
-                    video.currentTime =
-                        currentTime;
-
-                } catch {
-                    // Ignore.
-                }
-
-            };
-
-
-        video.addEventListener(
-            "loadedmetadata",
-            handleLoadedMetadata
-        );
-
-
-        return () => {
-
-            video.removeEventListener(
-                "loadedmetadata",
-                handleLoadedMetadata
-            );
-
-        };
-
-    }, [
-        videoFile,
-    ]);
-
-
-    // ========================================================
-    // MEDIA POINTER DOWN
-    // ========================================================
-
-    const handleMediaPointerDown =
-        (
-            event:
-                React.PointerEvent<
-                    HTMLImageElement |
-                    HTMLVideoElement
-                >
-        ) => {
-
-            event.preventDefault();
-
-            event.stopPropagation();
-
-
-            const media =
-                event.currentTarget;
-
-
-            media.setPointerCapture(
-                event.pointerId
-            );
-
-
-            dragRef.current = {
-
-                pointerId:
-                    event.pointerId,
-
-                startPointerX:
-                    event.clientX,
-
-                startPointerY:
-                    event.clientY,
-
-                startX:
-                    backgroundMedia.x,
-
-                startY:
-                    backgroundMedia.y,
-
-            };
-
-        };
-
-
-    // ========================================================
-    // MEDIA POINTER MOVE
-    // ========================================================
-
-    const handleMediaPointerMove =
-        (
-            event:
-                React.PointerEvent<
-                    HTMLImageElement |
-                    HTMLVideoElement
-                >
-        ) => {
-
-            const drag =
-                dragRef.current;
-
-
-            if (!drag) {
-                return;
-            }
-
-
-            if (
-                event.pointerId !==
-                drag.pointerId
-            ) {
-                return;
-            }
-
-
-            const deltaScreenX =
-                event.clientX -
-                drag.startPointerX;
-
-
-            const deltaScreenY =
-                event.clientY -
-                drag.startPointerY;
-
-
-            /*
-             * Preview được scale từ
-             * 640×360 ra kích thước thật.
-             *
-             * Chuyển delta màn hình
-             * về design coordinate.
-             */
-
-            const deltaDesignX =
-                deltaScreenX /
-                scale;
-
-
-            const deltaDesignY =
-                deltaScreenY /
-                scale;
-
-
-            setBackgroundMediaPosition(
-
-                drag.startX +
-                    deltaDesignX,
-
-                drag.startY +
-                    deltaDesignY
-
-            );
-
-        };
-
-
-    // ========================================================
-    // MEDIA POINTER UP
-    // ========================================================
-
-    const handleMediaPointerUp =
-        (
-            event:
-                React.PointerEvent<
-                    HTMLImageElement |
-                    HTMLVideoElement
-                >
-        ) => {
-
-            const drag =
-                dragRef.current;
-
-
-            if (!drag) {
-                return;
-            }
-
-
-            if (
-                event.pointerId !==
-                drag.pointerId
-            ) {
-                return;
-            }
-
-
-            try {
-
-                event.currentTarget.releasePointerCapture(
-                    event.pointerId
-                );
-
-            } catch {
-                // Pointer capture đã được release.
-            }
-
-
-            dragRef.current =
-                null;
-
-        };
-
-
-    // ========================================================
-    // MEDIA POINTER CANCEL
-    // ========================================================
-
-    const handleMediaPointerCancel =
-        (
-            event:
-                React.PointerEvent<
-                    HTMLImageElement |
-                    HTMLVideoElement
-                >
-        ) => {
-
-            const drag =
-                dragRef.current;
-
-
-            if (!drag) {
-                return;
-            }
-
-
-            if (
-                event.pointerId !==
-                drag.pointerId
-            ) {
-                return;
-            }
-
-
-            dragRef.current =
-                null;
-
-        };
-
-
-    // ========================================================
     // CURRENT LINES
     // ========================================================
 
@@ -557,47 +162,6 @@ export default function KaraokeCanvas() {
                 currentTime <=
                     line.end
         );
-
-
-    // ========================================================
-    // BACKGROUND MEDIA STYLE
-    // ========================================================
-
-    const backgroundMediaStyle =
-        {
-            left:
-                backgroundMedia.x,
-
-            top:
-                backgroundMedia.y,
-
-            transform:
-                `translate(-50%, -50%) scale(${backgroundMedia.scale})`,
-        };
-
-
-    // ========================================================
-    // WHICH MEDIA IS BACKGROUND?
-    // ========================================================
-
-    /*
-     * Nếu có imageFile:
-     *
-     *     image = background
-     *     video = timing/master clock
-     *
-     * Nếu không có imageFile nhưng có videoFile:
-     *
-     *     video = background
-     */
-
-    const showImageBackground =
-        Boolean(imageFile);
-
-
-    const showVideoBackground =
-        !imageFile &&
-        Boolean(videoFile);
 
 
     // ========================================================
@@ -613,114 +177,19 @@ export default function KaraokeCanvas() {
 
             <div
                 className="karaoke-canvas"
-                style={{
-                    transform:
-                        `scale(${scale})`,
-                }}
+          style={{
+    transform: `scale(${scale})`,
+}}
             >
 
-                {/* ==================================================
-                    BACKGROUND MEDIA
-                ================================================== */}
-
-                <div
-                    className="karaoke-background-layer"
-                >
-
-                    {/* ==================================================
-                        IMAGE BACKGROUND
-                    ================================================== */}
-
-                    {showImageBackground && (
-
-                 <img
-    src={imageFile ?? undefined}
-                            alt=""
-                            className="karaoke-background-image"
-
-                            style={
-                                backgroundMediaStyle
-                            }
-
-                            draggable={false}
-
-                            onPointerDown={
-                                handleMediaPointerDown
-                            }
-
-                            onPointerMove={
-                                handleMediaPointerMove
-                            }
-
-                            onPointerUp={
-                                handleMediaPointerUp
-                            }
-
-                            onPointerCancel={
-                                handleMediaPointerCancel
-                            }
-                        />
-
-                    )}
-
-
-                    {/* ==================================================
-                        VIDEO BACKGROUND
-                    ================================================== */}
-
-                    {showVideoBackground && (
-
-                <video
-    ref={videoRef}
-    src={videoFile ?? undefined}
-                            className="karaoke-background-video"
-
-                            style={
-                                backgroundMediaStyle
-                            }
-
-                            muted
-
-                            playsInline
-
-                            preload="auto"
-
-                            onPointerDown={
-                                handleMediaPointerDown
-                            }
-
-                            onPointerMove={
-                                handleMediaPointerMove
-                            }
-
-                            onPointerUp={
-                                handleMediaPointerUp
-                            }
-
-                            onPointerCancel={
-                                handleMediaPointerCancel
-                            }
-                        />
-
-                    )}
-
-                </div>
-
-
-                {/* ==================================================
-                    LYRICS
-                ================================================== */}
-
-                <div
-                    className="karaoke-lyrics-layer"
-                >
+                <div className="karaoke-lyrics-layer">
 
                     {currentLines.length === 0 && (
 
-                        <div
-                            className="waiting-text"
-                        >
+                        <div className="waiting-text">
+
                             Waiting lyric...
+
                         </div>
 
                     )}
