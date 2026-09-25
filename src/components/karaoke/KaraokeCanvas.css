@@ -60,7 +60,71 @@
     background: transparent;
 }
 
+ /* ============================================================
+   BACKGROUND IMAGE
+============================================================ */
 
+.karaoke-background-layer {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 640px;
+    height: 360px;
+
+    z-index: 1;
+
+    pointer-events: none;
+
+    overflow: visible;
+}
+
+
+.karaoke-background-image {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    display: block;
+
+    /*
+       Không giới hạn kích thước ảnh.
+
+       Ảnh được scale bằng transform.
+    */
+    max-width: none;
+    max-height: none;
+
+    /*
+       Không cho browser kéo/copy ảnh.
+    */
+    user-select: none;
+    -webkit-user-select: none;
+
+    -webkit-user-drag: none;
+
+    /*
+       Chỉ bản thân ảnh nhận pointer.
+    */
+    pointer-events: auto;
+
+    /*
+       Quan trọng cho mobile.
+
+       Browser không tự scroll/zoom
+       khi người dùng kéo ảnh.
+    */
+    touch-action: none;
+
+    cursor: grab;
+}
+
+
+.karaoke-background-image:active {
+    cursor: grabbing;
+}
 /* ============================================================
    LYRICS
 ============================================================ */

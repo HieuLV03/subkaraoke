@@ -1,4 +1,3 @@
-
 "use client";
 
 import "./KaraokeCanvas.css";
@@ -18,6 +17,10 @@ import {
 import {
     useEditorStore,
 } from "@/stores/editor.store";
+
+import {
+    useProjectStore,
+} from "@/stores/project.store";
 
 
 // ============================================================
@@ -50,6 +53,24 @@ export default function KaraokeCanvas() {
                 state.currentTime
         );
 
+    const backgroundImage =
+        useEditorStore(
+            (state) =>
+                state.backgroundImage
+        );
+
+    const setBackgroundImagePosition =
+        useEditorStore(
+            (state) =>
+                state.setBackgroundImagePosition
+        );
+
+    const imageFile =
+        useProjectStore(
+            (state) =>
+                state.project?.imageFile
+        );
+
 
     // ========================================================
     // REF
@@ -57,6 +78,11 @@ export default function KaraokeCanvas() {
 
     const containerRef =
         useRef<HTMLDivElement | null>(
+            null
+        );
+
+    const imageRef =
+        useRef<HTMLImageElement | null>(
             null
         );
 
@@ -69,6 +95,20 @@ export default function KaraokeCanvas() {
         scale,
         setScale
     ] = useState(1);
+
+
+    // ========================================================
+    // DRAG STATE
+    // ========================================================
+
+    const dragRef =
+        useRef<{
+            pointerId: number;
+            startPointerX: number;
+            startPointerY: number;
+            startX: number;
+            startY: number;
+        } | null>(null);
 
 
     // ========================================================
@@ -151,6 +191,194 @@ export default function KaraokeCanvas() {
 
 
     // ========================================================
+    // IMAGE POINTER DOWN
+    // ========================================================
+
+    const handleImagePointerDown =
+        (
+            event: React.PointerEvent<HTMLImageElement>
+        ) => {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            const image =
+                event.currentTarget;
+
+
+            image.setPointerCapture(
+                event.pointerId
+            );
+
+
+            dragRef.current = {
+
+                pointerId:
+                    event.pointerId,
+
+                startPointerX:
+                    event.clientX,
+
+                startPointerY:
+                    event.clientY,
+
+                startX:
+                    backgroundImage.x,
+
+                startY:
+                    backgroundImage.y,
+
+            };
+
+        };
+
+
+    // ========================================================
+    // IMAGE POINTER MOVE
+    // ========================================================
+
+    const handleImagePointerMove =
+        (
+            event: React.PointerEvent<HTMLImageElement>
+        ) => {
+
+            const drag =
+                dragRef.current;
+
+
+            if (!drag) {
+                return;
+            }
+
+
+            if (
+                event.pointerId !==
+                drag.pointerId
+            ) {
+                return;
+            }
+
+
+            const deltaScreenX =
+                event.clientX -
+                drag.startPointerX;
+
+
+            const deltaScreenY =
+                event.clientY -
+                drag.startPointerY;
+
+
+            /*
+             * Preview đang được scale.
+             *
+             * Vì vậy phải chuyển
+             * pixel màn hình về
+             * pixel design 640×360.
+             */
+
+            const deltaDesignX =
+                deltaScreenX /
+                scale;
+
+
+            const deltaDesignY =
+                deltaScreenY /
+                scale;
+
+
+            setBackgroundImagePosition(
+
+                drag.startX +
+                    deltaDesignX,
+
+                drag.startY +
+                    deltaDesignY
+
+            );
+
+        };
+
+
+    // ========================================================
+    // IMAGE POINTER UP
+    // ========================================================
+
+    const handleImagePointerUp =
+        (
+            event: React.PointerEvent<HTMLImageElement>
+        ) => {
+
+            const drag =
+                dragRef.current;
+
+
+            if (!drag) {
+                return;
+            }
+
+
+            if (
+                event.pointerId !==
+                drag.pointerId
+            ) {
+                return;
+            }
+
+
+            try {
+
+                event.currentTarget.releasePointerCapture(
+                    event.pointerId
+                );
+
+            } catch {
+                // Pointer capture có thể
+                // đã được release trước đó.
+            }
+
+
+            dragRef.current =
+                null;
+
+        };
+
+
+    // ========================================================
+    // IMAGE POINTER CANCEL
+    // ========================================================
+
+    const handleImagePointerCancel =
+        (
+            event: React.PointerEvent<HTMLImageElement>
+        ) => {
+
+            const drag =
+                dragRef.current;
+
+
+            if (!drag) {
+                return;
+            }
+
+
+            if (
+                event.pointerId !==
+                drag.pointerId
+            ) {
+                return;
+            }
+
+
+            dragRef.current =
+                null;
+
+        };
+
+
+    // ========================================================
     // CURRENT LINES
     // ========================================================
 
@@ -162,6 +390,25 @@ export default function KaraokeCanvas() {
                 currentTime <=
                     line.end
         );
+
+
+    // ========================================================
+    // IMAGE STYLE
+    // ========================================================
+
+    const backgroundImageStyle =
+        imageFile
+            ? {
+                left:
+                    backgroundImage.x,
+
+                top:
+                    backgroundImage.y,
+
+                transform:
+                    `translate(-50%, -50%) scale(${backgroundImage.scale})`,
+            }
+            : undefined;
 
 
     // ========================================================
@@ -177,19 +424,69 @@ export default function KaraokeCanvas() {
 
             <div
                 className="karaoke-canvas"
-          style={{
-    transform: `scale(${scale})`,
-}}
+                style={{
+                    transform:
+                        `scale(${scale})`,
+                }}
             >
 
-                <div className="karaoke-lyrics-layer">
+                {/* ==================================================
+                    BACKGROUND IMAGE
+                ================================================== */}
+
+                {imageFile && (
+
+                    <div
+                        className="karaoke-background-layer"
+                    >
+
+                        <img
+                            ref={imageRef}
+                            src={imageFile}
+                            alt=""
+                            className="karaoke-background-image"
+                            style={
+                                backgroundImageStyle
+                            }
+
+                            draggable={false}
+
+                            onPointerDown={
+                                handleImagePointerDown
+                            }
+
+                            onPointerMove={
+                                handleImagePointerMove
+                            }
+
+                            onPointerUp={
+                                handleImagePointerUp
+                            }
+
+                            onPointerCancel={
+                                handleImagePointerCancel
+                            }
+                        />
+
+                    </div>
+
+                )}
+
+
+                {/* ==================================================
+                    LYRICS
+                ================================================== */}
+
+                <div
+                    className="karaoke-lyrics-layer"
+                >
 
                     {currentLines.length === 0 && (
 
-                        <div className="waiting-text">
-
+                        <div
+                            className="waiting-text"
+                        >
                             Waiting lyric...
-
                         </div>
 
                     )}

@@ -1,6 +1,21 @@
 import { create } from "zustand";
 
 
+// ============================================================
+// BACKGROUND IMAGE TYPE
+// ============================================================
+
+export type BackgroundImageState = {
+    x: number;
+    y: number;
+    scale: number;
+};
+
+
+// ============================================================
+// EDITOR STATE
+// ============================================================
+
 type EditorState = {
 
 
@@ -10,22 +25,19 @@ type EditorState = {
 
     audioRef: HTMLAudioElement | null;
 
-videoRef: HTMLVideoElement | null;
+    videoRef: HTMLVideoElement | null;
+
     currentTime: number;
 
     duration: number;
 
     playing: boolean;
 
-
     audioFile?: string;
-
 
     playbackRate: number;
 
-
     volume: number;
-
 
 
     // ===========================
@@ -33,7 +45,6 @@ videoRef: HTMLVideoElement | null;
     // ===========================
 
     zoom: number;
-
 
 
     // ===========================
@@ -45,121 +56,116 @@ videoRef: HTMLVideoElement | null;
     selectedWord?: string;
 
 
+    // ===========================
+    // Background Image
+    // ===========================
+
+    backgroundImage: BackgroundImageState;
+
 
     // ===========================
     // Audio Actions
     // ===========================
-currentWorkspace: EditorWorkspace;
 
-workspaceHistory: EditorWorkspace[];
+    currentWorkspace: EditorWorkspace;
 
-setWorkspace: (
-    workspace: EditorWorkspace
-) => void;
+    workspaceHistory: EditorWorkspace[];
 
-goBackWorkspace: () => void;
+    setWorkspace: (
+        workspace: EditorWorkspace
+    ) => void;
 
-    setAudioRef:
-    (
+    goBackWorkspace: () => void;
+
+    setAudioRef: (
         audio: HTMLAudioElement | null
     ) => void;
 
-setVideoRef: (
-    video: HTMLVideoElement | null
-) => void;
-    setCurrentTime:
-    (
-        time:number
-    )=>void;
+    setVideoRef: (
+        video: HTMLVideoElement | null
+    ) => void;
 
+    setCurrentTime: (
+        time: number
+    ) => void;
 
-    setDuration:
-    (
-        time:number
-    )=>void;
+    setDuration: (
+        time: number
+    ) => void;
 
+    play: () => void;
 
-    play:
-    ()=>void;
+    pause: () => void;
 
+    setAudioFile: (
+        path?: string
+    ) => void;
 
-    pause:
-    ()=>void;
+    setPlaybackRate: (
+        rate: number
+    ) => void;
 
+    setVolume: (
+        volume: number
+    ) => void;
 
-
-    setAudioFile:
-    (
-        path?:string
-    )=>void;
-
-
-
-    setPlaybackRate:
-    (
-        rate:number
-    )=>void;
-
-
-
-    setVolume:
-    (
-        volume:number
-    )=>void;
-
-
-
-    togglePlay:
-    ()=>void;
-
-
+    togglePlay: () => void;
 
 
     // ===========================
     // Timeline
     // ===========================
 
+    setZoom: (
+        zoom: number
+    ) => void;
 
-    setZoom:
-    (
-        zoom:number
-    )=>void;
+    zoomIn: () => void;
 
-
-    zoomIn:
-    ()=>void;
-
-
-    zoomOut:
-    ()=>void;
-
+    zoomOut: () => void;
 
 
     // ===========================
     // Selection
     // ===========================
 
+    selectLine: (
+        id?: string
+    ) => void;
 
-    selectLine:
-    (
-        id?:string
-    )=>void;
-
-
-    selectWord:
-    (
-        id?:string
-    )=>void;
+    selectWord: (
+        id?: string
+    ) => void;
 
 
+    // ===========================
+    // Background Image Actions
+    // ===========================
 
-    reset:
-    ()=>void;
+    setBackgroundImagePosition: (
+        x: number,
+        y: number
+    ) => void;
 
+    setBackgroundImageScale: (
+        scale: number
+    ) => void;
+
+    resetBackgroundImage: () => void;
+
+
+    // ===========================
+    // Reset
+    // ===========================
+
+    reset: () => void;
 
 };
 
 
+// ============================================================
+// WORKSPACE
+// ============================================================
 
 export type EditorWorkspace =
     | "line"
@@ -168,331 +174,292 @@ export type EditorWorkspace =
     | "export"
     | "profile";
 
+
+// ============================================================
+// STORE
+// ============================================================
+
 export const useEditorStore =
-create<EditorState>((set,get)=>(
+    create<EditorState>((set, get) => ({
 
+        // ===========================
+        // State
+        // ===========================
 
-{
+        audioRef: null,
 
+        videoRef: null,
 
-    // ===========================
-    // State
-    // ===========================
+        currentTime: 0,
 
+        duration: 0,
 
-    audioRef:null,
-videoRef: null,
+        playing: false,
 
-    currentTime:0,
+        audioFile: undefined,
 
+        playbackRate: 1,
 
-    duration:0,
+        volume: 1,
 
+        zoom: 120,
 
-    playing:false,
+        selectedLine: undefined,
 
+        selectedWord: undefined,
 
-    audioFile:undefined,
 
+        // ===========================
+        // Background Image State
+        // ===========================
 
-    playbackRate:1,
+        backgroundImage: {
+            x: 320,
+            y: 180,
+            scale: 1,
+        },
 
 
-    volume:1,
+        // ===========================
+        // Workspace State
+        // ===========================
 
+        currentWorkspace: "line",
 
+        workspaceHistory: [],
 
-    zoom:120,
 
+        // ===========================
+        // Audio
+        // ===========================
 
+        setAudioRef: (audio) => set({
+            audioRef: audio
+        }),
 
-    selectedLine:undefined,
 
+        setVideoRef: (video) => set({
+            videoRef: video
+        }),
 
-    selectedWord:undefined,
 
-currentWorkspace: "line",
+        setCurrentTime: (time) => set({
+            currentTime: time
+        }),
 
-workspaceHistory: [],
 
-    // ===========================
-    // Audio
-    // ===========================
+        setDuration: (time) => set({
+            duration: time
+        }),
 
 
+        play: () => set({
+            playing: true
+        }),
 
-    setAudioRef:(audio)=>set({
 
-        audioRef:audio
+        pause: () => set({
+            playing: false
+        }),
 
-    }),
 
+        setAudioFile: (path) => set({
+            audioFile: path
+        }),
 
-setVideoRef: (video) => set({
-    videoRef: video
-}),
 
-    setCurrentTime:(time)=>set({
+        setPlaybackRate: (rate) => set({
+            playbackRate: rate
+        }),
 
-        currentTime:time
 
-    }),
+        setVolume: (volume) => set({
+            volume
+        }),
 
 
-
-
-    setDuration:(time)=>set({
-
-        duration:time
-
-    }),
-
-
-
-
-
-    play:()=>set({
-
-        playing:true
-
-    }),
-
-
-
-
-
-    pause:()=>set({
-
-        playing:false
-
-    }),
-
-
-
-
-
-    setAudioFile:(path)=>set({
-
-        audioFile:path
-
-    }),
-
-
-
-
-
-    setPlaybackRate:(rate)=>set({
-
-        playbackRate:rate
-
-    }),
-
-
-
-
-
-    setVolume:(volume)=>set({
-
-        volume
-
-    }),
-
-
-
-
-
-    togglePlay:()=>set(state=>({
-
-
-        playing:
-        !state.playing
-
-
-    })),
-
-
-
-
-
-
-    // ===========================
-    // Timeline
-    // ===========================
-
-
-    setZoom:(zoom)=>set({
-
-
-        zoom:Math.max(
-
-            20,
-
-            Math.min(
-                500,
-                zoom
+        togglePlay: () => set(state => ({
+            playing: !state.playing
+        })),
+
+
+        // ===========================
+        // Timeline
+        // ===========================
+
+        setZoom: (zoom) => set({
+            zoom: Math.max(
+                20,
+                Math.min(
+                    500,
+                    zoom
+                )
             )
+        }),
 
-        )
 
+        zoomIn: () => set(state => ({
+            zoom: Math.min(
+                500,
+                state.zoom + 20
+            )
+        })),
 
-    }),
 
+        zoomOut: () => set(state => ({
+            zoom: Math.max(
+                20,
+                state.zoom - 20
+            )
+        })),
 
 
+        // ===========================
+        // Selection
+        // ===========================
 
-    zoomIn:()=>set(state=>({
+        selectLine: (id) => set({
+            selectedLine: id
+        }),
 
 
-        zoom:Math.min(
+        selectWord: (id) => set({
+            selectedWord: id
+        }),
 
-            500,
 
-            state.zoom + 20
+        // ===========================
+        // Background Image
+        // ===========================
 
-        )
+        setBackgroundImagePosition: (x, y) =>
+            set({
+                backgroundImage: {
+                    ...get().backgroundImage,
+                    x,
+                    y,
+                },
+            }),
 
 
-    })),
+        setBackgroundImageScale: (scale) =>
+            set({
+                backgroundImage: {
+                    ...get().backgroundImage,
+                    scale: Math.max(
+                        0.1,
+                        scale
+                    ),
+                },
+            }),
 
 
+        resetBackgroundImage: () =>
+            set({
+                backgroundImage: {
+                    x: 320,
+                    y: 180,
+                    scale: 1,
+                },
+            }),
 
 
+        // ===========================
+        // Workspace
+        // ===========================
 
-    zoomOut:()=>set(state=>({
+        setWorkspace: (workspace) =>
+            set((state) => {
 
+                // Nếu đã ở workspace này thì không làm gì
+                if (
+                    state.currentWorkspace === workspace
+                ) {
+                    return state;
+                }
 
-        zoom:Math.max(
+                return {
+                    currentWorkspace: workspace,
 
-            20,
+                    workspaceHistory: [
+                        ...state.workspaceHistory,
+                        state.currentWorkspace,
+                    ],
+                };
 
-            state.zoom - 20
+            }),
 
-        )
 
+        goBackWorkspace: () =>
+            set((state) => {
 
-    })),
+                // Không có lịch sử để quay lại
+                if (
+                    state.workspaceHistory.length === 0
+                ) {
+                    return state;
+                }
 
+                const history =
+                    [...state.workspaceHistory];
 
+                const previousWorkspace =
+                    history.pop();
 
+                return {
+                    currentWorkspace:
+                        previousWorkspace ??
+                        "line",
 
+                    workspaceHistory:
+                        history,
+                };
 
+            }),
 
-    // ===========================
-    // Selection
-    // ===========================
 
+        // ===========================
+        // Reset
+        // ===========================
 
-    selectLine:(id)=>set({
+        reset: () => set({
 
-        selectedLine:id
+            audioRef: null,
 
-    }),
+            videoRef: null,
 
+            audioFile: undefined,
 
+            playbackRate: 1,
 
+            volume: 1,
 
+            currentTime: 0,
 
-    selectWord:(id)=>set({
+            duration: 0,
 
-        selectedWord:id
+            playing: false,
 
-    }),
+            zoom: 120,
 
-// ===========================
-// Workspace
-// ===========================
+            selectedLine: undefined,
 
-setWorkspace: (workspace) =>
-    set((state) => {
+            selectedWord: undefined,
 
-        // Nếu đã ở workspace này thì không làm gì
-        if (
-            state.currentWorkspace === workspace
-        ) {
-            return state;
-        }
 
-        return {
-            currentWorkspace: workspace,
+            // Reset background image
+            backgroundImage: {
+                x: 320,
+                y: 180,
+                scale: 1,
+            },
 
-            workspaceHistory: [
-                ...state.workspaceHistory,
-                state.currentWorkspace,
-            ],
-        };
 
-    }),
+            currentWorkspace: "line",
 
+            workspaceHistory: [],
 
-goBackWorkspace: () =>
-    set((state) => {
+        })
 
-        // Không có lịch sử để quay lại
-        if (
-            state.workspaceHistory.length === 0
-        ) {
-            return state;
-        }
 
-        const history =
-            [...state.workspaceHistory];
-
-        const previousWorkspace =
-            history.pop();
-
-        return {
-            currentWorkspace:
-                previousWorkspace ??
-                "line",
-
-            workspaceHistory:
-                history,
-        };
-
-    }),
-
-    // ===========================
-    // Reset
-    // ===========================
-
-
-    reset:()=>set({
-
-
-        audioRef:null,
-
-
-        audioFile:undefined,
-
-
-        playbackRate:1,
-
-
-        volume:1,
-
-
-        currentTime:0,
-
-
-        duration:0,
-
-
-        playing:false,
-
-
-        zoom:120,
-
-
-        selectedLine:undefined,
-
-
-        selectedWord:undefined,
-
-        currentWorkspace:"line",
-workspaceHistory: [],
-
-    })
-
-
-
-}));
+    }));
